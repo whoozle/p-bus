@@ -16,4 +16,8 @@ add_library(pbus SHARED
 	src/lib/pbus/Service.cpp
 	src/lib/pbus/LocalBus.cpp
 )
+set_target_properties(pbus PROPERTIES VERSION 1.0)
 target_link_libraries(pbus toolkit)
+
+add_executable(pbus-init src/init/main.cpp)
+target_link_libraries(pbus-init pbus)
