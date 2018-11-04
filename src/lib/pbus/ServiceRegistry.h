@@ -33,6 +33,9 @@ namespace pbus
 			bool operator()(const ServiceId & a, const ServiceId & b) const
 			{ return a.Name == b.Name && a.Version == b.Version; }
 		};
+
+		void ToString(std::stringstream & ss) const
+		{ ss << Name << '@' << Version; }
 	};
 
 	struct ServiceDescriptor
@@ -52,11 +55,7 @@ namespace pbus
 
 	public:
 
-		void Add(ServiceId id, ServiceDescriptor && desc)
-		{
-
-			_services.emplace(std::make_pair(id, std::move(desc)));
-		}
+		void Add(ServiceId id, ServiceDescriptor && desc);
 	};
 }
 

@@ -15,6 +15,7 @@ include_directories(
 add_library(pbus SHARED
 	src/lib/pbus/Service.cpp
 	src/lib/pbus/LocalBus.cpp
+	src/lib/pbus/ServiceRegistry.cpp
 )
 set_target_properties(pbus PROPERTIES VERSION 1.0)
 target_link_libraries(pbus toolkit)

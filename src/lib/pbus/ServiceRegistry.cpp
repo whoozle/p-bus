@@ -6,6 +6,7 @@ namespace pbus
 
 	void ServiceRegistry::Add(ServiceId id, ServiceDescriptor && desc)
 	{
+		_log.Info() << "registering service " << id;
 		_services.emplace(std::make_pair(id, std::move(desc)));
 	}
 
