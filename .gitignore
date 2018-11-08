@@ -1,5 +1,10 @@
+# Build artefacts
 build*
 nbproject/
+
+# Python
+__pycache__
+*.py[co]
 
 # Prerequisites
 *.d

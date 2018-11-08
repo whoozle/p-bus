@@ -1,0 +1,16 @@
+#!/usr/bin/env python2
+
+from __future__ import unicode_literals, print_function
+from argparse import ArgumentParser
+import idl.grammar
+
+parser = ArgumentParser(description = 'interface generator for p-bus project')
+parser.add_argument('source', help="source idl file")
+args = parser.parse_args()
+
+with open(args.source) as f:
+	text = f.read()
+
+tree = idl.grammar.parse(text, idl.grammar.Interface)
+
+print(tree)
