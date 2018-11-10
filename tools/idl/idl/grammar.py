@@ -1,23 +1,24 @@
-from __future__ import unicode_literals, print_function
-from pypeg2 import *
+from pyparsing import *
 
-class Type(object):
-	grammar = name()
 
-class Argument(object):
-	grammar = attr('type', Type), name()
+identifier = Word(alphas, alphanums)
 
-class Arguments(object):
-	grammar = optional(csl(Argument))
+type_modifier = Keyword("unsigned") | Keyword("signed") | Keyword("short") | Keyword("long")
+type_declaration = Group(OneOrMore(type_modifier)) | Group(ZeroOrMore(type_modifier) + identifier)
 
-class Method(object):
-	grammar = Type, name(), "(", Arguments, ")"
+argument_declaration = type_declaration + identifier
 
-class BaseInterface(object):
-	grammar = ":", name()
+method_declaration = type_declaration + identifier + Suppress("(") + Group(Optional(delimitedList(argument_declaration))) + Suppress(")")
+attribute_declaration = Keyword("attribute") + identifier
 
-class Declaration(object):
-	grammar = [Method], ";"
+interface_property = method_declaration | attribute_declaration
+interface_properties = ZeroOrMore(interface_property + Suppress(";"))
 
-class Interface(Namespace):
-	grammar = K("interface"), name(), optional(attr('base', BaseInterface)), "{", maybe_some(Declaration), "}"
+base_class = Suppress(":") + identifier
+
+interface_declaration = Keyword("interface").suppress() + Group(identifier + Optional(base_class)) + Suppress("{") + Group(Optional(interface_properties)) + Suppress("}")
+interface_declaration.ignore(cStyleComment)
+interface_declaration.ignore(cppStyleComment)
+
+def parse(text):
+	return interface_declaration.parseString(text, parseAll = True)

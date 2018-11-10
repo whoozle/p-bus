@@ -11,6 +11,6 @@ args = parser.parse_args()
 with open(args.source) as f:
 	text = f.read()
 
-tree = idl.grammar.parse(text, idl.grammar.Interface)
+tree = idl.grammar.parse(text)
 
 print(tree)
