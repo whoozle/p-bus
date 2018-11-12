@@ -1,44 +1,24 @@
 class Type(object):
-	def __init__(self, decl):
-		self.signed = True
-		self.size = 4
-		self.type = None
-		for t in decl:
-			if t == 'short':
-				self.size = 2
-			elif t == 'long':
-				self.size = 8
-			elif t == 'unsigned':
-				self.signed = False
-			elif t == 'signed':
-				self.signed = True
-			elif self.type is None:
-				self.type = t
-			else:
-				raise Exception('unknown type %s' %t)
-		if self.type is None:
-			self.type = 'int'
+	def __init__(self, mods, type):
+		self.mods, self.type = mods, type
+
+	def visit(self, visitor):
+		visitor.mods(self.mods)
+		visitor.type(self.type)
 
 	def __repr__(self):
-		flags = ''
-		if self.type == 'int':
-			if not self.signed:
-				flags = 'u'
-			if self.size == 8:
-				flags += 'long'
-			elif self.size == 4:
-				flags += 'int'
-			elif self.size == 2:
-				flags += 'short'
-			elif self.size == 1:
-				flags += 'char'
-		if not flags:
-			flags = self.type
-		return flags
+		return ' '.join(self.mods + [self.type])
 
 class Argument(object):
 	def __init__(self, type, name):
 		self.type, self.name = type, name
+
+	def visit(self, visitor):
+		arg = visitor.begin_argument(self.name)
+		rtype = arg.begin_return_type()
+		self.type.visit(rtype)
+		rtype.end_return_type(visitor)
+
 	def __repr__(self):
 		return 'Argument(%s, %s)' %(self.type, self.name)
 
@@ -52,7 +32,7 @@ class Interface(object):
 		obj = visitor.begin_interface(self.name, self.base)
 		for method in self.methods:
 			method.visit(obj)
-		obj.end_interface()
+		obj.end_interface(visitor)
 
 class Method(object):
 	def __init__(self, rtype, name, args):
@@ -61,4 +41,7 @@ class Method(object):
 		self.args = args
 
 	def visit(self, visitor):
-		print METHOD
+		method = visitor.begin_method(self.name, self.rtype)
+		for arg in self.args:
+			arg.visit(method)
+		method.end_method(visitor)
