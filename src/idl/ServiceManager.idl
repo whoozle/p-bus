@@ -1,4 +1,5 @@
 interface ServiceManager : Object
 {
 	ServiceLease initialize(string name, unsigned short version);
+	//ServiceLease initialize(unsigned a);
 }

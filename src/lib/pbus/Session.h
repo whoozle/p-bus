@@ -3,6 +3,7 @@
 
 namespace pbus
 {
+	
 	class Session
 	{
 	public:
