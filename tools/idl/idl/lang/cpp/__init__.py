@@ -1,3 +1,8 @@
+import os.path
+from jinja2 import Template
+
+BASE_DIR = os.path.normpath(os.path.join(__file__, '..'))
+
 class Type(object):
 	def __init__(self):
 		self.name = None
@@ -19,12 +24,12 @@ class Argument(object):
 class Method(object):
 	def __init__(self, name, rtype):
 		self.name = name
-		self.return_type = rtype
+		self.rtype = rtype
 		self.args = []
 
 	def set_type(self, type):
 		print(type)
-		self.return_type = type
+		self.rtype = type
 
 	def begin_argument(self, name):
 		return Argument(name)
@@ -60,6 +65,21 @@ class Generator(object):
 	def end_interface(self, interface):
 		self.interfaces.append(interface)
 
+	def generate(self):
+		with open(os.path.join(BASE_DIR, "template.h")) as f:
+			template_h = Template(f.read())
+		with open(os.path.join(BASE_DIR, "template.cpp")) as f:
+			template_cpp = Template(f.read())
+
+		for interface in self.interfaces:
+			ctx = { "name" : interface.name, "base" : interface.base, "methods" : interface.methods }
+			print(template_h.render(ctx))
+
+		for interface in self.interfaces:
+			ctx = { "name" : interface.name, "base" : interface.base, "methods" : interface.methods }
+			print(template_cpp.render(ctx))
+
 def generate(interface):
 	gen = Generator()
 	interface.visit(gen)
+	gen.generate()
