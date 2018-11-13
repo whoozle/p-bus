@@ -32,31 +32,33 @@ class Method(object):
 	def end_argument(self, arg):
 		self.args.append(arg)
 
-	@property
-	def declaration(self):
+	def declaration(self, interface):
 		return "%s %s (%s)" %(str(self.return_type), self.name, ", ".join(map(str, self.args)))
 
+	def definition(self, interface):
+		return "%s %s::%s (%s) { }" %(str(self.return_type), interface.name, self.name, ", ".join(map(str, self.args)))
+
 class Interface(object):
-	def __init__(self, ):
-		pass
+	def __init__(self, name, base):
+		self.name, self.base = name, base
+		self.methods = []
 
 	def begin_method(self, name, rtype):
 		return Method(name, rtype)
 
 	def end_method(self, method):
-		print("method %s" %(method.declaration))
+		self.methods.append(method)
 
 
 class Generator(object):
 	def __init__(self):
-		self.header = []
-		self.definition = []
+		self.interfaces = []
 
 	def begin_interface(self, name, base):
-		return Interface()
+		return Interface(name, base)
 
 	def end_interface(self, interface):
-		pass
+		self.interfaces.append(interface)
 
 def generate(interface):
 	gen = Generator()
