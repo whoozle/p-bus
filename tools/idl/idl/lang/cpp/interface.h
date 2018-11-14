@@ -8,7 +8,7 @@ namespace pbus { namespace idl
 	{
 		virtual ~I{{name}}() = default;
 		{% for method in methods %}
-		virtual {{method.rtype}} {{method.name}} ( {% for arg in method.args %} {% if not loop.first %}, {% endif %} {{arg.type}} {{arg.name}} {% endfor %} ) = 0;
+		virtual {{method.rtype}} {{method.name}}({% for arg in method.args %} {% if not loop.first %}, {% endif %} {{arg.type}} {{arg.name}} {% endfor %}) = 0;
 		{% endfor %}
 	};
 
