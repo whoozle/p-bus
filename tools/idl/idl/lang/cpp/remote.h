@@ -1,5 +1,6 @@
 #ifndef PBUS_GENERATED_IDL_{{name|upper}}_H
 #define PBUS_GENERATED_IDL_{{name|upper}}_H
+#include <pbus/idl/I{{name}}.h>
 
 namespace pbus { namespace idl
 {

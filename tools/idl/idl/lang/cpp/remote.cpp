@@ -1,4 +1,4 @@
-#include <pbus/idl/{{name}}.h>
+#include <pbus/idl/{{name}}Remote.h>
 
 namespace pbus { namespace idl
 {
