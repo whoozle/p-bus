@@ -26,27 +26,24 @@ class Type(object):
 			name = "const %s &" %name
 		return name
 
-	def __str__(self):
-		return self.mangle(False)
-
 class Argument(object):
 	def __init__(self, name):
 		self.name = name
 	def begin_argument_type(self):
 		return Type()
 	def end_argument_type(self, type):
-		self.type = type
-	def __str__(self):
-		return "%s %s" %(self.type.mangle(True), self.name)
+		self.type = type.mangle(True)
 
 class Method(object):
 	def __init__(self, name, rtype):
 		self.name = name
-		self.rtype = Type()
+		self.rtype = None
 		self.args = []
 
 	def type(self, mods, type):
-		self.rtype.type(mods, type)
+		t = Type()
+		t.type(mods, type)
+		self.rtype = t.mangle(False)
 
 	def begin_argument(self, name):
 		return Argument(name)
