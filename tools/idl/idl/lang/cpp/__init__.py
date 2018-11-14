@@ -66,18 +66,14 @@ class Generator(object):
 		self.interfaces.append(interface)
 
 	def generate(self):
-		with open(os.path.join(BASE_DIR, "template.h")) as f:
-			template_h = Template(f.read())
-		with open(os.path.join(BASE_DIR, "template.cpp")) as f:
-			template_cpp = Template(f.read())
+		templates = ("interface.h", "remote.h", "remote.cpp")
 
 		for interface in self.interfaces:
 			ctx = { "name" : interface.name, "base" : interface.base, "methods" : interface.methods }
-			print(template_h.render(ctx))
-
-		for interface in self.interfaces:
-			ctx = { "name" : interface.name, "base" : interface.base, "methods" : interface.methods }
-			print(template_cpp.render(ctx))
+			for template in templates:
+				with open(os.path.join(BASE_DIR, template)) as f:
+					t = Template(f.read())
+				print(t.render(ctx))
 
 def generate(interface):
 	gen = Generator()
