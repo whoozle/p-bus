@@ -6,7 +6,7 @@ class Type(object):
 		visitor.type(self.mods, self.type)
 
 	def __repr__(self):
-		return ' '.join(self.mods + [self.type])
+		return 'Type(%s)' % ' '.join(self.mods + [self.type])
 
 class Argument(object):
 	def __init__(self, type, name):
@@ -42,6 +42,7 @@ class Method(object):
 
 	def visit(self, visitor):
 		method = visitor.begin_method(self.name, self.rtype)
+		self.rtype.visit(method)
 		for arg in self.args:
 			arg.visit(method)
 		visitor.end_method(method)
