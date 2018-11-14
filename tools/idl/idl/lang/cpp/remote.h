@@ -7,7 +7,7 @@ namespace pbus { namespace idl
 	struct {{name}}Remote {% if base %} : I{{name}} {% endif %}
 	{
 		{%- for method in methods %}
-		{{method.rtype}} {{method.name}}({% for arg in method.args %} {% if not loop.first %}, {% endif %} {{arg.type}} {{arg.name}} {% endfor %}) override;
+		{{method.rtype}} {{method.name}}({% for arg in method.args %}{% if not loop.first %}, {% endif %}{{arg.type}} {{arg.name}}{% endfor %}) override;
 		{%- endfor %}
 	};
 
