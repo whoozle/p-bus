@@ -1,63 +1,117 @@
 from __future__ import unicode_literals, print_function
-from pyparsing import *
 import idl
+import ply.lex as lex
+import ply.yacc as yacc
 
-def on_type(s, l, t):
-	#print ('type', t)
-	type = None
-	if len(t) > 1:
-		type = t[1]
-	return idl.Type(t[0].asList(), type)
+reserved = {
+	'interface': 'INTERFACE',
+	'string': 'STRING',
+	'unsigned': 'UNSIGNED',
+	'signed': 'SIGNED',
+	'void': 'VOID',
+	'int': 'INT',
+	'short': 'SHORT',
+	'long': 'LONG',
+	'byte': 'BYTE',
+	'char': 'CHAR',
+}
 
-def on_argument(s, l, t):
-	#print ('argument', t)
-	return idl.Argument(t[0][0], t[0][1])
+tokens = [
+	'IDENTIFIER'
+] + list(reserved.values())
 
-def on_interface(s, l, t):
-	#print ('interface', t)
-	if len(t[0]) > 1:
-		name, base = t[0]
-	else:
-		name, base = t[0][0], None
+literals = [ '{', '}' , '(', ')', ',', ';', ':' ]
 
-	interface = idl.Interface(name, base)
-	for t in t[1]:
-		if isinstance(t, idl.Method):
-			interface.methods.append(t)
-		else:
-			print('unknown child type %s' %type(t))
-	return interface
+t_ignore = ' \f\r\t'
 
-def on_method(s, l, t):
-	#print ('method', t)
-	rtype, name, args = t
-	return idl.Method(rtype, name, args.asList())
+def t_IDENTIFIER(t):
+	r'[a-zA-Z$_][a-zA-Z$_0-9]*'
+	t.type = reserved.get(t.value, 'IDENTIFIER')
+	return t
 
-identifier = Word(alphas, alphanums)
+# C or C++ comment (ignore)
+def t_ccode_comment(t):
+	r'(/\*(.|\n)*?\*/)|(//.*)'
+	t.lexer.lineno += t.value.count('\n')
 
-type_modifier = Keyword("unsigned") | Keyword("signed") | Keyword("short") | Keyword("long")
-type_declaration = Group(ZeroOrMore(type_modifier)) + identifier
-type_declaration.setParseAction(on_type)
+def t_newline(t):
+    r'\n+'
+    t.lexer.lineno += t.value.count("\n")
 
-argument_declaration = Group(type_declaration + identifier)
-argument_declaration.setParseAction(on_argument)
+def t_error(t):
+    raise(Exception("Illegal character '%s'" % t.value[0]))
 
-method_declaration = type_declaration + identifier + Suppress("(") + Group(Optional(delimitedList(argument_declaration))) + Suppress(")")
-method_declaration.setParseAction(on_method)
+lex.lex()
 
-attribute_declaration = Keyword("attribute") + identifier
+def p_error(p):
+    raise(Exception("Syntax error at '%s', line %d" % (p.value, p.lexer.lineno)))
 
-interface_property = method_declaration | attribute_declaration
-interface_properties = ZeroOrMore(interface_property + Suppress(";"))
+def p_type_atom(p):
+	""" type_atom : STRING
+		| SIGNED
+		| UNSIGNED
+		| INT
+		| LONG
+		| BYTE
+		| CHAR
+		| SHORT
+		| VOID
+	"""
 
-base_class = Suppress(":") + identifier
+def p_primitive(p):
+	"""
+		primitive 	: primitive type_atom
+					| type_atom
+	"""
 
-interface_declaration = Keyword("interface").suppress() + Group(identifier + Optional(base_class)) + Suppress("{") + Group(Optional(interface_properties)) + Suppress("}")
-interface_declaration.ignore(cStyleComment)
-interface_declaration.ignore(cppStyleComment)
-interface_declaration.setParseAction(on_interface)
+def p_type(p):
+	"""
+		type 	: primitive
+				| IDENTIFIER
+	"""
+
+def p_argument(p):
+	"""
+		argument : type IDENTIFIER
+	"""
+
+
+def p_argument_list(p):
+	"""
+		argument_list 	: argument_list ',' argument
+						| argument
+	"""
+
+def p_method(p):
+	"""
+	method : type IDENTIFIER '(' argument_list ')'
+	"""
+
+def p_declaration(p):
+	"""
+		declaration : method
+	"""
+
+def p_declaration_list(p):
+	"""
+		declaration_list : declaration_list declaration ';'
+			| declaration ';'
+	"""
+
+def p_scope(p):
+	"""
+		scope : '{' declaration_list '}'
+	"""
+
+def p_interface_declaration(p):
+	"""
+		interface_declaration 	: INTERFACE IDENTIFIER scope
+								| INTERFACE IDENTIFIER ':' IDENTIFIER scope
+	"""
+	print(p)
+
+start = 'interface_declaration'
+parser = yacc.yacc()
 
 def parse(text):
-	tree = interface_declaration.parseString(text, parseAll = True)
-	assert len(tree) == 1
-	return tree[0]
+	return parser.parse(text)
