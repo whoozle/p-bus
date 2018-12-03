@@ -21,29 +21,35 @@ class Type(object):
 	def mangle(self, ref):
 		name = self.name
 		if self.ptr:
-			name = "Ptr<%s>" %name
+			deps = (name,)
+			name = "Ptr<I%s>" %name
+			return name, deps
 		if self.ref and ref:
 			name = "const %s &" %name
-		return name
+		return name, ()
 
 class Argument(object):
 	def __init__(self, name):
 		self.name = name
+		self.deps = set()
 	def begin_argument_type(self):
 		return Type()
 	def end_argument_type(self, type):
-		self.type = type.mangle(True)
+		self.type, deps = type.mangle(True)
+		self.deps.update(deps)
 
 class Method(object):
 	def __init__(self, name, rtype):
 		self.name = name
 		self.rtype = None
 		self.args = []
+		self.deps = set()
 
 	def type(self, mods, type):
 		t = Type()
 		t.type(mods, type)
-		self.rtype = t.mangle(False)
+		self.rtype, deps = t.mangle(False)
+		self.deps.update(deps)
 
 	def begin_argument(self, name):
 		return Argument(name)
@@ -55,12 +61,14 @@ class Interface(object):
 	def __init__(self, name, base):
 		self.name, self.base = name, base
 		self.methods = []
+		self.deps = set()
 
 	def begin_method(self, name, rtype):
 		return Method(name, rtype)
 
 	def end_method(self, method):
 		self.methods.append(method)
+		self.deps.update(method.deps)
 
 
 class Generator(object):
@@ -81,7 +89,7 @@ class Generator(object):
 		}
 
 		for interface in self.interfaces:
-			ctx = { "name" : interface.name, "base" : interface.base, "methods" : interface.methods }
+			ctx = { "name" : interface.name, "base" : interface.base, "methods" : interface.methods, "deps" : interface.deps }
 			for template, mangle in templates.items():
 				with open(os.path.join(BASE_DIR, template)) as f:
 					t = Template(f.read())

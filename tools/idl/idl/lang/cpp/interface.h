@@ -3,6 +3,9 @@
 
 {% if base %}#include <pbus/idl/I{{base}}.h>{% endif %}
 #include <pbus/IDLTypes.h>
+{%- for dep in deps %}
+#include <pbus/idl/I{{dep}}.h>
+{%- endfor %}
 
 namespace pbus { namespace idl
 {
