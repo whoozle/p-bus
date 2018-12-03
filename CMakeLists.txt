@@ -4,6 +4,12 @@ set (CMAKE_CXX_STANDARD 11)
 
 set(TOOLKIT_NS pbus)
 
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+include(IDLCompiler)
+
+set(IDL_SRC ${CMAKE_CURRENT_SOURCE_DIR}/src/idl)
+IDL_GENERATE_SOURCE(INPUT ${IDL_SRC}/Disposable.idl ${IDL_SRC}/Object.idl ${IDL_SRC}/ServiceLease.idl ${IDL_SRC}/ServiceManager.idl)
+
 add_subdirectory(src/toolkit)
 
 include_directories(
