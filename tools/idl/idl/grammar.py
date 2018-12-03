@@ -95,13 +95,14 @@ def p_argument_list(p):
 	"""
 		argument_list 	: argument_list ',' argument
 						| argument
+						| empty
 	"""
 	n = len(p)
-	if n > 2:
+	if n == 4:
 		p[1].append(p[3])
 		p[0] = p[1]
-	else:
-		p[0] = [p[1]]
+	elif n == 2:
+		p[0] = [p[1]] if p[1] is not None else []
 
 def p_method(p):
 	"""
