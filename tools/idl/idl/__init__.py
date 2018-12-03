@@ -5,7 +5,6 @@ class Type(object):
 	def add(self, type):
 		if type in set(['unsigned', 'signed', 'short', 'long']):
 			self.mods.append(type)
-			self.mods.append(type)
 		else:
 			if self.type is not None:
 				raise Exception("duplicate type %s in %s" %(type, self.type))
