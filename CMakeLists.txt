@@ -8,7 +8,15 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 include(IDLCompiler)
 
 set(IDL_SRC ${CMAKE_CURRENT_SOURCE_DIR}/src/idl)
-IDL_GENERATE_SOURCE(INPUT ${IDL_SRC}/Disposable.idl ${IDL_SRC}/Object.idl ${IDL_SRC}/ServiceLease.idl ${IDL_SRC}/ServiceManager.idl)
+set(IDL_DST ${CMAKE_CURRENT_BINARY_DIR}/idl)
+set(IDLC_PATH ${CMAKE_CURRENT_SOURCE_DIR}/tools/idl)
+file(MAKE_DIRECTORY ${IDL_DST})
+
+IDL_GENERATE_SOURCE(
+	IDLC_PATH ${IDLC_PATH}
+	DESTINATION ${IDL_DST}
+	INPUT ${IDL_SRC}/Disposable.idl ${IDL_SRC}/Object.idl ${IDL_SRC}/ServiceLease.idl ${IDL_SRC}/ServiceManager.idl
+)
 
 add_subdirectory(src/toolkit)
 

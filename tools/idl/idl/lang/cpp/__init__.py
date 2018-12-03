@@ -83,7 +83,7 @@ class Generator(object):
 					t = Template(f.read())
 				print(t.render(ctx))
 
-def generate(interface):
+def generate(interface, dst_dir):
 	gen = Generator()
 	interface.visit(gen)
 	gen.generate()

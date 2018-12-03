@@ -8,6 +8,7 @@ import importlib
 parser = ArgumentParser(description = 'interface generator for p-bus project')
 parser.add_argument('source', help="source idl file")
 parser.add_argument('language', help="destination language")
+parser.add_argument('directory', help="destination directory")
 args = parser.parse_args()
 
 with open(args.source) as f:
@@ -17,4 +18,4 @@ tree = idl.grammar.parse(text)
 
 langmod = 'idl.lang.' + args.language
 lang = importlib.import_module(langmod)
-lang.generate(tree)
+lang.generate(tree, args.directory)
