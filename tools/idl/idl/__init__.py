@@ -1,12 +1,21 @@
 class Type(object):
-	def __init__(self, mods, type):
-		self.mods, self.type = mods, type
+	def __init__(self):
+		self.mods, self.type = [], None
+
+	def add(self, type):
+		if type in set(['unsigned', 'signed', 'short', 'long']):
+			self.mods.append(type)
+			self.mods.append(type)
+		else:
+			if self.type is not None:
+				raise Exception("duplicate type %s in %s" %(type, self.type))
+			self.type = type
 
 	def visit(self, visitor):
 		visitor.type(self.mods, self.type)
 
 	def __repr__(self):
-		return 'Type(%s)' % ' '.join(self.mods + [self.type])
+		return 'Type(%s)' % ' '.join(self.mods + [self.type if self.type is not None else '<no-type>'])
 
 class Argument(object):
 	def __init__(self, type, name):
@@ -26,11 +35,11 @@ class Interface(object):
 	def __init__(self, name, base = None):
 		self.name = name
 		self.base = base
-		self.methods = []
+		self.declarations = []
 
 	def visit(self, visitor):
 		obj = visitor.begin_interface(self.name, self.base)
-		for method in self.methods:
+		for method in self.declarations:
 			method.visit(obj)
 		visitor.end_interface(obj)
 

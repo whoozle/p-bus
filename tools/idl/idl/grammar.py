@@ -57,23 +57,38 @@ def p_type_atom(p):
 		| SHORT
 		| VOID
 	"""
+	p[0] = p[1]
 
 def p_primitive(p):
 	"""
 		primitive 	: primitive type_atom
 					| type_atom
 	"""
+	n = len(p)
+	if n == 2:
+		p[0] = idl.Type()
+		p[0].add(p[1])
+	elif n == 3:
+		p[0] = p[1]
+		p[1].add(p[2])
 
 def p_type(p):
 	"""
 		type 	: primitive
 				| IDENTIFIER
 	"""
+	if isinstance(p[1], idl.Type):
+		p[0] = p[1]
+	else:
+		p[0] = idl.Type()
+		p[0].add(p[1])
+	#print('type', p[1])
 
 def p_argument(p):
 	"""
 		argument : type IDENTIFIER
 	"""
+	p[0] = idl.Argument(p[1], p[2])
 
 
 def p_argument_list(p):
@@ -81,34 +96,57 @@ def p_argument_list(p):
 		argument_list 	: argument_list ',' argument
 						| argument
 	"""
+	n = len(p)
+	if n > 2:
+		p[1].append(p[3])
+		p[0] = p[1]
+	else:
+		p[0] = [p[1]]
 
 def p_method(p):
 	"""
 	method : type IDENTIFIER '(' argument_list ')'
 	"""
+	p[0] = idl.Method(p[1], p[2], p[4])
 
 def p_declaration(p):
 	"""
 		declaration : method
 	"""
+	p[0] = p[1]
 
 def p_declaration_list(p):
 	"""
 		declaration_list : declaration_list declaration ';'
 			| declaration ';'
 	"""
+	n = len(p)
+	if n == 4:
+		p[0] = p[1]
+		p[0].append(p[2])
+	else:
+		p[0] = [p[1]]
 
 def p_scope(p):
 	"""
 		scope : '{' declaration_list '}'
 	"""
+	p[0] = p[2]
 
 def p_interface_declaration(p):
 	"""
 		interface_declaration 	: INTERFACE IDENTIFIER scope
 								| INTERFACE IDENTIFIER ':' IDENTIFIER scope
 	"""
-	print(p)
+	n = len(p)
+	if n == 4:
+		p[0] = idl.Interface(p[2])
+		p[0].declarations = p[3]
+	elif n == 6:
+		p[0] = idl.Interface(p[2], p[4])
+		p[0].declarations = p[5]
+	else:
+		raise Exception("invalid argument count")
 
 start = 'interface_declaration'
 parser = yacc.yacc()
