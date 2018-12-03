@@ -115,17 +115,25 @@ def p_declaration(p):
 	"""
 	p[0] = p[1]
 
+def p_empty(p):
+	""" empty : """
+
 def p_declaration_list(p):
 	"""
 		declaration_list : declaration_list declaration ';'
 			| declaration ';'
+			| empty
 	"""
 	n = len(p)
 	if n == 4:
 		p[0] = p[1]
 		p[0].append(p[2])
-	else:
+	elif n == 3:
 		p[0] = [p[1]]
+	elif n == 2:
+		p[0] = []
+	else:
+		raise Exception("unhandled declaration_list")
 
 def p_scope(p):
 	"""
