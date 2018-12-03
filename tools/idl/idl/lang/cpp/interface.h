@@ -2,6 +2,7 @@
 #define PBUS_GENERATED_IDL_I{{name|upper}}_H
 
 {% if base %}#include <pbus/idl/I{{base}}.h>{% endif %}
+#include <pbus/IDLTypes.h>
 
 namespace pbus { namespace idl
 {
