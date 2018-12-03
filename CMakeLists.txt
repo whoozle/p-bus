@@ -13,10 +13,12 @@ set(IDLC_PATH ${CMAKE_CURRENT_SOURCE_DIR}/tools/idl)
 file(MAKE_DIRECTORY ${IDL_DST})
 
 IDL_GENERATE_SOURCE(
+	OUTPUT IDL_SOURCES
 	IDLC_PATH ${IDLC_PATH}
 	DESTINATION ${IDL_DST}
 	INPUT ${IDL_SRC}/Disposable.idl ${IDL_SRC}/Object.idl ${IDL_SRC}/ServiceLease.idl ${IDL_SRC}/ServiceManager.idl
 )
+add_library(idl STATIC ${IDL_SOURCES})
 
 add_subdirectory(src/toolkit)
 

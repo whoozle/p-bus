@@ -73,17 +73,23 @@ class Generator(object):
 	def end_interface(self, interface):
 		self.interfaces.append(interface)
 
-	def generate(self):
-		templates = ("interface.h", "remote.h", "remote.cpp")
+	def generate(self, dst_dir):
+		templates = {
+			"interface.h": lambda x: "I%s.h" %x,
+			"remote.h" : lambda x: "%s.h" %x,
+			"remote.cpp": lambda x: "%s.cpp" %x
+		}
 
 		for interface in self.interfaces:
 			ctx = { "name" : interface.name, "base" : interface.base, "methods" : interface.methods }
-			for template in templates:
+			for template, mangle in templates.items():
 				with open(os.path.join(BASE_DIR, template)) as f:
 					t = Template(f.read())
-				print(t.render(ctx))
+
+				with open(os.path.join(dst_dir, mangle(interface.name)), "w") as f:
+					f.write(t.render(ctx))
 
 def generate(interface, dst_dir):
 	gen = Generator()
 	interface.visit(gen)
-	gen.generate()
+	gen.generate(dst_dir)
