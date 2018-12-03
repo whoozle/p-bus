@@ -3,12 +3,13 @@ cmake_minimum_required(VERSION 3.12)
 set (CMAKE_CXX_STANDARD 11)
 
 set(TOOLKIT_NS pbus)
+add_subdirectory(src/toolkit)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 include(IDLCompiler)
 
 set(IDL_SRC ${CMAKE_CURRENT_SOURCE_DIR}/src/idl)
-set(IDL_DST ${CMAKE_CURRENT_BINARY_DIR}/idl)
+set(IDL_DST ${CMAKE_CURRENT_BINARY_DIR}/generated/pbus/idl)
 set(IDLC_PATH ${CMAKE_CURRENT_SOURCE_DIR}/tools/idl)
 file(MAKE_DIRECTORY ${IDL_DST})
 
@@ -18,15 +19,15 @@ IDL_GENERATE_SOURCE(
 	DESTINATION ${IDL_DST}
 	INPUT ${IDL_SRC}/Disposable.idl ${IDL_SRC}/Object.idl ${IDL_SRC}/ServiceLease.idl ${IDL_SRC}/ServiceManager.idl
 )
-add_library(idl STATIC ${IDL_SOURCES})
-
-add_subdirectory(src/toolkit)
-
 include_directories(
 	${CMAKE_CURRENT_SOURCE_DIR}/src/lib
 	${CMAKE_CURRENT_BINARY_DIR}/src/toolkit
 	${CMAKE_CURRENT_SOURCE_DIR}/src/toolkit/src
+	${CMAKE_CURRENT_BINARY_DIR}/generated
 )
+
+add_library(idl STATIC ${IDL_SOURCES})
+
 
 add_library(pbus SHARED
 	src/lib/pbus/Service.cpp
