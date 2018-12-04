@@ -1,9 +1,8 @@
 #ifndef PBUS_GENERATED_IDL_I{{name|upper}}_H
 #define PBUS_GENERATED_IDL_I{{name|upper}}_H
 
-{% if base %}#include <pbus/idl/I{{base}}.h>{% endif %}
 #include <pbus/idl/types.h>
-{%- for dep in deps %}
+{%- for dep in (deps | sort) %}
 #include <pbus/idl/I{{dep}}.h>
 {%- endfor %}
 
