@@ -2,7 +2,7 @@
 #define PBUS_GENERATED_IDL_I{{name|upper}}_H
 
 {% if base %}#include <pbus/idl/I{{base}}.h>{% endif %}
-#include <pbus/IDLTypes.h>
+#include <pbus/idl/types.h>
 {%- for dep in deps %}
 #include <pbus/idl/I{{dep}}.h>
 {%- endfor %}
