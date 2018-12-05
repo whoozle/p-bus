@@ -5,6 +5,7 @@
 {%- for dep in (deps | sort) %}
 #include <pbus/idl/I{{dep}}.h>
 {%- endfor %}
+#include <pbus/Session.h>
 
 namespace pbus { namespace idl
 {

@@ -3,9 +3,13 @@
 
 #include <string>
 
-template <typename ObjectType>
-class Ptr
-{ };
+namespace pbus
+{
+
+	template <typename ObjectType>
+	class Ptr
+	{ };
+}
 
 #endif
 

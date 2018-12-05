@@ -11,6 +11,8 @@ namespace pbus { namespace idl
 		{%- for method in methods %}
 		{{method.rtype}} {{method.name}}({% for arg in method.args %}{% if not loop.first %}, {% endif %}{{arg.type}} {{arg.name}}{% endfor %}) override;
 		{%- endfor %}
+
+		static void Register(const SessionPtr & ptr);
 	};
 
 }}
