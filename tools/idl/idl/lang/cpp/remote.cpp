@@ -12,9 +12,9 @@ namespace pbus { namespace idl
 
 	void {{name}}Remote::Register(const SessionPtr & session)
 	{
-{% for dep in deps %}
+{%- for dep in deps %}
 		session->Register<{{dep}}Remote>("{{dep}}");
-{% endfor %}
+{%- endfor %}
 		session->Register<{{name}}Remote>("{{name}}");
 	}
 
