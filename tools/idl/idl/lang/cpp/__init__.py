@@ -91,7 +91,7 @@ class Generator(object):
 		for interface in self.interfaces:
 			base = interface.base if interface.base else "CoreObject"
 			interface.deps.add(base)
-			ctx = { "name" : interface.name, "base" : base, "methods" : interface.methods, "deps" : interface.deps }
+			ctx = { "name" : interface.name, "base" : base, "methods" : interface.methods, "deps" : sorted(list(interface.deps)) }
 			for template, mangle in templates.items():
 				with open(os.path.join(BASE_DIR, template)) as f:
 					t = Template(f.read())
