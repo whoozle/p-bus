@@ -6,7 +6,7 @@
 
 namespace pbus { namespace idl
 {
-	class CoreObjectRemote
+	class CoreObjectRemote : public virtual ICoreObject
 	{
 		SessionPtr _session;
 

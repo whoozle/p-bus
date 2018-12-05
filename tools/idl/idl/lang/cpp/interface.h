@@ -10,7 +10,7 @@
 namespace pbus { namespace idl
 {
 
-	struct I{{name}} : I{{base}}
+	struct I{{name}} : virtual I{{base}}
 	{
 		virtual ~I{{name}}() = default;
 		{%- for method in methods %}
