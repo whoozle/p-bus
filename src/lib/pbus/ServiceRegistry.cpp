@@ -10,7 +10,7 @@ namespace pbus
 		_services.emplace(std::make_pair(id, std::move(desc)));
 	}
 
-	const ServiceDescriptor * ServiceRegistry::GetDescriptor(const ServiceId & id)
+	const ServiceDescriptor * ServiceRegistry::GetDescriptor(const ServiceId & id) const
 	{
 		auto it = _services.find(id);
 		return it != _services.end()? &it->second: nullptr;

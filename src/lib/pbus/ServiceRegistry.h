@@ -55,7 +55,7 @@ namespace pbus
 
 	public:
 		void Add(const ServiceId & id, ServiceDescriptor && desc);
-		const ServiceDescriptor * GetDescriptor(const ServiceId & id);
+		const ServiceDescriptor * GetDescriptor(const ServiceId & id) const;
 	};
 }
 
