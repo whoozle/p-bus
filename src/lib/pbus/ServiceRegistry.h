@@ -15,7 +15,7 @@ namespace pbus
 		uint			Version;
 
 		ServiceId(const std::string & name, uint version = 1): Name(name), Version(version) { }
-		
+
 		class Hash
 		{
 			std::hash<decltype(Name)>		_nameHash;
@@ -34,7 +34,7 @@ namespace pbus
 			{ return a.Name == b.Name && a.Version == b.Version; }
 		};
 
-		void ToString(std::stringstream & ss) const
+		void ToString(text::StringOutputStream & ss) const
 		{ ss << Name << '@' << Version; }
 	};
 
