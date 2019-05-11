@@ -6,12 +6,14 @@
 
 namespace pbus
 {
+	class ServiceRegistry;
 	class LocalBus
 	{
-		net::unix::LocalServerSocket _socket;
+		ServiceRegistry &				_registry;
+		net::unix::LocalServerSocket 	_socket;
 
 	public:
-		LocalBus(const std::string &path);
+		LocalBus(ServiceRegistry & registry, const std::string &path);
 	};
 }
 

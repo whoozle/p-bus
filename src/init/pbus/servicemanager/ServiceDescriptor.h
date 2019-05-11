@@ -1,11 +1,10 @@
-#ifndef PBUS_SERVICEREGISTRY_H
-#define PBUS_SERVICEREGISTRY_H
+#ifndef PBUS_SERVICEDESCRIPTOR_H
+#define PBUS_SERVICEDESCRIPTOR_H
 
 #include <toolkit/core/types.h>
 #include <toolkit/log/Logger.h>
 #include <string>
 #include <vector>
-#include <unordered_map>
 
 namespace pbus
 {
@@ -40,22 +39,11 @@ namespace pbus
 
 	struct ServiceDescriptor
 	{
+		using ArgumentList = std::vector<std::string>;
+
 		std::string					Executable;
-		std::vector<std::string>	Arguments;
+		ArgumentList				Arguments;
 		std::string					CurrentDirectory;
-	};
-
-	class ServiceRegistry
-	{
-		using ServiceMap = std::unordered_map<ServiceId, ServiceDescriptor, ServiceId::Hash, ServiceId::Equal>;
-
-		static log::Logger			_log;
-
-		ServiceMap					_services;
-
-	public:
-		void Add(const ServiceId & id, ServiceDescriptor && desc);
-		const ServiceDescriptor * GetDescriptor(const ServiceId & id) const;
 	};
 }
 

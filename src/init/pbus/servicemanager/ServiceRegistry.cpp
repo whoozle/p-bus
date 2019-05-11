@@ -1,4 +1,4 @@
-#include <pbus/ServiceRegistry.h>
+#include <pbus/servicemanager/ServiceRegistry.h>
 namespace pbus
 {
 

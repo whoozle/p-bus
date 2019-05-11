@@ -30,12 +30,16 @@ add_library(idl STATIC ${IDL_SOURCES})
 
 
 add_library(pbus SHARED
-	src/lib/pbus/Service.cpp
 	src/lib/pbus/LocalBus.cpp
-	src/lib/pbus/ServiceRegistry.cpp
 )
+
 set_target_properties(pbus PROPERTIES VERSION 1.0)
 target_link_libraries(pbus toolkit)
 
-add_executable(pbus-init src/init/main.cpp)
+add_executable(pbus-init
+	src/init/main.cpp
+	src/init/pbus/servicemanager/Service.cpp
+	src/init/pbus/servicemanager/ServiceRegistry.cpp
+)
 target_link_libraries(pbus-init pbus)
+target_include_directories(pbus-init PRIVATE src/init)

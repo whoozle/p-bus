@@ -1,6 +1,5 @@
-#include <pbus/Service.h>
-#include <pbus/LocalBus.h>
-#include <pbus/ServiceRegistry.h>
+#include <pbus/servicemanager/Service.h>
+#include <pbus/servicemanager/ServiceRegistry.h>
 
 int main(int argc, char **argv)
 {
