@@ -54,8 +54,8 @@ namespace pbus
 		ServiceMap					_services;
 
 	public:
-
-		void Add(ServiceId id, ServiceDescriptor && desc);
+		void Add(const ServiceId & id, ServiceDescriptor && desc);
+		const ServiceDescriptor * GetDescriptor(const ServiceId & id);
 	};
 }
 
