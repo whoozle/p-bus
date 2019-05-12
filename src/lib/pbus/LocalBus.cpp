@@ -20,6 +20,7 @@ namespace pbus
 	void LocalBus::Accept()
 	{
 		_log.Debug() << "accepting connection...";
+		auto sock = _socket.Accept();
 	}
 
 	void LocalBus::Wait(int timeout)

@@ -14,6 +14,7 @@ namespace pbus
 
 	public:
 		LocalBusConnection(ServiceId serviceId);
+		LocalBusConnection(ServiceId serviceId, net::unix::LocalSocket && socket);
 	};
 }
 

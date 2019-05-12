@@ -12,4 +12,10 @@ namespace pbus
 		net::unix::Endpoint ep(path);
 		_socket.Connect(ep);
 	}
+
+	LocalBusConnection::LocalBusConnection(ServiceId serviceId, net::unix::LocalSocket && socket):
+		_log("connection/" + serviceId.ToString()),
+		_socket(std::move(socket))
+	{
+	}
 }
