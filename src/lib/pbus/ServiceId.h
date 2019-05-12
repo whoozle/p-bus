@@ -32,6 +32,8 @@ namespace pbus
 
 		void ToString(text::StringOutputStream & ss) const
 		{ ss << Name << '@' << Version; }
+
+		TOOLKIT_DECLARE_SIMPLE_TOSTRING();
 	};
 }
 

@@ -2,6 +2,7 @@
 #define PBUS_SERVICEREGISTRY_H
 
 #include <pbus/servicemanager/ServiceDescriptor.h>
+#include <pbus/ServiceId.h>
 #include <toolkit/log/Logger.h>
 #include <toolkit/core/types.h>
 #include <string>
