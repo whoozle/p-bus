@@ -14,6 +14,7 @@ namespace pbus
 	{
 	private:
 		log::Logger 					_log;
+		ServiceId						_id;
 		net::unix::LocalServerSocket 	_socket;
 		io::Poll						_poll;
 
