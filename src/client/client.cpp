@@ -16,5 +16,7 @@ int main(int argc, char ** argv)
 	std::string serviceName;
 	ServiceId serviceId(argv[1]);
 	logger.Debug() << "connecting to " << serviceId;
+
+	LocalBusConnection connection(serviceId);
 	return 0;
 }

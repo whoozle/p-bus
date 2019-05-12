@@ -20,6 +20,8 @@ namespace pbus
 		struct ConnectionAcceptor : public io::IPollEventHandler
 		{
 			LocalBus * Bus;
+			ConnectionAcceptor(LocalBus * bus) : Bus(bus)
+			{ }
 			void HandleSocketEvent(int event) override
 			{ Bus->Accept(); }
 		};

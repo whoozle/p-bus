@@ -31,6 +31,7 @@ add_library(idl STATIC ${IDL_SOURCES})
 
 add_library(pbus SHARED
 	src/lib/pbus/LocalBus.cpp
+	src/lib/pbus/LocalBusConnection.cpp
 )
 
 set_target_properties(pbus PROPERTIES VERSION 1.0)

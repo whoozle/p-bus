@@ -6,9 +6,10 @@ namespace pbus
 {
 	LocalBus::LocalBus(const ServiceId & id):
 		_log("bus/" + id.ToString()),
-		_socket(net::ISocket::NonBlocking)
+		_socket(net::ISocket::NonBlocking),
+		_accept(this)
 	{
-		const std::string path = id.ToString();
+		auto path = id.ToString();
 		_log.Debug() << "creating socket at " << path;
 		net::unix::Endpoint ep(path);
 		unlink(path.c_str());
