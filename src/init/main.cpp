@@ -11,5 +11,6 @@ int main(int argc, char **argv)
 	initDescriptor.Executable = argv[0];
 	registry.Add(serviceId, std::move(initDescriptor));
 	LocalBus bus(serviceId);
+	bus.Wait();
 	return 0;
 }

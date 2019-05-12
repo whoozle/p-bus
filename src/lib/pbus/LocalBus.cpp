@@ -13,5 +13,16 @@ namespace pbus
 		net::unix::Endpoint ep(path);
 		unlink(path.c_str());
 		_socket.Listen(ep);
+		_poll.Add(_socket, _accept, io::Poll::EventInput);
+	}
+
+	void LocalBus::Accept()
+	{
+		_log.Debug() << "accepting connection...";
+	}
+
+	void LocalBus::Wait(int timeout)
+	{
+		_poll.Wait(timeout);
 	}
 }
