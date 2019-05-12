@@ -43,3 +43,9 @@ add_executable(pbus-init
 )
 target_link_libraries(pbus-init pbus)
 target_include_directories(pbus-init PRIVATE src/init)
+
+add_executable(pbus-client
+	src/client/client.cpp
+)
+target_link_libraries(pbus-client pbus)
+target_include_directories(pbus-client PRIVATE src/client)
