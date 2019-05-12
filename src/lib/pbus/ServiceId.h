@@ -1,9 +1,11 @@
 #ifndef PBUS_SERVICEID_H
 #define PBUS_SERVICEID_H
 
-#include <string>
-#include <toolkit/core/types.h>
 #include <toolkit/text/StringOutputStream.h>
+#include <toolkit/core/Exception.h>
+#include <toolkit/core/types.h>
+#include <string>
+#include <stdlib.h>
 
 namespace pbus
 {
@@ -12,7 +14,22 @@ namespace pbus
 		std::string		Name;
 		uint			Version;
 
-		ServiceId(const std::string & name, uint version = 1): Name(name), Version(version) { }
+		ServiceId(const std::string & name, uint version = 1)
+		{
+			auto pos = name.find('@');
+			if (pos != name.npos)
+			{
+				Name = name.substr(0, pos);
+				Version = atoi(name.substr(pos + 1).c_str());
+				if (Version <= 0)
+					throw Exception("invalid version");
+			}
+			else
+			{
+				Name = name;
+				Version = 1;
+			}
+		}
 
 		class Hash
 		{
