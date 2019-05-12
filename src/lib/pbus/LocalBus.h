@@ -10,6 +10,7 @@
 
 namespace pbus
 {
+	class LocalBusConnection;
 	class LocalBus
 	{
 	private:
@@ -29,7 +30,12 @@ namespace pbus
 		ConnectionAcceptor				_accept;
 
 	private:
+		friend class LocalBusConnection;
 		void Accept();
+
+		void Add(LocalBusConnection * connection);
+		void Remove(LocalBusConnection * connection);
+		void AllowWrite(LocalBusConnection * connection, bool allow);
 
 	public:
 		LocalBus(const ServiceId &id);

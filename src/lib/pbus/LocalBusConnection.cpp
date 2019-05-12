@@ -6,6 +6,7 @@ namespace pbus
 {
 	LocalBusConnection::LocalBusConnection(ServiceId serviceId):
 		_log("connection/" + serviceId.ToString()),
+		_bus(nullptr),
 		_socket(net::BaseSocket::NonBlocking)
 	{
 		auto path = serviceId.ToString();
@@ -14,11 +15,11 @@ namespace pbus
 		_socket.Connect(ep);
 	}
 
-	LocalBusConnection::LocalBusConnection(ServiceId serviceId, net::unix::LocalSocket && socket):
+	LocalBusConnection::LocalBusConnection(ServiceId serviceId, LocalBus * bus, net::unix::LocalSocket && socket):
 		_log("connection/" + serviceId.ToString()),
+		_bus(bus),
 		_socket(std::move(socket))
-	{
-	}
+	{ }
 
 	void LocalBusConnection::HandleSocketEvent(int event)
 	{

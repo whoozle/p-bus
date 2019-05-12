@@ -26,9 +26,23 @@ namespace pbus
 		if (!sock)
 			return;
 
-		auto localConnection = new LocalBusConnection(_id, std::move(*sock));
+		auto localConnection = new LocalBusConnection(_id, this, std::move(*sock));
 		delete sock;
-		_poll.Add(*localConnection, *localConnection, io::Poll::EventInput); //allow connection control this
+	}
+
+	void LocalBus::Add(LocalBusConnection * connection)
+	{
+		_poll.Add(*connection, *connection, _poll.EventInput);
+	}
+
+	void LocalBus::Remove(LocalBusConnection * connection)
+	{
+		_poll.Remove(*connection);
+	}
+
+	void LocalBus::AllowWrite(LocalBusConnection * connection, bool allow)
+	{
+		_poll.Modify(*connection, *connection, _poll.EventInput | (allow? _poll.EventOutput: 0));
 	}
 
 	void LocalBus::Wait(int timeout)
