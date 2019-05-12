@@ -1,4 +1,5 @@
 #include <pbus/LocalBusConnection.h>
+#include <pbus/LocalBus.h>
 #include <toolkit/net/unix/Endpoint.h>
 #include <toolkit/text/Formatters.h>
 
@@ -19,7 +20,10 @@ namespace pbus
 		_log("connection/" + serviceId.ToString()),
 		_bus(bus),
 		_socket(std::move(socket))
-	{ }
+	{ _bus->Add(this); }
+
+	LocalBusConnection::~LocalBusConnection()
+	{ if (_bus) _bus->Remove(this); }
 
 	void LocalBusConnection::HandleSocketEvent(int event)
 	{

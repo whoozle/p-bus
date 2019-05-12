@@ -20,6 +20,7 @@ namespace pbus
 	public:
 		LocalBusConnection(ServiceId serviceId);
 		LocalBusConnection(ServiceId serviceId, LocalBus * bus, net::unix::LocalSocket && socket);
+		~LocalBusConnection();
 
 		int GetFileDescriptor() const override
 		{ return _socket.GetFileDescriptor(); }
