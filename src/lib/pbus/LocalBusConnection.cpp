@@ -28,6 +28,12 @@ namespace pbus
 	void LocalBusConnection::HandleSocketEvent(int event)
 	{
 		_log.Debug() << "socket event 0x" << text::Hex(event);
+		if (event & (io::Poll::EventHangup | io::Poll::EventError))
+		{
+			_log.Debug() << "error or hangup, cleaning up...";
+			delete this;
+			return;
+		}
 	}
 
 }
