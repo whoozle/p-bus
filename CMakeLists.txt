@@ -13,11 +13,19 @@ set(IDL_DST ${CMAKE_CURRENT_BINARY_DIR}/generated/pbus/idl)
 set(IDLC_PATH ${CMAKE_CURRENT_SOURCE_DIR}/tools/idl)
 file(MAKE_DIRECTORY ${IDL_DST})
 
+set(IDL_FILES
+	${IDL_SRC}/Disposable.idl
+	${IDL_SRC}/Object.idl
+	${IDL_SRC}/Service.idl
+	${IDL_SRC}/ServiceLease.idl
+	${IDL_SRC}/ServiceManager.idl
+)
+
 IDL_GENERATE_SOURCE(
 	OUTPUT IDL_SOURCES
 	IDLC_PATH ${IDLC_PATH}
 	DESTINATION ${IDL_DST}
-	INPUT ${IDL_SRC}/Disposable.idl ${IDL_SRC}/Object.idl ${IDL_SRC}/ServiceLease.idl ${IDL_SRC}/ServiceManager.idl
+	INPUT ${IDL_FILES}
 )
 include_directories(
 	${CMAKE_CURRENT_SOURCE_DIR}/src/lib
