@@ -2,6 +2,7 @@
 #define PBUS_IDLTYPES_H
 
 #include <string>
+#include <memory>
 
 namespace pbus
 {
