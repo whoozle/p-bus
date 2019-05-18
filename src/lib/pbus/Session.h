@@ -45,6 +45,7 @@ namespace pbus
 			_factories[name] = std::make_shared<ComponentFactory<Component>>();
 		}
 
+		template<typename IterfaceType>
 		idl::IServicePtr GetService(ServiceId serviceId)
 		{
 			return nullptr;
