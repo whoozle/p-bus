@@ -8,6 +8,7 @@ namespace pbus { namespace idl
 {
 	class CoreObjectRemote : public virtual ICoreObject
 	{
+	protected:
 		SessionPtr _session;
 
 	public:

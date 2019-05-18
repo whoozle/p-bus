@@ -7,6 +7,7 @@
 #include <pbus/ServiceId.h>
 #include <memory>
 #include <unordered_map>
+#include <future>
 
 namespace pbus
 {
@@ -50,6 +51,10 @@ namespace pbus
 		{
 			return nullptr;
 		}
+
+		template<typename ReturnType, typename ... ArgumentType>
+		std::future<ReturnType> Invoke(ArgumentType ... args)
+		{ }
 	};
 }
 
