@@ -1,7 +1,7 @@
 # Build artefacts
 build*
 nbproject/
-.vscode
+.vscode/
 
 # Python
 __pycache__
