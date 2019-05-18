@@ -5,6 +5,7 @@
 #include <pbus/idl/ICoreObject.h>
 #include <pbus/idl/IService.h>
 #include <pbus/ServiceId.h>
+#include <pbus/String.h>
 #include <memory>
 #include <unordered_map>
 #include <future>
@@ -31,7 +32,7 @@ namespace pbus
 
 	class Session final : public std::enable_shared_from_this<Session>
 	{
-		std::unordered_map<std::string, IComponentFactoryPtr> _factories;
+		std::unordered_map<String, IComponentFactoryPtr> _factories;
 
 	public:
 		SessionPtr GetPointer()
