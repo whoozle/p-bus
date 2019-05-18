@@ -3,6 +3,8 @@
 
 #include <toolkit/core/types.h>
 #include <pbus/idl/ICoreObject.h>
+#include <pbus/idl/IService.h>
+#include <pbus/ServiceId.h>
 #include <memory>
 #include <unordered_map>
 
@@ -26,7 +28,7 @@ namespace pbus
 	};
 
 
-	class Session : public std::enable_shared_from_this<Session>
+	class Session final : public std::enable_shared_from_this<Session>
 	{
 		std::unordered_map<std::string, IComponentFactoryPtr> _factories;
 
@@ -41,6 +43,11 @@ namespace pbus
 			if (it != _factories.end())
 				return;
 			_factories[name] = std::make_shared<ComponentFactory<Component>>();
+		}
+
+		idl::IServicePtr GetService(ServiceId serviceId)
+		{
+			return nullptr;
 		}
 	};
 }

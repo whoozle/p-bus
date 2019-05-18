@@ -1,5 +1,6 @@
 #include <pbus/LocalBusConnection.h>
 #include <pbus/ServiceId.h>
+#include <pbus/Session.h>
 #include <toolkit/log/Logger.h>
 #include <stdio.h>
 
@@ -13,10 +14,8 @@ int main(int argc, char ** argv)
 	using namespace pbus;
 	log::Logger logger("client");
 
-	std::string serviceName;
-	ServiceId serviceId(argv[1]);
-	logger.Debug() << "connecting to " << serviceId;
+	Session session;
+	auto random = session.GetService(ServiceId("random"));
 
-	LocalBusConnection connection(serviceId);
 	return 0;
 }

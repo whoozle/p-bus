@@ -5,7 +5,7 @@
 {%- for dep in deps %}
 #include <pbus/idl/I{{dep}}.h>
 {%- endfor %}
-#include <pbus/Session.h>
+#include <memory>
 
 namespace pbus { namespace idl
 {
