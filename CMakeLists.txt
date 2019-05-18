@@ -19,6 +19,7 @@ set(IDL_FILES
 	${IDL_SRC}/Service.idl
 	${IDL_SRC}/ServiceLease.idl
 	${IDL_SRC}/ServiceManager.idl
+	${IDL_SRC}/RandomGenerator.idl
 )
 
 IDL_GENERATE_SOURCE(
