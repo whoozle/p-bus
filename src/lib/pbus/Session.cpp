@@ -30,6 +30,8 @@ namespace pbus
 				return connection;
 			}
 		}
+		else
+			return i->second;
 	}
 
 }
