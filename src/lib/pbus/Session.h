@@ -6,9 +6,12 @@
 #include <pbus/idl/IService.h>
 #include <pbus/ServiceId.h>
 #include <pbus/String.h>
+#include <pbus/LocalBusConnection.h>
+#include <toolkit/log/Logger.h>
 #include <memory>
 #include <unordered_map>
 #include <future>
+#include <mutex>
 
 namespace pbus
 {
@@ -34,6 +37,9 @@ namespace pbus
 
 	class Session final : public std::enable_shared_from_this<Session>
 	{
+		static log::Logger										_log;
+
+		std::mutex 												_lock;
 		std::unordered_map<String, IComponentFactoryPtr> 		_factories;
 		std::unordered_map<ServiceId, LocalBusConnectionPtr> 	_connections;
 
@@ -53,12 +59,17 @@ namespace pbus
 		template<typename InterfaceType>
 		std::shared_ptr<InterfaceType> GetService(ServiceId serviceId)
 		{
+			std::lock_guard<decltype(_lock)> l(_lock);
+			auto connection = Session::Connect(serviceId);
 			return nullptr;
 		}
 
 		template<typename ReturnType, typename ... ArgumentType>
 		std::future<ReturnType> Invoke(ArgumentType ... args)
 		{ }
+
+	private:
+		LocalBusConnectionPtr Connect(const ServiceId & id);
 	};
 }
 
