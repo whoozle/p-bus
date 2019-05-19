@@ -14,7 +14,7 @@ namespace pbus
 		auto path = id.ToString();
 		_log.Debug() << "creating socket at " << path;
 		net::unix::Endpoint ep(path);
-		unlink(path.c_str());
+		//unlink(path.c_str());
 		_socket.Listen(ep);
 		_poll.Add(_socket, _accept, io::Poll::EventInput);
 	}
@@ -25,6 +25,9 @@ namespace pbus
 		auto sock = _socket.Accept();
 		if (!sock)
 			return;
+
+		auto cred = sock->GetPeerCredentials();
+		_log.Debug() << "credentials, pid: " << cred.pid << ", gid: " << cred.gid << ", uid: " << cred.uid;
 
 		auto localConnection = new LocalBusConnection(_id, this, std::move(*sock));
 		delete sock;
