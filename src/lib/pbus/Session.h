@@ -39,7 +39,7 @@ namespace pbus
 	{
 		static log::Logger										_log;
 
-		std::mutex 												_lock;
+		std::recursive_mutex									_lock;
 		std::unordered_map<String, IComponentFactoryPtr> 		_factories;
 		std::unordered_map<ServiceId, LocalBusConnectionPtr> 	_connections;
 
