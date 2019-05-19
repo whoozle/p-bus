@@ -1,7 +1,8 @@
 #include <pbus/idl/{{name}}Remote.h>
-{% for dep in deps %}
+{%- for dep in deps %}
 #include <pbus/idl/{{dep}}Remote.h>
-{% endfor %}
+{% endfor -%}
+#include <pbus/MethodDescriptor.h>
 
 namespace pbus { namespace idl
 {

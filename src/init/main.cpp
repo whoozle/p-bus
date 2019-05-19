@@ -5,7 +5,7 @@
 int main(int argc, char **argv)
 {
 	using namespace pbus;
-	ServiceId serviceId("init");
+	ServiceId serviceId("ServiceManager");
 	ServiceRegistry registry;
 	ServiceDescriptor initDescriptor;
 	initDescriptor.Executable = argv[0];

@@ -16,7 +16,7 @@ int main(int argc, char ** argv)
 	log::Logger logger("client");
 
 	Session session;
-	auto random = session.GetService<pbus::idl::IRandomGenerator>(ServiceId("random"));
+	auto random = session.GetService<pbus::idl::IRandomGenerator>(ServiceId("RandomGenerator"));
 	for(int i = 0; i < 1000; ++i)
 		printf("%u", random->getInteger(100));
 
