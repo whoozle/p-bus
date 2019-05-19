@@ -10,8 +10,8 @@ int main(int argc, char ** argv)
 	using namespace pbus;
 	log::Logger logger("client");
 
-	Session session;
-	auto random = session.GetService<pbus::idl::RandomGenerator>(ServiceId("RandomGenerator"));
+	SessionPtr session = std::make_shared<Session>();
+	auto random = session->GetService<pbus::idl::RandomGenerator>(ServiceId("RandomGenerator"));
 	for(int i = 0; i < 1000; ++i)
 		logger.Info() << random->getInteger(100);
 
