@@ -7,6 +7,7 @@ namespace pbus
 
 	LocalBusConnectionPtr Session::Connect(const ServiceId & serviceId)
 	{
+		_log.Debug() << "connecting to " << serviceId;
 		auto i = _connections.find(serviceId);
 		if (i == _connections.end())
 		{
@@ -22,7 +23,8 @@ namespace pbus
 				ServiceId serviceManagerId("ServiceManager");
 				if (serviceId == serviceManagerId)
 					throw Exception("cannot connect to ServiceManager to create service " + serviceId.ToString());
-				_log.Debug() << "connecting to " << serviceManagerId;
+
+				_log.Debug() << "connecting to service manager at " << serviceManagerId;
 				auto serviceManager = GetService<idl::IServiceManager>(serviceManagerId);
 				auto lease = serviceManager->initialize(serviceId.Name, serviceId.Version);
 				auto connection = std::make_shared<LocalBusConnection>(serviceId);
