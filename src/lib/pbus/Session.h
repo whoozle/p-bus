@@ -29,10 +29,13 @@ namespace pbus
 		{ return new Component(session); }
 	};
 
+	class LocalBusConnection;
+	DECLARE_PTR(LocalBusConnection);
 
 	class Session final : public std::enable_shared_from_this<Session>
 	{
-		std::unordered_map<String, IComponentFactoryPtr> _factories;
+		std::unordered_map<String, IComponentFactoryPtr> 		_factories;
+		std::unordered_map<ServiceId, LocalBusConnectionPtr> 	_connections;
 
 	public:
 		SessionPtr GetPointer()

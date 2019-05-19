@@ -3,6 +3,7 @@
 
 #include <toolkit/text/StringOutputStream.h>
 #include <toolkit/core/Exception.h>
+#include <toolkit/core/Hash.h>
 #include <toolkit/core/types.h>
 #include <string>
 #include <stdlib.h>
@@ -38,7 +39,7 @@ namespace pbus
 
 		public:
 			size_t operator()(const ServiceId & id) const
-			{ return _nameHash(id.Name) + _versionHash(id.Version); }
+			{ return CombineHash(_nameHash(id.Name), _versionHash(id.Version)); }
 		};
 
 		struct Equal
@@ -51,6 +52,19 @@ namespace pbus
 		{ ss << Name << '@' << Version; }
 
 		TOOLKIT_DECLARE_SIMPLE_TOSTRING();
+	};
+}
+
+namespace std
+{
+	template<>
+	struct hash<pbus::ServiceId>
+	{
+		std::size_t operator() (const pbus::ServiceId & id) const
+		{
+			pbus::ServiceId::Hash hash;
+			return hash(id);
+		}
 	};
 }
 
