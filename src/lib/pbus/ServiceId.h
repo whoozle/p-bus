@@ -51,6 +51,11 @@ namespace pbus
 		void ToString(text::StringOutputStream & ss) const
 		{ ss << Name << '@' << Version; }
 
+		bool operator == (const ServiceId & o) const
+		{ return Version == o.Version && Name == o.Name; }
+		bool operator != (const ServiceId & o) const
+		{ return !((*this) == o); }
+
 		TOOLKIT_DECLARE_SIMPLE_TOSTRING();
 	};
 }
