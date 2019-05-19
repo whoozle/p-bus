@@ -56,9 +56,11 @@ namespace pbus
 			_factories[name] = std::make_shared<ComponentFactory<Component>>();
 		}
 
-		template<typename InterfaceType>
-		std::shared_ptr<InterfaceType> GetService(ServiceId serviceId)
+		template<typename ProxyType>
+		std::shared_ptr<typename ProxyType::InterfaceType> GetService(ServiceId serviceId)
 		{
+			using InterfaceType = typename ProxyType::InterfaceType;
+
 			std::lock_guard<decltype(_lock)> l(_lock);
 			auto connection = Session::Connect(serviceId);
 			return nullptr;

@@ -1,7 +1,7 @@
 #include <pbus/LocalBusConnection.h>
 #include <pbus/ServiceId.h>
 #include <pbus/Session.h>
-#include <pbus/idl/IRandomGenerator.h>
+#include <pbus/idl/RandomGenerator.h>
 #include <toolkit/log/Logger.h>
 #include <stdio.h>
 
@@ -11,7 +11,7 @@ int main(int argc, char ** argv)
 	log::Logger logger("client");
 
 	Session session;
-	auto random = session.GetService<pbus::idl::IRandomGenerator>(ServiceId("RandomGenerator"));
+	auto random = session.GetService<pbus::idl::RandomGenerator>(ServiceId("RandomGenerator"));
 	for(int i = 0; i < 1000; ++i)
 		logger.Info() << random->getInteger(100);
 

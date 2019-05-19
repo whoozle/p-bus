@@ -6,13 +6,13 @@
 
 namespace pbus { namespace idl
 {
-	class CoreObjectRemote : public virtual ICoreObject
+	class CoreObject : public virtual ICoreObject
 	{
 	protected:
 		SessionPtr _session;
 
 	public:
-		CoreObjectRemote(const SessionPtr & session): _session(session) { }
+		CoreObject(const SessionPtr & session): _session(session) { }
 	};
 }}
 
