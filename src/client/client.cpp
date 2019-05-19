@@ -7,11 +7,6 @@
 
 int main(int argc, char ** argv)
 {
-	if (argc < 3)
-	{
-		fprintf(stderr, "usage: <service> <method>\n");
-		return 0;
-	}
 	using namespace pbus;
 	log::Logger logger("client");
 
