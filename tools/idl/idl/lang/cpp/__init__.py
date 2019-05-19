@@ -22,7 +22,7 @@ class Type(object):
 		name = self.name
 		if self.ptr:
 			deps = (name,)
-			name = "Ptr<I%s>" %name
+			name = "I%sPtr" %name
 			return name, deps
 		if self.ref and ref:
 			name = "const %s &" %name

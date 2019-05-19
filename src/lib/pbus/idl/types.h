@@ -8,9 +8,6 @@
 namespace pbus
 {
 
-	template <typename ObjectType>
-	class Ptr
-	{ };
 }
 
 #endif
