@@ -18,7 +18,7 @@ int main(int argc, char ** argv)
 	Session session;
 	auto random = session.GetService<pbus::idl::IRandomGenerator>(ServiceId("RandomGenerator"));
 	for(int i = 0; i < 1000; ++i)
-		printf("%u", random->getInteger(100));
+		logger.Info() << random->getInteger(100);
 
 	return 0;
 }
