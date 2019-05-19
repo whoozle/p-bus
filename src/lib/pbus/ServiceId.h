@@ -55,18 +55,7 @@ namespace pbus
 	};
 }
 
-namespace std
-{
-	template<>
-	struct hash<pbus::ServiceId>
-	{
-		std::size_t operator() (const pbus::ServiceId & id) const
-		{
-			pbus::ServiceId::Hash hash;
-			return hash(id);
-		}
-	};
-}
+TOOLKIT_DECLARE_STD_HASH(pbus::ServiceId, pbus::ServiceId::Hash)
 
 #endif
 

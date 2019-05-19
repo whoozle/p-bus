@@ -29,18 +29,16 @@ namespace pbus
 		template<typename T>
 		bool operator != (const String &str) const
 		{ return !((*this) == str); }
+
+		struct Hash
+		{
+			std::size_t operator() (const String & str) const
+			{ return str.GetHash(); }
+		};
 	};
 }
 
-namespace std
-{
-	template<>
-	struct hash<pbus::String>
-	{
-		std::size_t operator() (const pbus::String & str) const
-		{ return str.GetHash(); }
-	};
-}
+TOOLKIT_DECLARE_STD_HASH(pbus::String, pbus::String::Hash)
 
 #endif
 
