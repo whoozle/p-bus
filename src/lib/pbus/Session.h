@@ -68,8 +68,12 @@ namespace pbus
 		}
 
 		template<typename ReturnType, typename ... ArgumentType>
-		std::future<ReturnType> Invoke(ArgumentType ... args)
-		{ }
+		std::promise<ReturnType> Invoke(ArgumentType ... args)
+		{
+			std::promise<ReturnType> promise;
+			promise.set_exception(std::make_exception_ptr(std::runtime_error("not implemented")));
+			return promise;
+		}
 
 	private:
 		LocalBusConnectionPtr Connect(const ServiceId & id);
