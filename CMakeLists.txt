@@ -35,13 +35,11 @@ include_directories(
 	${CMAKE_CURRENT_BINARY_DIR}/generated
 )
 
-add_library(idl STATIC ${IDL_SOURCES})
-
-
 add_library(pbus SHARED
 	src/lib/pbus/LocalBus.cpp
 	src/lib/pbus/LocalBusConnection.cpp
 	src/lib/pbus/Session.cpp
+	${IDL_SOURCES}
 )
 
 set_target_properties(pbus PROPERTIES VERSION 1.0)
