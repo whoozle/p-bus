@@ -59,8 +59,6 @@ namespace pbus
 		template<typename ProxyType>
 		std::shared_ptr<typename ProxyType::InterfaceType> GetService(ServiceId serviceId)
 		{
-			using InterfaceType = typename ProxyType::InterfaceType;
-
 			std::lock_guard<decltype(_lock)> l(_lock);
 			auto connection = Session::Connect(serviceId);
 			auto session = shared_from_this();
