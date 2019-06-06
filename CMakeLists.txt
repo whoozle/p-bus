@@ -2,6 +2,13 @@ project(p-bus)
 cmake_minimum_required(VERSION 3.12)
 set (CMAKE_CXX_STANDARD 11)
 
+include(CheckCXXCompilerFlag)
+
+CHECK_CXX_COMPILER_FLAG(-Wall COMPILER_SUPPORTS_CXX11)
+if (COMPILER_SUPPORTS_CXX11)
+	list(APPEND CMAKE_CXX_FLAGS -Wall)
+endif()
+
 set(TOOLKIT_NS pbus)
 add_subdirectory(src/toolkit)
 
