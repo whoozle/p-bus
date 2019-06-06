@@ -66,7 +66,7 @@ namespace pbus
 		}
 
 		template<typename ReturnType, typename ... ArgumentType>
-		std::promise<ReturnType> Invoke(ArgumentType ... args)
+		std::promise<ReturnType> Invoke(ServiceId serviceId, const std::string & methodName, ArgumentType ... args)
 		{
 			std::promise<ReturnType> promise;
 			promise.set_exception(std::make_exception_ptr(std::runtime_error("not implemented")));
