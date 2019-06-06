@@ -63,7 +63,8 @@ namespace pbus
 
 			std::lock_guard<decltype(_lock)> l(_lock);
 			auto connection = Session::Connect(serviceId);
-			return nullptr;
+			auto session = shared_from_this();
+			return std::make_shared<ProxyType>(session);
 		}
 
 		template<typename ReturnType, typename ... ArgumentType>
