@@ -5,6 +5,7 @@
 #include <pbus/idl/ICoreObject.h>
 #include <pbus/idl/IService.h>
 #include <pbus/ServiceId.h>
+#include <pbus/MethodId.h>
 #include <pbus/String.h>
 #include <pbus/LocalBusConnection.h>
 #include <toolkit/log/Logger.h>
@@ -66,7 +67,7 @@ namespace pbus
 		}
 
 		template<typename ReturnType, typename ... ArgumentType>
-		std::promise<ReturnType> Invoke(ServiceId serviceId, const std::string & methodName, ArgumentType ... args)
+		std::promise<ReturnType> Invoke(const ServiceId & serviceId, const MethodId & methodName, ArgumentType ... args)
 		{
 			std::promise<ReturnType> promise;
 			promise.set_exception(std::make_exception_ptr(std::runtime_error("not implemented")));
