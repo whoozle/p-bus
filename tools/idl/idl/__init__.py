@@ -43,10 +43,11 @@ class Interface(object):
 		visitor.end_interface(obj)
 
 class Method(object):
-	def __init__(self, rtype, name, args):
+	def __init__(self, rtype, name, args, static = False):
 		self.name = name
 		self.rtype = rtype
 		self.args = args
+		self.static = static
 
 	def visit(self, visitor):
 		method = visitor.begin_method(self.name, self.rtype)
