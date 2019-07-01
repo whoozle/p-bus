@@ -7,7 +7,10 @@
 namespace pbus { namespace idl
 {
 
-	struct {{name}} : public {{base}}, public virtual I{{name}}
+	struct {{name}} :
+		public {{base}},
+		public virtual I{{name}},
+		public virtual IRemoteObject
 	{
 		using InterfaceType = I{{name}};
 		using {{base}}::{{base}};

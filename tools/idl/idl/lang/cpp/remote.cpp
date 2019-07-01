@@ -23,9 +23,9 @@ namespace pbus { namespace idl
 	void {{name}}::Register(const SessionPtr & session)
 	{
 {%- for dep in deps %}
-		session->Register<{{dep}}>("{{dep}}");
+		session->Register<{{dep}}>(ServiceId("{{dep}}"));
 {%- endfor %}
-		session->Register<{{name}}>("{{name}}");
+		session->Register<{{name}}>(serviceId);
 	}
 
 }}

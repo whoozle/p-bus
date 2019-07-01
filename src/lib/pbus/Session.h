@@ -27,10 +27,17 @@ namespace pbus
 	DECLARE_PTR(IComponentFactory);
 
 	template<typename Component>
-	struct ComponentFactory : public IComponentFactory
+	class ComponentFactory : public IComponentFactory
 	{
+		ServiceId	_serviceId;
+		size_t		_nextObjectId;
+
+	public:
+		ComponentFactory(ServiceId sessionId): _serviceId(sessionId), _nextObjectId(1)
+		{ }
+
 		idl::ICoreObject * Create(const SessionPtr & session) override
-		{ return new Component(session); }
+		{ return new Component(session, ObjectId(_serviceId, _nextObjectId++)); }
 	};
 
 	class LocalBusConnection;
@@ -41,7 +48,7 @@ namespace pbus
 		static log::Logger										_log;
 
 		std::recursive_mutex									_lock;
-		std::unordered_map<String, IComponentFactoryPtr> 		_factories;
+		std::unordered_map<ServiceId, IComponentFactoryPtr> 		_factories;
 		std::unordered_map<ServiceId, LocalBusConnectionPtr> 	_connections;
 
 	public:
@@ -49,21 +56,47 @@ namespace pbus
 		{ return shared_from_this();}
 
 		template<typename Component>
-		void Register(const std::string &name)
+		void Register(const ServiceId &serviceId)
 		{
-			auto it = _factories.find(name);
+			std::lock_guard<decltype(_lock)> l(_lock);
+			auto it = _factories.find(serviceId);
 			if (it != _factories.end())
 				return;
-			_factories[name] = std::make_shared<ComponentFactory<Component>>();
+			_factories[serviceId] = std::make_shared<ComponentFactory<Component>>(serviceId);
+		}
+
+		template<typename Component>
+		void Register(const ServiceId &serviceId, const IComponentFactoryPtr & factory)
+		{
+			std::lock_guard<decltype(_lock)> l(_lock);
+			auto it = _factories.find(serviceId);
+			if (it != _factories.end())
+				return;
+			_factories[serviceId] = factory;
+		}
+
+		IComponentFactoryPtr Get(const std::string &name)
+		{
+			std::lock_guard<decltype(_lock)> l(_lock);
+			auto it = _factories.find(name);
+			return it != _factories.end()? it->second: nullptr;
 		}
 
 		template<typename ProxyType>
 		std::shared_ptr<typename ProxyType::InterfaceType> GetService(ServiceId serviceId)
 		{
 			std::lock_guard<decltype(_lock)> l(_lock);
+			auto factory = Get(serviceId.ToString());
+			if (!factory)
+				throw Exception("no service " + serviceId.ToString() + " registered");
+
 			auto connection = Session::Connect(serviceId);
 			auto session = shared_from_this();
-			return std::make_shared<ProxyType>(session);
+			idl::ICoreObjectPtr object(factory->Create(session));
+			auto result = std::dynamic_pointer_cast<typename ProxyType::InterfaceType>(object);
+			if (!result)
+				throw Exception("object created failed to cast");
+			return result;
 		}
 
 		template<typename ReturnType, typename ... ArgumentType>
