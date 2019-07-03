@@ -48,7 +48,7 @@ namespace pbus
 		static log::Logger										_log;
 
 		std::recursive_mutex									_lock;
-		std::unordered_map<ServiceId, IComponentFactoryPtr> 		_factories;
+		std::unordered_map<ServiceId, IComponentFactoryPtr> 	_factories;
 		std::unordered_map<ServiceId, LocalBusConnectionPtr> 	_connections;
 
 	public:
@@ -100,9 +100,10 @@ namespace pbus
 		}
 
 		template<typename ReturnType, typename ... ArgumentType>
-		std::promise<ReturnType> Invoke(const MethodId & methodName, ArgumentType ... args)
+		std::promise<ReturnType> Invoke(const MethodId & methodId, ArgumentType ... args)
 		{
 			std::promise<ReturnType> promise;
+			auto connection = Connect(methodId.Service);
 			promise.set_exception(std::make_exception_ptr(std::runtime_error("not implemented")));
 			return promise;
 		}
