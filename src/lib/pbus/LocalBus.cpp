@@ -35,17 +35,17 @@ namespace pbus
 
 	void LocalBus::Add(LocalBusConnection * connection)
 	{
-		_poll.Add(*connection, *connection, _poll.EventInput);
+		_poll.Add(connection->GetSocket(), *connection, _poll.EventInput);
 	}
 
 	void LocalBus::Remove(LocalBusConnection * connection)
 	{
-		_poll.Remove(*connection);
+		_poll.Remove(connection->GetSocket());
 	}
 
 	void LocalBus::AllowWrite(LocalBusConnection * connection, bool allow)
 	{
-		_poll.Modify(*connection, *connection, _poll.EventInput | (allow? _poll.EventOutput: 0));
+		_poll.Modify(connection->GetSocket(), *connection, _poll.EventInput | (allow? _poll.EventOutput: 0));
 	}
 
 	void LocalBus::Wait(int timeout)

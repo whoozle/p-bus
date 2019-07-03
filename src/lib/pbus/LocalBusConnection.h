@@ -10,7 +10,6 @@ namespace pbus
 {
 	class LocalBus;
 	class LocalBusConnection :
-		public io::IPollable,
 		public io::IPollEventHandler
 	{
 		log::Logger 					_log;
@@ -22,8 +21,8 @@ namespace pbus
 		LocalBusConnection(ServiceId serviceId, LocalBus * bus, net::unix::LocalSocket && socket);
 		~LocalBusConnection();
 
-		int GetFileDescriptor() const override
-		{ return _socket.GetFileDescriptor(); }
+		net::unix::LocalSocket & GetSocket()
+		{ return _socket; }
 		void HandleSocketEvent(int event) override;
 	};
 }
