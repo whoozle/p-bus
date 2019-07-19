@@ -9,10 +9,12 @@
 #include <pbus/String.h>
 #include <pbus/LocalBusConnection.h>
 #include <toolkit/log/Logger.h>
-#include <memory>
-#include <unordered_map>
+#include <toolkit/serialization/Record.h>
 #include <future>
+#include <memory>
 #include <mutex>
+#include <type_traits>
+#include <unordered_map>
 
 namespace pbus
 {
@@ -104,6 +106,9 @@ namespace pbus
 		{
 			std::promise<ReturnType> promise;
 			auto connection = Connect(methodId.Service);
+			using ArgsRecord = serialization::Record<typename std::decay<ArgumentType>::type ...>;
+			static ArgsRecord argsRecord;
+			static serialization::Record<MethodId, ArgsRecord> record;
 			promise.set_exception(std::make_exception_ptr(std::runtime_error("not implemented")));
 			return promise;
 		}
