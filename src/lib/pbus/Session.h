@@ -8,12 +8,18 @@
 #include <pbus/MethodId.h>
 #include <pbus/String.h>
 #include <pbus/LocalBusConnection.h>
+
 #include <toolkit/log/Logger.h>
-#include <toolkit/serialization/Record.h>
+#include <toolkit/serialization/Serializator.h>
+#include <toolkit/serialization/ISerializationStream.h>
+#include <toolkit/serialization/Serialization.h>
+#include <toolkit/serialization/BSONWriter.h>
+
 #include <future>
 #include <memory>
 #include <mutex>
-#include <type_traits>
+#include <tuple>
+#include <vector>
 #include <unordered_map>
 
 namespace pbus
@@ -40,6 +46,16 @@ namespace pbus
 
 		idl::ICoreObject * Create(const SessionPtr & session) override
 		{ return new Component(session, ObjectId(_serviceId, _nextObjectId++)); }
+	};
+
+	template<typename ... ArgumentType>
+	class SessionRequest
+	{
+		MethodId & 						Method;
+		std::tuple<ArgumentType & ...> 	Arguments;
+
+		void Write(serialization::IOutputStream & stream)
+		{ }
 	};
 
 	class LocalBusConnection;
@@ -106,9 +122,10 @@ namespace pbus
 		{
 			std::promise<ReturnType> promise;
 			auto connection = Connect(methodId.Service);
-			using ArgsRecord = serialization::Record<typename std::decay<ArgumentType>::type ...>;
-			static ArgsRecord argsRecord;
-			static serialization::Record<MethodId, ArgsRecord> record;
+			std::vector<u8> data;
+			auto inserter = std::back_inserter(data);
+			typename serialization::bson::Writer<decltype(inserter)> writer(inserter);
+
 			promise.set_exception(std::make_exception_ptr(std::runtime_error("not implemented")));
 			return promise;
 		}
