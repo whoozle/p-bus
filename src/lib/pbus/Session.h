@@ -25,14 +25,14 @@
 namespace pbus
 {
 	class Session;
-	DECLARE_PTR(Session);
+	TOOLKIT_DECLARE_PTR(Session);
 
 	struct IComponentFactory
 	{
 		virtual ~IComponentFactory() = default;
 		virtual idl::ICoreObject * Create(const SessionPtr & session) = 0;
 	};
-	DECLARE_PTR(IComponentFactory);
+	TOOLKIT_DECLARE_PTR(IComponentFactory);
 
 	template<typename Component>
 	class ComponentFactory : public IComponentFactory
@@ -59,7 +59,7 @@ namespace pbus
 	};
 
 	class LocalBusConnection;
-	DECLARE_PTR(LocalBusConnection);
+	TOOLKIT_DECLARE_PTR(LocalBusConnection);
 
 	class Session final : public std::enable_shared_from_this<Session>
 	{

@@ -17,10 +17,10 @@ namespace pbus { namespace idl
 		virtual {{method.rtype}} {{method.name}}({% for arg in method.args %}{% if not loop.first %}, {% endif %}{{arg.type}} {{arg.name}}{% endfor %}) = 0;
 		{%- endfor %}
 	};
-	DECLARE_PTR(I{{name}});
-	DECLARE_CONST_PTR(I{{name}});
-	DECLARE_WEAK_PTR(I{{name}});
-	DECLARE_CONST_WEAK_PTR(I{{name}});
+	TOOLKIT_DECLARE_PTR(I{{name}});
+	TOOLKIT_DECLARE_CONST_PTR(I{{name}});
+	TOOLKIT_DECLARE_WEAK_PTR(I{{name}});
+	TOOLKIT_DECLARE_CONST_WEAK_PTR(I{{name}});
 
 }}
 

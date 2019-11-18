@@ -2,6 +2,7 @@
 #define PBUS_IDL_ICOREREMOTEOBJECT_H
 
 #include <pbus/ObjectId.h>
+#include <memory>
 
 namespace pbus { namespace idl
 {
@@ -10,14 +11,14 @@ namespace pbus { namespace idl
 	{
 		virtual ~ICoreObject() = default;
 	};
-	DECLARE_PTR(ICoreObject);
+	TOOLKIT_DECLARE_PTR(ICoreObject);
 
 	struct IRemoteObject
 	{
 		virtual ~IRemoteObject() = default;
 		virtual const ObjectId & GetId() const = 0;
 	};
-	DECLARE_PTR(IRemoteObject);
+	TOOLKIT_DECLARE_PTR(IRemoteObject);
 
 }}
 
