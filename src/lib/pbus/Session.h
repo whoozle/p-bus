@@ -13,7 +13,7 @@
 #include <toolkit/serialization/Serializator.h>
 #include <toolkit/serialization/ISerializationStream.h>
 #include <toolkit/serialization/Serialization.h>
-#include <toolkit/serialization/BSONWriter.h>
+#include <toolkit/serialization/bson/OutputStream.h>
 
 #include <future>
 #include <memory>
@@ -124,7 +124,7 @@ namespace pbus
 			auto connection = Connect(methodId.Service);
 			std::vector<u8> data;
 			auto inserter = std::back_inserter(data);
-			typename serialization::bson::Writer<decltype(inserter)> writer(inserter);
+			typename serialization::bson::OutputStream<decltype(inserter)> writer(inserter);
 
 			promise.set_exception(std::make_exception_ptr(std::runtime_error("not implemented")));
 			return promise;
