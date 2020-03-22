@@ -53,9 +53,6 @@ namespace pbus
 	{
 		MethodId & 						Method;
 		std::tuple<ArgumentType & ...> 	Arguments;
-
-		void Write(serialization::IOutputStream & stream)
-		{ }
 	};
 
 	class LocalBusConnection;

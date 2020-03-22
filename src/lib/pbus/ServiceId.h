@@ -1,6 +1,7 @@
 #ifndef PBUS_SERVICEID_H
 #define PBUS_SERVICEID_H
 
+#include <toolkit/serialization/Serialization.h>
 #include <toolkit/text/StringOutputStream.h>
 #include <toolkit/core/Exception.h>
 #include <toolkit/core/Hash.h>
@@ -14,6 +15,14 @@ namespace pbus
 	{
 		std::string		Name;
 		uint			Version;
+
+		static auto GetClassDescriptor()
+		{
+			return
+				serialization::ClassDescriptor("ServiceId", 1) &
+				serialization::Member(&ServiceId::Name, "name") &
+				serialization::Member(&ServiceId::Version, "version");
+		}
 
 		ServiceId(const std::string & name, uint version = 1)
 		{
