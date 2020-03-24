@@ -4,7 +4,7 @@
 int main(int argc, char **argv)
 {
 	using namespace pbus;
-	ServiceId serviceId("system.core.ServiceManager");
+	ServiceId serviceId("ServiceManager");
 	LocalBus bus(serviceId);
 	while(true)
 		bus.Wait();
