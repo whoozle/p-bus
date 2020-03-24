@@ -15,7 +15,7 @@
 
 namespace pbus
 {
-	LocalBusConnection::LocalBusConnection(ServiceId serviceId):
+	LocalBusConnection::LocalBusConnection(ClassId serviceId):
 		_log("connection/" + serviceId.ToString()),
 		_bus(nullptr),
 		_socket(net::BaseSocket::NonBlocking)
@@ -26,7 +26,7 @@ namespace pbus
 		_socket.Connect(ep);
 	}
 
-	LocalBusConnection::LocalBusConnection(ServiceId serviceId, LocalBus * bus, net::unix::LocalSocket && socket):
+	LocalBusConnection::LocalBusConnection(ClassId serviceId, LocalBus * bus, net::unix::LocalSocket && socket):
 		_log("connection/" + serviceId.ToString()),
 		_bus(bus),
 		_socket(std::move(socket))

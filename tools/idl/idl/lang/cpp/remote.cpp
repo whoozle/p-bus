@@ -8,8 +8,8 @@ namespace pbus { namespace idl
 {
 	namespace
 	{
-		ServiceId serviceId("{{name}}");
-		{% for method in methods %}MethodId method_{{method.name}}(serviceId, "{{method.name}}");{% endfor %}
+		ClassId classId("{{name}}");
+		{% for method in methods %}MethodId method_{{method.name}}(classId, "{{method.name}}");{% endfor %}
 	}
 
 {% for method in methods %}
@@ -24,9 +24,9 @@ namespace pbus { namespace idl
 	{
 		auto & session = Session::Get();
 {%- for dep in deps %}
-		session.Register<{{dep}}>(ServiceId("{{dep}}"));
+		session.Register<{{dep}}>(ClassId("{{dep}}"));
 {%- endfor %}
-		session.Register<{{name}}>(serviceId);
+		session.Register<{{name}}>(classId);
 	}
 
 }}

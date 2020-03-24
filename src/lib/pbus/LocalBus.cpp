@@ -5,7 +5,7 @@
 
 namespace pbus
 {
-	LocalBus::LocalBus(const ServiceId & id):
+	LocalBus::LocalBus(const ClassId & id):
 		_log("bus/" + id.ToString()),
 		_id(id),
 		_socket(net::ISocket::NonBlocking),

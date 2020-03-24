@@ -5,7 +5,7 @@ namespace pbus
 {
 	log::Logger Session::_log("session");
 
-	LocalBusConnectionPtr Session::Connect(const ServiceId & serviceId)
+	LocalBusConnectionPtr Session::Connect(const ClassId & serviceId)
 	{
 		_log.Debug() << "connecting to " << serviceId;
 		auto i = _connections.find(serviceId);
@@ -20,7 +20,7 @@ namespace pbus
 			catch(const std::exception & ex)
 			{
 				_log.Debug() << "exception while connection: " << ex.what();
-				ServiceId serviceManagerId("ServiceManager");
+				ClassId serviceManagerId("ServiceManager");
 				if (serviceId == serviceManagerId)
 					throw Exception("cannot connect to ServiceManager to create service " + serviceId.ToString());
 

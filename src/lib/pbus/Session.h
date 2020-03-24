@@ -4,7 +4,7 @@
 #include <toolkit/core/types.h>
 #include <pbus/idl/ICoreObject.h>
 #include <pbus/idl/IService.h>
-#include <pbus/ServiceId.h>
+#include <pbus/ClassId.h>
 #include <pbus/MethodId.h>
 #include <pbus/String.h>
 #include <pbus/LocalBusConnection.h>
@@ -37,11 +37,11 @@ namespace pbus
 	template<typename Component>
 	class ComponentFactory : public IComponentFactory
 	{
-		ServiceId	_serviceId;
+		ClassId		_serviceId;
 		size_t		_nextObjectId;
 
 	public:
-		ComponentFactory(ServiceId sessionId): _serviceId(sessionId), _nextObjectId(1)
+		ComponentFactory(ClassId sessionId): _serviceId(sessionId), _nextObjectId(1)
 		{ }
 
 		idl::ICoreObject * Create(const SessionPtr & session) override
@@ -63,8 +63,8 @@ namespace pbus
 		static log::Logger										_log;
 
 		std::recursive_mutex									_lock;
-		std::unordered_map<ServiceId, IComponentFactoryPtr> 	_factories;
-		std::unordered_map<ServiceId, LocalBusConnectionPtr> 	_connections;
+		std::unordered_map<ClassId, IComponentFactoryPtr> 	_factories;
+		std::unordered_map<ClassId, LocalBusConnectionPtr> 	_connections;
 
 		Session() {}
 
@@ -73,7 +73,7 @@ namespace pbus
 		{ static Session session; return session; }
 
 		template<typename Component>
-		void Register(const ServiceId &serviceId)
+		void Register(const ClassId &serviceId)
 		{
 			std::lock_guard<decltype(_lock)> l(_lock);
 			auto it = _factories.find(serviceId);
@@ -83,7 +83,7 @@ namespace pbus
 		}
 
 		template<typename Component>
-		void Register(const ServiceId &serviceId, const IComponentFactoryPtr & factory)
+		void Register(const ClassId &serviceId, const IComponentFactoryPtr & factory)
 		{
 			std::lock_guard<decltype(_lock)> l(_lock);
 			auto it = _factories.find(serviceId);
@@ -100,7 +100,7 @@ namespace pbus
 		}
 
 		template<typename ProxyType>
-		std::shared_ptr<typename ProxyType::InterfaceType> GetService(ServiceId serviceId)
+		std::shared_ptr<typename ProxyType::InterfaceType> GetService(ClassId serviceId)
 		{
 			std::lock_guard<decltype(_lock)> l(_lock);
 			auto factory = Get(serviceId.ToString());
@@ -130,7 +130,7 @@ namespace pbus
 		}
 
 	private:
-		LocalBusConnectionPtr Connect(const ServiceId & id);
+		LocalBusConnectionPtr Connect(const ClassId & id);
 	};
 }
 

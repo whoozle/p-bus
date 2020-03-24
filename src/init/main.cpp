@@ -1,10 +1,10 @@
-#include <pbus/ServiceId.h>
+#include <pbus/ClassId.h>
 #include <pbus/LocalBus.h>
 
 int main(int argc, char **argv)
 {
 	using namespace pbus;
-	ServiceId serviceId("ServiceManager");
+	ClassId serviceId("ServiceManager");
 	LocalBus bus(serviceId);
 	while(true)
 		bus.Wait();

@@ -2,17 +2,17 @@
 #define PBUS_OBJECTID_H
 
 #include <toolkit/core/types.h>
-#include <pbus/ServiceId.h>
+#include <pbus/ClassId.h>
 #include <string>
 
 namespace pbus
 {
 	struct ObjectId
 	{
-		ServiceId 	 	Service;
+		ClassId 	 	Service;
 		std::size_t		Id;
 
-		ObjectId(const ServiceId & service, std::size_t id):
+		ObjectId(const ClassId & service, std::size_t id):
 			Service(service), Id(id)
 		{ }
 

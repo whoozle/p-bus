@@ -1,7 +1,7 @@
 #ifndef PBUS_LOCALBUS_H
 #define PBUS_LOCALBUS_H
 
-#include <pbus/ServiceId.h>
+#include <pbus/ClassId.h>
 #include <toolkit/net/unix/LocalServerSocket.h>
 #include <toolkit/io/IPollEventHandler.h>
 #include <toolkit/io/Poll.h>
@@ -15,7 +15,7 @@ namespace pbus
 	{
 	private:
 		log::Logger 					_log;
-		ServiceId						_id;
+		ClassId						_id;
 		net::unix::LocalServerSocket 	_socket;
 		io::Poll						_poll;
 
@@ -38,7 +38,7 @@ namespace pbus
 		void AllowWrite(LocalBusConnection * connection, bool allow);
 
 	public:
-		LocalBus(const ServiceId &id);
+		LocalBus(const ClassId &id);
 
 		void Wait(int timeout = -1);
 	};

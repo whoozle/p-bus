@@ -11,10 +11,10 @@ namespace pbus
 {
 	struct MethodId
 	{
-		const ServiceId & 	Service;
+		const ClassId & 	Service;
 		std::string			Name;
 
-		MethodId(const ServiceId & service, const std::string & name):
+		MethodId(const ClassId & service, const std::string & name):
 			Service(service), Name(name)
 		{ }
 
