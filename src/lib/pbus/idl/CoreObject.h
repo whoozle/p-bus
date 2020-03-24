@@ -11,12 +11,12 @@ namespace pbus { namespace idl
 		public virtual IRemoteObject
 	{
 	protected:
-		SessionPtr 	_session;
 		ObjectId	_id;
 
 	public:
-		CoreObject(const SessionPtr & session, const ObjectId & id): _session(session), _id(id)
+		CoreObject(const ObjectId & id): _id(id)
 		{ }
+
 		const ObjectId & GetId() const override
 		{ return _id; }
 	};

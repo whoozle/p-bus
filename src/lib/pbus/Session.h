@@ -30,7 +30,7 @@ namespace pbus
 	struct IComponentFactory
 	{
 		virtual ~IComponentFactory() = default;
-		virtual idl::ICoreObject * Create(const SessionPtr & session) = 0;
+		virtual idl::ICoreObject * Create() = 0;
 	};
 	TOOLKIT_DECLARE_PTR(IComponentFactory);
 
@@ -44,8 +44,8 @@ namespace pbus
 		ComponentFactory(ClassId sessionId): _serviceId(sessionId), _nextObjectId(1)
 		{ }
 
-		idl::ICoreObject * Create(const SessionPtr & session) override
-		{ return new Component(session, ObjectId(_serviceId, _nextObjectId++)); }
+		idl::ICoreObject * Create() override
+		{ return new Component(ObjectId(_serviceId, _nextObjectId++)); }
 	};
 
 	template<typename ... ArgumentType>
@@ -58,7 +58,7 @@ namespace pbus
 	class LocalBusConnection;
 	TOOLKIT_DECLARE_PTR(LocalBusConnection);
 
-	class Session final : public std::enable_shared_from_this<Session>
+	class Session final
 	{
 		static log::Logger										_log;
 
@@ -108,8 +108,7 @@ namespace pbus
 				throw Exception("no service " + serviceId.ToString() + " registered");
 
 			auto connection = Session::Connect(serviceId);
-			auto session = shared_from_this();
-			idl::ICoreObjectPtr object(factory->Create(session));
+			idl::ICoreObjectPtr object(factory->Create());
 			auto result = std::dynamic_pointer_cast<typename ProxyType::InterfaceType>(object);
 			if (!result)
 				throw Exception("object created failed to cast");
