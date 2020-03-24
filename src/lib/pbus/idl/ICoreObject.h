@@ -9,6 +9,8 @@ namespace pbus { namespace idl
 
 	struct ICoreObject
 	{
+		static pbus::ClassId ClassId;
+
 		virtual ~ICoreObject() = default;
 	};
 	TOOLKIT_DECLARE_PTR(ICoreObject);

@@ -84,6 +84,7 @@ class Generator(object):
 	def generate(self, dst_dir):
 		templates = {
 			"interface.h": lambda x: "I%s.h" %x,
+			"interface.cpp": lambda x: "I%s.cpp" %x,
 			"remote.h" : lambda x: "%s.h" %x,
 			"remote.cpp": lambda x: "%s.cpp" %x
 		}

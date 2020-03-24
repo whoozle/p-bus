@@ -1,7 +1,4 @@
 #include <pbus/idl/{{name}}.h>
-{%- for dep in deps %}
-#include <pbus/idl/{{dep}}.h>
-{% endfor -%}
 #include <pbus/MethodId.h>
 
 namespace pbus { namespace idl
@@ -19,14 +16,5 @@ namespace pbus { namespace idl
 		{% if method.rtype != "void" %}return result.get();{% else %}result.get();{% endif %}
 	}
 {% endfor %}
-
-	void {{name}}::Register()
-	{
-		auto & session = Session::Get();
-{%- for dep in deps %}
-		session.Register<{{dep}}>(ClassId("{{dep}}"));
-{%- endfor %}
-		session.Register<{{name}}>(classId);
-	}
 
 }}

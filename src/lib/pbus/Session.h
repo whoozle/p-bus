@@ -66,7 +66,7 @@ namespace pbus
 		std::unordered_map<ClassId, IComponentFactoryPtr> 	_factories;
 		std::unordered_map<ClassId, LocalBusConnectionPtr> 	_connections;
 
-		Session() {}
+		Session();
 
 	public:
 		static Session & Get()
@@ -99,17 +99,18 @@ namespace pbus
 			return it != _factories.end()? it->second: nullptr;
 		}
 
-		template<typename ProxyType>
-		std::shared_ptr<typename ProxyType::InterfaceType> GetService(ClassId serviceId)
+		template<typename InterfaceType>
+		std::shared_ptr<InterfaceType> GetService()
 		{
 			std::lock_guard<decltype(_lock)> l(_lock);
-			auto factory = Get(serviceId.ToString());
+			auto & classId = InterfaceType::ClassId;
+			auto factory = Get(classId.ToString());
 			if (!factory)
-				throw Exception("no service " + serviceId.ToString() + " registered");
+				throw Exception("no service " + classId.ToString() + " registered");
 
-			auto connection = Session::Connect(serviceId);
+			auto connection = Session::Connect(classId);
 			idl::ICoreObjectPtr object(factory->Create());
-			auto result = std::dynamic_pointer_cast<typename ProxyType::InterfaceType>(object);
+			auto result = std::dynamic_pointer_cast<InterfaceType>(object);
 			if (!result)
 				throw Exception("object created failed to cast");
 			return result;
