@@ -20,12 +20,13 @@ namespace pbus { namespace idl
 	}
 {% endfor %}
 
-	void {{name}}::Register(const SessionPtr & session)
+	void {{name}}::Register()
 	{
+		auto & session = Session::Get();
 {%- for dep in deps %}
-		session->Register<{{dep}}>(ServiceId("{{dep}}"));
+		session.Register<{{dep}}>(ServiceId("{{dep}}"));
 {%- endfor %}
-		session->Register<{{name}}>(serviceId);
+		session.Register<{{name}}>(serviceId);
 	}
 
 }}

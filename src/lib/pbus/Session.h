@@ -66,9 +66,11 @@ namespace pbus
 		std::unordered_map<ServiceId, IComponentFactoryPtr> 	_factories;
 		std::unordered_map<ServiceId, LocalBusConnectionPtr> 	_connections;
 
+		Session() {}
+
 	public:
-		SessionPtr GetPointer()
-		{ return shared_from_this();}
+		static Session & Get()
+		{ static Session session; return session; }
 
 		template<typename Component>
 		void Register(const ServiceId &serviceId)
