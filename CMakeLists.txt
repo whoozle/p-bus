@@ -85,6 +85,13 @@ add_executable(system.ServiceManager
 target_link_libraries(system.ServiceManager pbus)
 target_include_directories(system.ServiceManager PRIVATE src/services)
 
+add_executable(system.RandomGenerator
+	src/services/system/randomgenerator/main.cpp
+)
+target_link_libraries(system.RandomGenerator pbus)
+target_include_directories(system.RandomGenerator PRIVATE src/services)
+
+
 add_executable(app.pbus.example.random
 	src/client/client.cpp
 )
