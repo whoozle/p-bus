@@ -66,6 +66,7 @@ include_directories(
 )
 
 add_library(pbus SHARED
+	src/lib/pbus/Application.cpp
 	src/lib/pbus/idl/ICoreObject.cpp
 	src/lib/pbus/LocalBus.cpp
 	src/lib/pbus/LocalBusConnection.cpp

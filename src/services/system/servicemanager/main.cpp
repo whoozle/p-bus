@@ -1,12 +1,9 @@
-#include <pbus/ClassId.h>
-#include <pbus/LocalBus.h>
+#include <pbus/Application.h>
 
 int main(int argc, char **argv)
 {
 	using namespace pbus;
-	ClassId serviceId("ServiceManager");
-	LocalBus bus(serviceId);
-	while(true)
-		bus.Wait();
+	Application app(ClassId("system.ServiceManager"));
+	app.Run();
 	return 0;
 }
