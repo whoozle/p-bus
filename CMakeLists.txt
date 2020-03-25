@@ -76,16 +76,16 @@ add_library(pbus SHARED
 set_target_properties(pbus PROPERTIES VERSION 1.0)
 target_link_libraries(pbus toolkit)
 
-add_executable(pbus-init
-	src/init/main.cpp
-	src/init/pbus/servicemanager/Service.cpp
-	src/init/pbus/servicemanager/ServiceRegistry.cpp
+add_executable(system.ServiceManager
+	src/services/system/servicemanager/main.cpp
+	src/services/system/servicemanager/Service.cpp
+	src/services/system/servicemanager/ServiceRegistry.cpp
 )
-target_link_libraries(pbus-init pbus)
-target_include_directories(pbus-init PRIVATE src/init)
+target_link_libraries(system.ServiceManager pbus)
+target_include_directories(system.ServiceManager PRIVATE src/services)
 
-add_executable(pbus-client
+add_executable(app.pbus.example.random
 	src/client/client.cpp
 )
-target_link_libraries(pbus-client pbus)
-target_include_directories(pbus-client PRIVATE src/client)
+target_link_libraries(app.pbus.example.random pbus)
+target_include_directories(app.pbus.example.random PRIVATE src/client)

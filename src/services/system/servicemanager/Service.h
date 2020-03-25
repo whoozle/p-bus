@@ -2,7 +2,7 @@
 #define PBUS_SERVICE_H
 
 #include <pbus/LocalBus.h>
-#include <pbus/servicemanager/ServiceRegistry.h>
+#include <system/servicemanager/ServiceRegistry.h>
 
 namespace pbus
 {
