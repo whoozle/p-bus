@@ -3,6 +3,7 @@
 
 #include <pbus/idl/core/ICoreObject.h>
 #include <pbus/LocalBusConnection.h>
+#include <pbus/ComponentFactory.h>
 #include <pbus/ClassId.h>
 #include <pbus/MethodId.h>
 #include <pbus/String.h>
@@ -13,7 +14,6 @@
 #include <toolkit/serialization/Serialization.h>
 #include <toolkit/serialization/bson/OutputStream.h>
 
-#include <atomic>
 #include <future>
 #include <memory>
 #include <mutex>
@@ -25,37 +25,6 @@ namespace pbus
 {
 	class Session;
 	TOOLKIT_DECLARE_PTR(Session);
-
-	struct IComponentFactory
-	{
-		virtual ~IComponentFactory() = default;
-		virtual idl::core::ICoreObject * Create(ObjectId::IdType id) = 0;
-	};
-	TOOLKIT_DECLARE_PTR(IComponentFactory);
-
-	template <typename InterfaceType>
-	struct ITypedComponentFactory : public IComponentFactory
-	{
-		virtual InterfaceType * Create(ObjectId::IdType id) = 0;
-	};
-
-	template <typename Component, typename InterfaceType = typename Component::InterfaceType>
-	class ComponentFactory : public ITypedComponentFactory<InterfaceType>
-	{
-		ClassId							_serviceId;
-		std::atomic<ObjectId::IdType>	_nextObjectId;
-
-	public:
-		ComponentFactory(ClassId sessionId): _serviceId(sessionId), _nextObjectId(1)
-		{ }
-
-		InterfaceType * Create(ObjectId::IdType id) override
-		{
-			if (!id)
-				id = _nextObjectId.fetch_add(1, std::memory_order_relaxed);
-			return new Component(ObjectId(_serviceId, id));
-		}
-	};
 
 	template<typename ... ArgumentType>
 	class SessionRequest
@@ -74,6 +43,7 @@ namespace pbus
 		std::recursive_mutex									_lock;
 		std::unordered_map<ClassId, IComponentFactoryPtr> 		_factories;
 		std::unordered_map<ClassId, LocalBusConnectionPtr> 		_connections;
+		std::unordered_map<ClassId, IServiceFactoryPtr> 		_services;
 
 		Session();
 
@@ -82,16 +52,21 @@ namespace pbus
 		{ static Session session; return session; }
 
 		template<typename Component>
-		void RegisterProxy(const ClassId &classId, bool force = false)
+		void RegisterProxy(const ClassId &classId)
 		{
 			std::lock_guard<decltype(_lock)> l(_lock);
-			if (!force)
 			{
 				auto it = _factories.find(classId);
 				if (it != _factories.end())
 					return;
 			}
 			_factories[classId] = std::make_shared<ComponentFactory<Component>>(classId);
+		}
+
+		void RegisterService(const ClassId &classId, IServiceFactoryPtr factory)
+		{
+			std::lock_guard<decltype(_lock)> l(_lock);
+			_services[classId] = factory;
 		}
 
 		IComponentFactoryPtr Get(const std::string &name)

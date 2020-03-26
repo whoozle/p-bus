@@ -10,14 +10,26 @@ namespace pbus
 	class Application
 	{
 		LocalBus  _bus;
+
+	private:
+		template<typename ClassType>
+		struct ServiceComponentFactory : public IServiceFactory
+		{
+			idl::core::ICoreObjectPtr Get() override
+			{
+				static idl::core::ICoreObjectPtr instance(new ClassType);
+				return instance;
+			}
+		};
+
 	public:
 		Application(const ClassId & classId);
 
-		template<typename ClassType>
+		template<typename Service>
 		void RegisterClass(const ClassId & classId)
 		{
 			auto & session = Session::Get();
-			session.RegisterProxy<ClassType>(classId, true);
+			session.RegisterService(classId, std::make_shared<ServiceComponentFactory<Service>>());
 		}
 
 		void Run();
