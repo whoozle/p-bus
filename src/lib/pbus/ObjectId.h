@@ -9,10 +9,11 @@ namespace pbus
 {
 	struct ObjectId
 	{
-		ClassId 	 	Service;
-		std::size_t		Id;
+		using IdType 		= u32;
+		ClassId 	 		Service;
+		IdType				Id;
 
-		ObjectId(const ClassId & service, std::size_t id):
+		ObjectId(const ClassId & service, IdType id):
 			Service(service), Id(id)
 		{ }
 

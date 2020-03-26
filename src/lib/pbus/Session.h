@@ -13,6 +13,7 @@
 #include <toolkit/serialization/Serialization.h>
 #include <toolkit/serialization/bson/OutputStream.h>
 
+#include <atomic>
 #include <future>
 #include <memory>
 #include <mutex>
@@ -28,28 +29,32 @@ namespace pbus
 	struct IComponentFactory
 	{
 		virtual ~IComponentFactory() = default;
-		virtual idl::core::ICoreObject * Create() = 0;
+		virtual idl::core::ICoreObject * Create(ObjectId::IdType id) = 0;
 	};
 	TOOLKIT_DECLARE_PTR(IComponentFactory);
 
 	template <typename InterfaceType>
 	struct ITypedComponentFactory : public IComponentFactory
 	{
-		virtual InterfaceType * Create() = 0;
+		virtual InterfaceType * Create(ObjectId::IdType id) = 0;
 	};
 
 	template <typename Component, typename InterfaceType = typename Component::InterfaceType>
 	class ComponentFactory : public ITypedComponentFactory<InterfaceType>
 	{
-		ClassId		_serviceId;
-		size_t		_nextObjectId;
+		ClassId							_serviceId;
+		std::atomic<ObjectId::IdType>	_nextObjectId;
 
 	public:
 		ComponentFactory(ClassId sessionId): _serviceId(sessionId), _nextObjectId(1)
 		{ }
 
-		InterfaceType * Create() override
-		{ return new Component(ObjectId(_serviceId, _nextObjectId++)); }
+		InterfaceType * Create(ObjectId::IdType id) override
+		{
+			if (!id)
+				id = _nextObjectId.fetch_add(1, std::memory_order_relaxed);
+			return new Component(ObjectId(_serviceId, id));
+		}
 	};
 
 	template<typename ... ArgumentType>
@@ -107,7 +112,7 @@ namespace pbus
 				throw Exception("no service " + classId.ToString() + " registered");
 
 			auto connection = Session::Connect(classId);
-			idl::core::ICoreObjectPtr object(factory->Create());
+			idl::core::ICoreObjectPtr object(factory->Create(0));
 			auto result = std::dynamic_pointer_cast<InterfaceType>(object);
 			if (!result)
 				throw Exception("object created failed to cast");
