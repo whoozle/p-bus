@@ -77,20 +77,16 @@ namespace pbus
 		{ static Session session; return session; }
 
 		template<typename Component>
-		void RegisterProxy(const ClassId &serviceId)
+		void RegisterProxy(const ClassId &classId, bool force = false)
 		{
 			std::lock_guard<decltype(_lock)> l(_lock);
-			auto it = _factories.find(serviceId);
-			if (it != _factories.end())
-				return;
-			_factories[serviceId] = std::make_shared<ComponentFactory<Component>>(serviceId);
-		}
-
-		void Register(const ClassId &serviceId, const IComponentFactoryPtr & factory)
-		{
-			//register custom factory regardless of proxy registration
-			std::lock_guard<decltype(_lock)> l(_lock);
-			_factories[serviceId] = factory;
+			if (!force)
+			{
+				auto it = _factories.find(classId);
+				if (it != _factories.end())
+					return;
+			}
+			_factories[classId] = std::make_shared<ComponentFactory<Component>>(classId);
 		}
 
 		IComponentFactoryPtr Get(const std::string &name)
