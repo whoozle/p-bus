@@ -8,6 +8,7 @@ namespace pbus
 
 	void Application::Run()
 	{
-		_bus.Wait();
+		while(true)
+			_bus.Wait();
 	}
 }
