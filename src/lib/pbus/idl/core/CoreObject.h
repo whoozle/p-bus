@@ -1,10 +1,10 @@
 #ifndef PBUS_IDL_COREOBJECT_H
 #define PBUS_IDL_COREOBJECT_H
 
-#include <pbus/idl/ICoreObject.h>
+#include <pbus/idl/core/ICoreObject.h>
 #include <pbus/Session.h>
 
-namespace pbus { namespace idl
+namespace pbus { namespace idl { namespace core
 {
 	class CoreObject :
 		public virtual ICoreObject,
@@ -20,7 +20,7 @@ namespace pbus { namespace idl
 		const ObjectId & GetId() const override
 		{ return _id; }
 	};
-}}
+}}}
 
 #endif
 

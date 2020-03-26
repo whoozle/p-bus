@@ -1,3 +1,1 @@
-package system;
-
-interface ServiceLease : Disposable { }
+interface system.ServiceLease : core.Disposable { }

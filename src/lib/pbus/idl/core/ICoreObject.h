@@ -4,7 +4,7 @@
 #include <pbus/ObjectId.h>
 #include <memory>
 
-namespace pbus { namespace idl
+namespace pbus { namespace idl { namespace core 
 {
 
 	struct ICoreObject
@@ -22,7 +22,7 @@ namespace pbus { namespace idl
 	};
 	TOOLKIT_DECLARE_PTR(IRemoteObject);
 
-}}
+}}}
 
 #endif
 

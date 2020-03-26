@@ -1,6 +1,4 @@
-package core;
-
-interface Disposable : Object
+interface core.Disposable : core.Object
 {
 	void dispose();
 }

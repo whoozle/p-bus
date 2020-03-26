@@ -34,29 +34,22 @@ set(IDLC_PATH ${CMAKE_CURRENT_SOURCE_DIR}/tools/idl)
 file(MAKE_DIRECTORY ${IDL_DST})
 
 set(IDL_FILES
-	${IDL_SRC}/core/Disposable.idl
-	${IDL_SRC}/core/Object.idl
-	${IDL_SRC}/system/Service.idl
-	${IDL_SRC}/system/ServiceLease.idl
-	${IDL_SRC}/system/ServiceManager.idl
-	${IDL_SRC}/system/RandomGenerator.idl
+	core/Disposable.idl
+	core/Object.idl
+	system/Service.idl
+	system/ServiceLease.idl
+	system/ServiceManager.idl
+	system/RandomGenerator.idl
 )
 
 IDL_GENERATE_SOURCE(
 	OUTPUT IDL_SOURCES
-	NAMES IDL_NAMES
 	IDLC_PATH ${IDLC_PATH}
 	DESTINATION ${IDL_DST}
-	INPUT ${IDL_FILES}
+	SOURCES_DIR ${IDL_SRC}
+	SOURCES ${IDL_FILES}
 )
 
-set(IDL_REGISTER_ALL_CODE "")
-set(IDL_REGISTER_ALL_INCLUDES "")
-foreach(_NAME ${IDL_NAMES})
-	set(IDL_REGISTER_ALL_CODE "${IDL_REGISTER_ALL_CODE}\n\tI${_NAME}::RegisterProxy(session);")
-	set(IDL_REGISTER_ALL_INCLUDES "${IDL_REGISTER_ALL_INCLUDES}\n#include <pbus/idl/I${_NAME}.h>")
-endforeach()
-configure_file(src/idl/RegisterAll.h.in ${IDL_DST}/RegisterAll.h)
 
 include_directories(
 	${CMAKE_CURRENT_SOURCE_DIR}/src/lib
@@ -67,7 +60,7 @@ include_directories(
 
 add_library(pbus SHARED
 	src/lib/pbus/Application.cpp
-	src/lib/pbus/idl/ICoreObject.cpp
+	src/lib/pbus/idl/core/ICoreObject.cpp
 	src/lib/pbus/LocalBus.cpp
 	src/lib/pbus/LocalBusConnection.cpp
 	src/lib/pbus/Session.cpp

@@ -1,6 +1,4 @@
-package system;
-
-interface ServiceManager : Object
+interface system.ServiceManager
 {
-	ServiceLease initialize(string name, unsigned short int version);
+	system.ServiceLease initialize(string name, unsigned short int version);
 }

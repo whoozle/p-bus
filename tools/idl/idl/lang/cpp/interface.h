@@ -2,15 +2,15 @@
 #define PBUS_GENERATED_IDL_I{{name|upper}}_H
 
 #include <pbus/idl/types.h>
-{%- for dep in deps %}
-#include <pbus/idl/I{{dep}}.h>
+{%- for deppackage, depns, dep in deps %}
+#include <pbus/idl/{{deppackage | replace(".", "/")}}/I{{dep}}.h>
 {%- endfor %}
 #include <memory>
 
-namespace pbus { class Session; namespace idl
+namespace pbus { class Session; namespace idl{%- for pc in package_components %} { namespace {{pc}} {%- endfor %}
 {
 
-	struct I{{name}} : virtual I{{base}}
+	struct I{{name}} : virtual {{base_namespace}}::I{{base}}
 	{
 		virtual ~I{{name}}() = default;
 		{%- for method in methods %}
@@ -27,6 +27,7 @@ namespace pbus { class Session; namespace idl
 	TOOLKIT_DECLARE_WEAK_PTR(I{{name}});
 	TOOLKIT_DECLARE_CONST_WEAK_PTR(I{{name}});
 
+{% for pc in package_components %} } {%- endfor %}
 }}
 
 #endif

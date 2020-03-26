@@ -4,7 +4,6 @@ import ply.lex as lex
 import ply.yacc as yacc
 
 reserved = {
-	'package': 'PACKAGE',
 	'interface': 'INTERFACE',
 	'string': 'STRING',
 	'unsigned': 'UNSIGNED',
@@ -158,20 +157,7 @@ def p_interface_declaration(p):
 	else:
 		raise Exception("invalid argument count")
 
-def p_package_declaration(p):
-	"""
-		package_declaration 	: PACKAGE IDENTIFIER ';'
-	"""
-	p[0] = p[2]
-
-def p_root_declaration(p):
-	"""
-		root_declaration : package_declaration interface_declaration
-	"""
-	p[2].package = p[1]
-	p[0] = p[2]
-
-start = 'root_declaration'
+start = 'interface_declaration'
 parser = yacc.yacc()
 
 def parse(text):

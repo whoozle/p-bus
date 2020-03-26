@@ -1,4 +1,2 @@
-package system;
-
-interface Service
+interface system.Service
 { }

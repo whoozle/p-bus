@@ -1,7 +1,7 @@
-#include <pbus/idl/{{name}}.h>
+#include <pbus/idl/{{package|replace(".", "/")}}/{{name}}.h>
 #include <pbus/MethodId.h>
 
-namespace pbus { namespace idl
+namespace pbus { namespace idl{%- for pc in package_components %} { namespace {{pc}} {%- endfor %}
 {
 	namespace
 	{
@@ -17,4 +17,5 @@ namespace pbus { namespace idl
 	}
 {% endfor %}
 
+{% for pc in package_components %} } {%- endfor %}
 }}

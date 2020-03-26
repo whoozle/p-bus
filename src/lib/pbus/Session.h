@@ -1,13 +1,11 @@
 #ifndef PBUS_SESSION_H
 #define PBUS_SESSION_H
 
-#include <toolkit/core/types.h>
-#include <pbus/idl/ICoreObject.h>
-#include <pbus/idl/IService.h>
+#include <pbus/idl/core/ICoreObject.h>
+#include <pbus/LocalBusConnection.h>
 #include <pbus/ClassId.h>
 #include <pbus/MethodId.h>
 #include <pbus/String.h>
-#include <pbus/LocalBusConnection.h>
 
 #include <toolkit/log/Logger.h>
 #include <toolkit/serialization/Serializator.h>
@@ -30,7 +28,7 @@ namespace pbus
 	struct IComponentFactory
 	{
 		virtual ~IComponentFactory() = default;
-		virtual idl::ICoreObject * Create() = 0;
+		virtual idl::core::ICoreObject * Create() = 0;
 	};
 	TOOLKIT_DECLARE_PTR(IComponentFactory);
 
@@ -44,7 +42,7 @@ namespace pbus
 		ComponentFactory(ClassId sessionId): _serviceId(sessionId), _nextObjectId(1)
 		{ }
 
-		idl::ICoreObject * Create() override
+		idl::core::ICoreObject * Create() override
 		{ return new Component(ObjectId(_serviceId, _nextObjectId++)); }
 	};
 
@@ -109,7 +107,7 @@ namespace pbus
 				throw Exception("no service " + classId.ToString() + " registered");
 
 			auto connection = Session::Connect(classId);
-			idl::ICoreObjectPtr object(factory->Create());
+			idl::core::ICoreObjectPtr object(factory->Create());
 			auto result = std::dynamic_pointer_cast<InterfaceType>(object);
 			if (!result)
 				throw Exception("object created failed to cast");
