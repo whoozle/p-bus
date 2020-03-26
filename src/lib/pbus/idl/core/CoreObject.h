@@ -14,6 +14,8 @@ namespace pbus { namespace idl { namespace core
 		ObjectId	_id;
 
 	public:
+		using InterfaceType = ICoreObject;
+
 		CoreObject(const ObjectId & id): _id(id)
 		{ }
 

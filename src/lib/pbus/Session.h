@@ -32,8 +32,14 @@ namespace pbus
 	};
 	TOOLKIT_DECLARE_PTR(IComponentFactory);
 
-	template<typename Component>
-	class ComponentFactory : public IComponentFactory
+	template <typename InterfaceType>
+	struct ITypedComponentFactory : public IComponentFactory
+	{
+		virtual InterfaceType * Create() = 0;
+	};
+
+	template <typename Component, typename InterfaceType = typename Component::InterfaceType>
+	class ComponentFactory : public ITypedComponentFactory<InterfaceType>
 	{
 		ClassId		_serviceId;
 		size_t		_nextObjectId;
@@ -42,7 +48,7 @@ namespace pbus
 		ComponentFactory(ClassId sessionId): _serviceId(sessionId), _nextObjectId(1)
 		{ }
 
-		idl::core::ICoreObject * Create() override
+		InterfaceType * Create() override
 		{ return new Component(ObjectId(_serviceId, _nextObjectId++)); }
 	};
 
@@ -80,13 +86,10 @@ namespace pbus
 			_factories[serviceId] = std::make_shared<ComponentFactory<Component>>(serviceId);
 		}
 
-		template<typename Component>
 		void Register(const ClassId &serviceId, const IComponentFactoryPtr & factory)
 		{
+			//register custom factory regardless of proxy registration
 			std::lock_guard<decltype(_lock)> l(_lock);
-			auto it = _factories.find(serviceId);
-			if (it != _factories.end())
-				return;
 			_factories[serviceId] = factory;
 		}
 
