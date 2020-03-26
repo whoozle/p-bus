@@ -61,8 +61,8 @@ namespace pbus
 		static log::Logger										_log;
 
 		std::recursive_mutex									_lock;
-		std::unordered_map<ClassId, IComponentFactoryPtr> 	_factories;
-		std::unordered_map<ClassId, LocalBusConnectionPtr> 	_connections;
+		std::unordered_map<ClassId, IComponentFactoryPtr> 		_factories;
+		std::unordered_map<ClassId, LocalBusConnectionPtr> 		_connections;
 
 		Session();
 
@@ -71,7 +71,7 @@ namespace pbus
 		{ static Session session; return session; }
 
 		template<typename Component>
-		void Register(const ClassId &serviceId)
+		void RegisterProxy(const ClassId &serviceId)
 		{
 			std::lock_guard<decltype(_lock)> l(_lock);
 			auto it = _factories.find(serviceId);

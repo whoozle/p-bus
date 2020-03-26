@@ -11,9 +11,9 @@ namespace pbus { namespace idl{%- for pc in package_components %} { namespace {{
 	void I{{name}}::RegisterProxy(Session & session)
 	{
 {%- for deppackage, depns, dep in deps %}
-		session.Register<{{depns}}::{{dep}}>(I{{dep}}::ClassId);
+		session.RegisterProxy<{{depns}}::{{dep}}>(I{{dep}}::ClassId);
 {%- endfor %}
-		session.Register<{{name}}>(I{{name}}::ClassId);
+		session.RegisterProxy<{{name}}>(I{{name}}::ClassId);
 	}
 
     I{{name}} * I{{name}}::CreateProxy(ObjectId id)
