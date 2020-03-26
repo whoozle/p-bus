@@ -104,8 +104,9 @@ namespace pbus
 		}
 
 		template<typename ReturnType, typename ... ArgumentType>
-		std::promise<ReturnType> Invoke(const MethodId & methodId, ArgumentType ... args)
+		std::promise<ReturnType> Invoke(const ObjectId & objectId, const MethodId & methodId, ArgumentType ... args)
 		{
+			_log.Debug() << "invoking " << objectId << "." << methodId.Name;
 			std::promise<ReturnType> promise;
 			auto connection = Connect(methodId.Service);
 			std::vector<u8> data;
