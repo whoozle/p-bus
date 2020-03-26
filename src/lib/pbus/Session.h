@@ -52,9 +52,11 @@ namespace pbus
 		{ static Session session; return session; }
 
 		template<typename Component>
-		void RegisterProxy(const ClassId &classId)
+		void RegisterProxy(const ClassId &classId, bool force = false)
 		{
 			std::lock_guard<decltype(_lock)> l(_lock);
+
+			if (!force)
 			{
 				auto it = _factories.find(classId);
 				if (it != _factories.end())
@@ -94,7 +96,7 @@ namespace pbus
 				throw Exception("no service " + classId.ToString() + " registered");
 
 			auto connection = Session::Connect(classId);
-			idl::core::ICoreObjectPtr object(factory->Create(0));
+			static idl::core::ICoreObjectPtr object(factory->CreateRoot());
 			auto result = std::dynamic_pointer_cast<InterfaceType>(object);
 			if (!result)
 				throw Exception("object created failed to cast");

@@ -10,14 +10,16 @@ namespace pbus
 	struct IComponentFactory
 	{
 		virtual ~IComponentFactory() = default;
-		virtual idl::core::ICoreObject * Create(ObjectId::IdType id) = 0;
+		virtual idl::core::ICoreObject * CreateRoot() = 0;
+		virtual idl::core::ICoreObject * Create() = 0;
 	};
 	TOOLKIT_DECLARE_PTR(IComponentFactory);
 
 	template <typename InterfaceType>
 	struct ITypedComponentFactory : public IComponentFactory
 	{
-		virtual InterfaceType * Create(ObjectId::IdType id) = 0;
+		virtual InterfaceType * CreateRoot() = 0;
+		virtual InterfaceType * Create() = 0;
 	};
 
 	template <typename Component, typename InterfaceType = typename Component::InterfaceType>
@@ -30,10 +32,12 @@ namespace pbus
 		ComponentFactory(ClassId sessionId): _serviceId(sessionId), _nextObjectId(1)
 		{ }
 
-		InterfaceType * Create(ObjectId::IdType id) override
+		InterfaceType * CreateRoot() override
+		{ return new Component(ObjectId(_serviceId, 0)); }
+
+		InterfaceType * Create() override
 		{
-			if (!id)
-				id = _nextObjectId.fetch_add(1, std::memory_order_relaxed);
+			auto id = _nextObjectId.fetch_add(1, std::memory_order_relaxed);
 			return new Component(ObjectId(_serviceId, id));
 		}
 	};
