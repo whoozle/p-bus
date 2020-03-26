@@ -1,5 +1,5 @@
 #include <pbus/Session.h>
-#include <pbus/idl/system/ServiceManager.h>
+#include <pbus/idl/system/IServiceManager.h>
 
 namespace pbus
 {
@@ -25,11 +25,11 @@ namespace pbus
 			catch(const std::exception & ex)
 			{
 				_log.Debug() << "exception while connection: " << ex.what();
-				if (serviceId == idl::system::ServiceManager::ClassId)
+				if (serviceId == idl::system::IServiceManager::ClassId)
 					throw Exception("cannot connect to ServiceManager to create service " + serviceId.ToString());
 
-				_log.Debug() << "connecting to service manager at " << idl::system::ServiceManager::ClassId;
-				auto serviceManager = GetService<idl::system::ServiceManager>();
+				_log.Debug() << "connecting to service manager at " << idl::system::IServiceManager::ClassId;
+				auto serviceManager = GetService<idl::system::IServiceManager>();
 				auto lease = serviceManager->initialize(serviceId.Name, serviceId.Version);
 				auto connection = std::make_shared<LocalBusConnection>(serviceId);
 				_connections.insert(std::make_pair(serviceId, connection));

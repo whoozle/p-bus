@@ -5,8 +5,7 @@ namespace pbus { namespace idl{%- for pc in package_components %} { namespace {{
 {
 	namespace
 	{
-		ClassId classId("{{name}}");
-		{% for method in methods %}MethodId method_{{method.name}}(classId, "{{method.name}}");{% endfor %}
+		{% for method in methods %}MethodId method_{{method.name}}(I{{name}}::ClassId, "{{method.name}}");{% endfor %}
 	}
 
 {% for method in methods %}
