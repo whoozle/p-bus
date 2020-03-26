@@ -40,6 +40,23 @@ namespace pbus
 	{
 		static log::Logger										_log;
 
+		static constexpr u8 CommandInvoke			= 0;	//C → S
+		static constexpr u8 CommandGet 				= 1;	//C → S
+		static constexpr u8 CommandSet 				= 2;	//C → S
+		static constexpr u8 CommandInvokeStatic		= 3;	//C → S
+		static constexpr u8 Subscribe				= 4;	//C → S
+
+		static constexpr u8 CommandResult 			= 0; 	//S → C
+		static constexpr u8 CommandSignal 			= 1; 	//S → C
+/*
+	- method (object, method name, args) → [result | exception]
+	- static method (method id, args) → [result | exception]
+	- get property [object | typename] → [result | exception]
+	- set property ([object | typename], value) → [result | exception]
+	- signal( [object | typename], name)
+
+*/
+
 		mutable std::recursive_mutex							_lock;
 		std::unordered_map<ClassId, IComponentFactoryPtr> 		_factories;
 		std::unordered_map<ClassId, LocalBusConnectionPtr> 		_connections;

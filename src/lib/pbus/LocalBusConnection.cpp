@@ -3,16 +3,6 @@
 #include <toolkit/net/unix/Endpoint.h>
 #include <toolkit/text/Formatters.h>
 
-/*
-	- method (object, method name, args) → [result | exception]
-	- static method (method id, args) → [result | exception]
-	- get property [object | typename] → [result | exception]
-	- set property ([object | typename], value) → [result | exception]
-	- signal( [object | typename], name)
-
-*/
-
-
 namespace pbus
 {
 	LocalBusConnection::LocalBusConnection(ClassId serviceId):
