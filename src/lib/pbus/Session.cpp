@@ -6,7 +6,9 @@ namespace pbus
 	log::Logger Session::_log("session");
 
 	Session::Session()
-	{ }
+	{
+		idl::system::IServiceManager::RegisterProxy(*this);
+	}
 
 	LocalBusConnectionPtr Session::Connect(const ClassId & serviceId)
 	{

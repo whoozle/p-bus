@@ -101,6 +101,7 @@ namespace pbus
 		std::shared_ptr<InterfaceType> GetService()
 		{
 			std::lock_guard<decltype(_lock)> l(_lock);
+			InterfaceType::RegisterProxy(*this);
 			auto & classId = InterfaceType::ClassId;
 			auto factory = Get(classId.ToString());
 			if (!factory)
