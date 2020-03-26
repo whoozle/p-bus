@@ -4,6 +4,7 @@ import ply.lex as lex
 import ply.yacc as yacc
 
 reserved = {
+	'package': 'PACKAGE',
 	'interface': 'INTERFACE',
 	'string': 'STRING',
 	'unsigned': 'UNSIGNED',
@@ -25,7 +26,7 @@ literals = [ '{', '}' , '(', ')', ',', ';', ':' ]
 t_ignore = ' \f\r\t'
 
 def t_IDENTIFIER(t):
-	r'[a-zA-Z$_][a-zA-Z$_0-9]*'
+	r'[a-zA-Z$_][a-zA-Z$_0-9\.]*'
 	t.type = reserved.get(t.value, 'IDENTIFIER')
 	return t
 
@@ -35,16 +36,16 @@ def t_ccode_comment(t):
 	t.lexer.lineno += t.value.count('\n')
 
 def t_newline(t):
-    r'\n+'
-    t.lexer.lineno += t.value.count("\n")
+	r'\n+'
+	t.lexer.lineno += t.value.count("\n")
 
 def t_error(t):
-    raise(Exception("Illegal character '%s'" % t.value[0]))
+	raise(Exception("Illegal character '%s'" % t.value[0]))
 
 lex.lex()
 
 def p_error(p):
-    raise(Exception("Syntax error at '%s', line %d" % (p.value, p.lexer.lineno)))
+	raise(Exception("Syntax error at '%s', line %d" % (p.value, p.lexer.lineno)))
 
 def p_type_atom(p):
 	""" type_atom : STRING
@@ -157,7 +158,20 @@ def p_interface_declaration(p):
 	else:
 		raise Exception("invalid argument count")
 
-start = 'interface_declaration'
+def p_package_declaration(p):
+	"""
+		package_declaration 	: PACKAGE IDENTIFIER ';'
+	"""
+	p[0] = p[2]
+
+def p_root_declaration(p):
+	"""
+		root_declaration : package_declaration interface_declaration
+	"""
+	p[2].package = p[1]
+	p[0] = p[2]
+
+start = 'root_declaration'
 parser = yacc.yacc()
 
 def parse(text):

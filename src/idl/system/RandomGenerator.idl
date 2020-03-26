@@ -1,3 +1,5 @@
+package system;
+
 interface RandomGenerator {
 	unsigned int getInteger(unsigned int max); //non-inclusive
 }

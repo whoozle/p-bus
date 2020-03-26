@@ -34,12 +34,12 @@ set(IDLC_PATH ${CMAKE_CURRENT_SOURCE_DIR}/tools/idl)
 file(MAKE_DIRECTORY ${IDL_DST})
 
 set(IDL_FILES
-	${IDL_SRC}/Disposable.idl
-	${IDL_SRC}/Object.idl
-	${IDL_SRC}/Service.idl
-	${IDL_SRC}/ServiceLease.idl
-	${IDL_SRC}/ServiceManager.idl
-	${IDL_SRC}/RandomGenerator.idl
+	${IDL_SRC}/core/Disposable.idl
+	${IDL_SRC}/core/Object.idl
+	${IDL_SRC}/system/Service.idl
+	${IDL_SRC}/system/ServiceLease.idl
+	${IDL_SRC}/system/ServiceManager.idl
+	${IDL_SRC}/system/RandomGenerator.idl
 )
 
 IDL_GENERATE_SOURCE(

@@ -1,3 +1,5 @@
+package core;
+
 interface Disposable : Object
 {
 	void dispose();

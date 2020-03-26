@@ -32,6 +32,7 @@ class Argument(object):
 
 class Interface(object):
 	def __init__(self, name, base = None):
+		self.package = None
 		self.name = name
 		self.base = base
 		self.declarations = []
