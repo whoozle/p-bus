@@ -1,5 +1,5 @@
 #include <pbus/idl/core/ICoreObject.h>
 namespace pbus { namespace idl { namespace core
 {
-    pbus::ClassId ICoreObject::ClassId("CoreObject");
+    pbus::ClassId ICoreObject::ClassId("core.CoreObject");
 }}}
