@@ -141,7 +141,7 @@ namespace pbus
 		}
 
 	private:
-		LocalBusConnectionPtr Connect(const ClassId & id);
+		LocalBusConnectionPtr Connect(const ServiceId & id);
 	};
 }
 

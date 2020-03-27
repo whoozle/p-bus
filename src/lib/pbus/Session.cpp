@@ -10,7 +10,7 @@ namespace pbus
 		idl::system::IServiceManager::RegisterProxy(*this);
 	}
 
-	LocalBusConnectionPtr Session::Connect(const ClassId & serviceId)
+	LocalBusConnectionPtr Session::Connect(const ServiceId & serviceId)
 	{
 		_log.Debug() << "connecting to " << serviceId;
 		auto i = _connections.find(serviceId);
