@@ -25,6 +25,9 @@ namespace pbus
 	LocalBusConnection::~LocalBusConnection()
 	{ if (_bus) _bus->Remove(this); }
 
+	void LocalBusConnection::EnableWrite(bool enable)
+	{ if (_bus) _bus->EnableWrite(this, enable); }
+
 	void LocalBusConnection::HandleSocketEvent(int event)
 	{
 		_log.Debug() << "socket event 0x" << text::Hex(event);

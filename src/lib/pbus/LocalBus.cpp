@@ -43,9 +43,9 @@ namespace pbus
 		_poll.Remove(connection->GetSocket());
 	}
 
-	void LocalBus::AllowWrite(LocalBusConnection * connection, bool allow)
+	void LocalBus::EnableWrite(LocalBusConnection * connection, bool enable)
 	{
-		_poll.Modify(connection->GetSocket(), *connection, _poll.EventInput | (allow? _poll.EventOutput: 0));
+		_poll.Modify(connection->GetSocket(), *connection, _poll.EventInput | (enable? _poll.EventOutput: 0));
 	}
 
 	void LocalBus::Wait(int timeout)

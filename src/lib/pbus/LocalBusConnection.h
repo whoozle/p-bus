@@ -34,6 +34,9 @@ namespace pbus
 
 		std::deque<Task> _writeQueue, _readQueue;
 
+	private:
+		void EnableWrite(bool enable);
+
 	public:
 		LocalBusConnection(ClassId serviceId);
 		LocalBusConnection(ClassId serviceId, LocalBus * bus, net::unix::LocalSocket && socket);
@@ -41,6 +44,7 @@ namespace pbus
 
 		net::unix::LocalSocket & GetSocket()
 		{ return _socket; }
+
 		void HandleSocketEvent(int event) override;
 
 		void Send(ByteArray && data)

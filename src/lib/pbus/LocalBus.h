@@ -35,7 +35,7 @@ namespace pbus
 
 		void Add(LocalBusConnection * connection);
 		void Remove(LocalBusConnection * connection);
-		void AllowWrite(LocalBusConnection * connection, bool allow);
+		void EnableWrite(LocalBusConnection * connection, bool enable);
 
 	public:
 		LocalBus(const ClassId &id);
