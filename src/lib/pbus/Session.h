@@ -11,6 +11,7 @@
 #include <toolkit/log/Logger.h>
 #include <toolkit/text/Formatters.h>
 #include <toolkit/serialization/ISerializationStream.h>
+#include <toolkit/serialization/Serializator.h>
 #include <toolkit/serialization/bson/OutputStream.h>
 
 #include <future>
@@ -130,8 +131,9 @@ namespace pbus
 			ByteArray data;
 			auto inserter = std::back_inserter(data.GetStorage());
 			typename serialization::bson::OutputStream<decltype(inserter)> writer(inserter);
-			objectId.Write(writer);
-			writer.Write(methodId.Name);
+
+			serialization::Serialize(writer, objectId, methodId.Name, args...);
+
 			_log.Debug() << "data " << text::HexDump(data);
 
 			promise.set_exception(std::make_exception_ptr(std::runtime_error("not implemented")));
