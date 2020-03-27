@@ -53,7 +53,7 @@ namespace pbus
 		struct Equal
 		{
 			bool operator()(const ClassId & a, const ClassId & b) const
-			{ return a.Name == b.Name && a.Version == b.Version; }
+			{ return a == b; }
 		};
 
 		void ToString(text::StringOutputStream & ss) const
