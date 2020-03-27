@@ -78,6 +78,7 @@ namespace pbus
 				if (it != _factories.end())
 					return;
 			}
+			_log.Debug() << "registering factory for proxy class " << classId;
 			_factories[classId] = std::make_shared<ComponentFactory<Component>>(classId);
 		}
 
