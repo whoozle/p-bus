@@ -2,7 +2,6 @@
 #define PBUS_SESSION_H
 
 #include <pbus/idl/core/ICoreObject.h>
-#include <pbus/LocalBusConnection.h>
 #include <pbus/ComponentFactory.h>
 #include <pbus/ClassId.h>
 #include <pbus/MethodId.h>
@@ -25,13 +24,6 @@ namespace pbus
 {
 	class Session;
 	TOOLKIT_DECLARE_PTR(Session);
-
-	template<typename ... ArgumentType>
-	class SessionRequest
-	{
-		MethodId & 						Method;
-		std::tuple<ArgumentType & ...> 	Arguments;
-	};
 
 	class LocalBusConnection;
 	TOOLKIT_DECLARE_PTR(LocalBusConnection);
@@ -63,6 +55,7 @@ namespace pbus
 		std::unordered_map<ClassId, IServiceFactoryPtr> 		_services;
 
 		Session();
+		~Session();
 
 	public:
 		static Session & Get()
@@ -114,7 +107,6 @@ namespace pbus
 			if (!factory)
 				throw Exception("no service " + classId.ToString() + " registered");
 
-			auto connection = Session::Connect(classId);
 			static idl::core::ICoreObjectPtr object(InterfaceType::CreateProxy(classId, ObjectId(classId, 0)));
 			auto result = std::dynamic_pointer_cast<InterfaceType>(object);
 			if (!result)
@@ -123,25 +115,30 @@ namespace pbus
 		}
 
 		template<typename ReturnType, typename ... ArgumentType>
-		std::promise<ReturnType> Invoke(const ObjectId & objectId, const MethodId & methodId, ArgumentType ... args)
+		std::promise<ReturnType> Invoke(const ServiceId & origin, const ObjectId & objectId, const MethodId & methodId, ArgumentType ... args)
 		{
 			_log.Debug() << "invoking " << objectId << "." << methodId.Name;
 			std::promise<ReturnType> promise;
-			auto connection = Connect(methodId.Service);
-			ByteArray data;
-			auto inserter = std::back_inserter(data.GetStorage());
-			typename serialization::bson::OutputStream<decltype(inserter)> writer(inserter);
+			try
+			{
+				ByteArray data;
+				auto inserter = std::back_inserter(data.GetStorage());
+				typename serialization::bson::OutputStream<decltype(inserter)> writer(inserter);
 
-			serialization::Serialize(writer, objectId, methodId.Name, args...);
+				serialization::Serialize(writer, objectId, methodId.Name, args...);
 
-			_log.Debug() << "data " << text::HexDump(data);
-
-			promise.set_exception(std::make_exception_ptr(std::runtime_error("not implemented")));
+				_log.Debug() << "data " << text::HexDump(data);
+				Send(origin, std::move(data));
+			}
+			catch(const std::exception & ex)
+			{ promise.set_exception(std::current_exception()); }
 			return promise;
 		}
 
 	private:
 		LocalBusConnectionPtr Connect(const ServiceId & id);
+
+		void Send(ServiceId, ByteArray && data);
 	};
 }
 

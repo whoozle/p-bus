@@ -5,6 +5,7 @@
 #include <toolkit/io/IPollEventHandler.h>
 #include <toolkit/log/Logger.h>
 #include <toolkit/net/unix/LocalSocket.h>
+#include <deque>
 
 namespace pbus
 {

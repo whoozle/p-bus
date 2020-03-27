@@ -1,5 +1,6 @@
 #include <pbus/Session.h>
 #include <pbus/idl/system/IServiceManager.h>
+#include <pbus/LocalBusConnection.h>
 
 namespace pbus
 {
@@ -9,6 +10,9 @@ namespace pbus
 	{
 		idl::system::IServiceManager::RegisterProxy(*this);
 	}
+
+	Session::~Session()
+	{ }
 
 	LocalBusConnectionPtr Session::Connect(const ServiceId & serviceId)
 	{
@@ -36,6 +40,11 @@ namespace pbus
 			_connections.insert(std::make_pair(serviceId, connection));
 			return connection;
 		}
+	}
+
+	void Session::Send(ServiceId service, ByteArray && data)
+	{
+		throw std::runtime_error("Send: implement me");
 	}
 
 }
