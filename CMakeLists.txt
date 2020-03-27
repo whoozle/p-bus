@@ -63,6 +63,7 @@ add_library(pbus SHARED
 	src/lib/pbus/ObjectId.cpp
 	src/lib/pbus/Application.cpp
 	src/lib/pbus/idl/core/ICoreObject.cpp
+	src/lib/pbus/idl/core/CoreObject.cpp
 	src/lib/pbus/LocalBus.cpp
 	src/lib/pbus/LocalBusConnection.cpp
 	src/lib/pbus/Session.cpp

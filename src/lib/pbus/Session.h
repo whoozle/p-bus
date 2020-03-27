@@ -8,7 +8,6 @@
 #include <pbus/String.h>
 
 #include <toolkit/log/Logger.h>
-#include <toolkit/text/Formatters.h>
 #include <toolkit/serialization/ISerializationStream.h>
 #include <toolkit/serialization/Serializator.h>
 #include <toolkit/serialization/bson/OutputStream.h>
@@ -32,14 +31,15 @@ namespace pbus
 	{
 		static log::Logger										_log;
 
-		static constexpr u8 CommandInvoke			= 0;	//C → S
-		static constexpr u8 CommandGet 				= 1;	//C → S
-		static constexpr u8 CommandSet 				= 2;	//C → S
-		static constexpr u8 CommandInvokeStatic		= 3;	//C → S
-		static constexpr u8 Subscribe				= 4;	//C → S
+		static constexpr u8 RequestInvoke			= 0;	//C → S
+		static constexpr u8 RequestGet 				= 1;	//C → S
+		static constexpr u8 RequestSet 				= 2;	//C → S
+		static constexpr u8 RequestInvokeStatic		= 3;	//C → S
+		static constexpr u8 RequestSubscribe		= 4;	//C → S
+		static constexpr u8 RequestRelease			= 5;	//C → S
 
-		static constexpr u8 CommandResult 			= 0; 	//S → C
-		static constexpr u8 CommandSignal 			= 1; 	//S → C
+		static constexpr u8 ReplyResult 			= 0; 	//S → C
+		static constexpr u8 ReplySignal 			= 1; 	//S → C
 /*
 	- method (object, method name, args) → [result | exception]
 	- static method (method id, args) → [result | exception]
@@ -124,15 +124,26 @@ namespace pbus
 				ByteArray data;
 				auto inserter = std::back_inserter(data.GetStorage());
 				typename serialization::bson::OutputStream<decltype(inserter)> writer(inserter);
-
-				serialization::Serialize(writer, objectId, methodId.Name, args...);
-
-				_log.Debug() << "data " << text::HexDump(data);
+				serialization::Serialize(writer, (u8)RequestInvoke, objectId, methodId.Name, args...);
 				Send(origin, std::move(data));
 			}
 			catch(const std::exception & ex)
 			{ promise.set_exception(std::current_exception()); }
 			return promise;
+		}
+
+		void Release(const ServiceId & origin, const ObjectId & objectId)
+		{
+			try
+			{
+				ByteArray data;
+				auto inserter = std::back_inserter(data.GetStorage());
+				typename serialization::bson::OutputStream<decltype(inserter)> writer(inserter);
+				serialization::Serialize(writer, (u8)RequestRelease, objectId);
+				Send(origin, std::move(data));
+			}
+			catch(const std::exception & ex)
+			{ _log.Error() << "releasing " << objectId << " failed: " << ex.what(); }
 		}
 
 	private:

@@ -20,6 +20,7 @@ namespace pbus { namespace idl { namespace core
 		CoreObject(const ServiceId & origin, const ObjectId & id):
 			_origin(origin), _id(id)
 		{ }
+		~CoreObject();
 
 		const ObjectId & GetId() const override
 		{ return _id; }

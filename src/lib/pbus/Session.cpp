@@ -1,6 +1,7 @@
 #include <pbus/Session.h>
 #include <pbus/idl/system/IServiceManager.h>
 #include <pbus/LocalBusConnection.h>
+#include <toolkit/text/Formatters.h>
 
 namespace pbus
 {
@@ -44,6 +45,7 @@ namespace pbus
 
 	void Session::Send(ServiceId service, ByteArray && data)
 	{
+		_log.Debug() << "sending to " << service << text::HexDump(data);
 		auto connection = Connect(service);
 		if (connection)
 			connection->Send(std::move(data));
