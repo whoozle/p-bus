@@ -1,4 +1,4 @@
 interface system.ServiceManager
 {
-	system.ServiceLease initialize(string name, unsigned short int version);
+	system.ServiceLease start(string name, unsigned short int version);
 }
