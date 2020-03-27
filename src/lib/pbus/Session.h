@@ -107,12 +107,13 @@ namespace pbus
 			std::lock_guard<decltype(_lock)> l(_lock);
 			InterfaceType::RegisterProxy(*this);
 			auto & classId = InterfaceType::ClassId;
+			_log.Debug() << "GetService " << classId;
 			auto factory = Get(classId.ToString());
 			if (!factory)
 				throw Exception("no service " + classId.ToString() + " registered");
 
 			auto connection = Session::Connect(classId);
-			static idl::core::ICoreObjectPtr object(factory->CreateRoot());
+			static idl::core::ICoreObjectPtr object(InterfaceType::CreateProxy(classId, ObjectId(classId, 0)));
 			auto result = std::dynamic_pointer_cast<InterfaceType>(object);
 			if (!result)
 				throw Exception("object created failed to cast");
