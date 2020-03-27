@@ -29,7 +29,7 @@ namespace pbus
 		auto cred = sock->GetPeerCredentials();
 		_log.Debug() << "credentials, pid: " << cred.pid << ", gid: " << cred.gid << ", uid: " << cred.uid;
 
-		auto localConnection = new LocalBusConnection(_id, this, std::move(*sock));
+		new LocalBusConnection(_id, this, std::move(*sock));
 		delete sock;
 	}
 
