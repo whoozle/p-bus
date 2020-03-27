@@ -8,6 +8,7 @@
 #include <pbus/String.h>
 
 #include <toolkit/log/Logger.h>
+#include <toolkit/io/DataStream.h>
 #include <toolkit/serialization/ISerializationStream.h>
 #include <toolkit/serialization/Serializator.h>
 #include <toolkit/serialization/bson/OutputStream.h>
@@ -114,19 +115,27 @@ namespace pbus
 			return result;
 		}
 
+		template <typename ... ArgumentType>
+		void MakeRequest(const ServiceId & origin, u8 RequestType, ArgumentType ... args)
+		{
+			static constexpr size_t HeaderSize = 4;
+			ByteArray data;
+			data.Reserve(4096);
+			data.Resize(HeaderSize);
+			auto inserter = std::back_inserter(data.GetStorage());
+			typename serialization::bson::OutputStream<decltype(inserter)> writer(inserter);
+			serialization::Serialize(writer, RequestType, args...);
+			io::LittleEndianDataOutputStream::WriteU32(data.data(), data.size() - HeaderSize);
+			Send(origin, std::move(data));
+		}
+
 		template<typename ReturnType, typename ... ArgumentType>
 		std::promise<ReturnType> Invoke(const ServiceId & origin, const ObjectId & objectId, const MethodId & methodId, ArgumentType ... args)
 		{
 			_log.Debug() << "invoking " << objectId << "." << methodId.Name;
 			std::promise<ReturnType> promise;
 			try
-			{
-				ByteArray data;
-				auto inserter = std::back_inserter(data.GetStorage());
-				typename serialization::bson::OutputStream<decltype(inserter)> writer(inserter);
-				serialization::Serialize(writer, (u8)RequestInvoke, objectId, methodId.Name, args...);
-				Send(origin, std::move(data));
-			}
+			{ MakeRequest(origin, RequestInvoke, objectId, methodId.Name, args...); }
 			catch(const std::exception & ex)
 			{ promise.set_exception(std::current_exception()); }
 			return promise;
@@ -135,13 +144,7 @@ namespace pbus
 		void Release(const ServiceId & origin, const ObjectId & objectId)
 		{
 			try
-			{
-				ByteArray data;
-				auto inserter = std::back_inserter(data.GetStorage());
-				typename serialization::bson::OutputStream<decltype(inserter)> writer(inserter);
-				serialization::Serialize(writer, (u8)RequestRelease, objectId);
-				Send(origin, std::move(data));
-			}
+			{ MakeRequest(origin, RequestRelease, objectId); }
 			catch(const std::exception & ex)
 			{ _log.Error() << "releasing " << objectId << " failed: " << ex.what(); }
 		}
