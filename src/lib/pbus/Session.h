@@ -143,6 +143,7 @@ namespace pbus
 
 		void Release(const ServiceId & origin, const ObjectId & objectId)
 		{
+			_log.Debug() << "releasing " << objectId;
 			try
 			{ MakeRequest(origin, RequestRelease, objectId); }
 			catch(const std::exception & ex)
