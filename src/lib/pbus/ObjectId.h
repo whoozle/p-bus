@@ -2,6 +2,7 @@
 #define PBUS_OBJECTID_H
 
 #include <toolkit/core/types.h>
+#include <toolkit/serialization/ISerializationStream.h>
 #include <pbus/ClassId.h>
 #include <string>
 
@@ -10,36 +11,39 @@ namespace pbus
 	struct ObjectId
 	{
 		using IdType 		= u32;
-		ClassId 	 		Service;
+		ClassId 	 		Type;
 		IdType				Id;
 
-		ObjectId(const ClassId & service, IdType id):
-			Service(service), Id(id)
+		ObjectId(const ClassId & type, IdType id):
+			Type(type), Id(id)
 		{ }
 
 		void ToString(text::StringOutputStream & ss) const
-		{ ss << Service << "/" << Id; }
+		{ ss << Type << "/" << Id; }
 
 		class Hash
 		{
-			std::hash<decltype(Service)>		_service;
-			std::hash<decltype(Id)>				_id;
+			std::hash<decltype(Type)>		_type;
+			std::hash<decltype(Id)>			_id;
 
 		public:
 			size_t operator()(const ObjectId & id) const
-			{ return CombineHash(_service(id.Service), _id(id.Id)); }
+			{ return CombineHash(_type(id.Type), _id(id.Id)); }
 		};
 
 		struct Equal
 		{
 			bool operator()(const ObjectId & a, const ObjectId & b) const
-			{ return a.Service == b.Service && a.Id == b.Id; }
+			{ return a.Type == b.Type && a.Id == b.Id; }
 		};
 
 		bool operator == (const ObjectId & o) const
-		{ return Service == o.Service && Id == o.Id; }
+		{ return Type == o.Type && Id == o.Id; }
 		bool operator != (const ObjectId & o) const
 		{ return !((*this) == o); }
+
+		void Write(serialization::ISerializationStream & stream) const;
+		static ObjectId Read(ConstBuffer buffer);
 
 		TOOLKIT_DECLARE_SIMPLE_TOSTRING();
 	};

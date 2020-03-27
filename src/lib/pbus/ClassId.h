@@ -1,11 +1,10 @@
 #ifndef PBUS_CLASSID_H
 #define PBUS_CLASSID_H
 
-#include <toolkit/serialization/Serialization.h>
+#include <toolkit/serialization/ISerializationStream.h>
 #include <toolkit/text/StringOutputStream.h>
 #include <toolkit/core/Exception.h>
 #include <toolkit/core/Hash.h>
-#include <toolkit/core/types.h>
 #include <string>
 #include <stdlib.h>
 
@@ -16,13 +15,13 @@ namespace pbus
 		std::string		Name;
 		uint			Version;
 
-		static auto GetClassDescriptor()
-		{
-			return
-				serialization::ClassDescriptor("ClassId", 1) &
-				serialization::Member(&ClassId::Name, "name") &
-				serialization::Member(&ClassId::Version, "version");
-		}
+		// static auto GetClassDescriptor()
+		// {
+		// 	return
+		// 		serialization::ClassDescriptor("ClassId", 1) &
+		// 		serialization::Member(&ClassId::Name, "name") &
+		// 		serialization::Member(&ClassId::Version, "version");
+		// }
 
 		ClassId(const std::string & name, uint version = 1)
 		{
@@ -64,6 +63,9 @@ namespace pbus
 		{ return Version == o.Version && Name == o.Name; }
 		bool operator != (const ClassId & o) const
 		{ return !((*this) == o); }
+
+		void Write(serialization::ISerializationStream & stream) const;
+		static ClassId Read(ConstBuffer buffer);
 
 		TOOLKIT_DECLARE_SIMPLE_TOSTRING();
 	};
