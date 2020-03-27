@@ -44,7 +44,11 @@ namespace pbus
 
 	void Session::Send(ServiceId service, ByteArray && data)
 	{
-		throw std::runtime_error("Send: implement me");
+		auto connection = Connect(service);
+		if (connection)
+			connection->Send(std::move(data));
+		else
+			throw Exception("no connection to service " + service.ToString() + " possible");
 	}
 
 }

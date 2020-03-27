@@ -17,6 +17,23 @@ namespace pbus
 		LocalBus *						_bus;
 		net::unix::LocalSocket			_socket;
 
+		struct Task
+		{
+			ByteArray 	Data;
+			size_t		Offset;
+
+			Task(ByteArray && data): Data(std::move(data)), Offset(0)
+			{ }
+
+			bool Finished() const
+			{ return Offset >= Data.size(); }
+
+			Buffer ReadBuffer()
+			{ return Buffer(Data, Offset); }
+		};
+
+		std::deque<Task> _writeQueue, _readQueue;
+
 	public:
 		LocalBusConnection(ClassId serviceId);
 		LocalBusConnection(ClassId serviceId, LocalBus * bus, net::unix::LocalSocket && socket);
@@ -25,6 +42,9 @@ namespace pbus
 		net::unix::LocalSocket & GetSocket()
 		{ return _socket; }
 		void HandleSocketEvent(int event) override;
+
+		void Send(ByteArray && data)
+		{ _writeQueue.emplace_back(std::move(data)); }
 	};
 }
 
