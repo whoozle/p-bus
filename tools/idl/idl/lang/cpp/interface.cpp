@@ -16,8 +16,8 @@ namespace pbus { namespace idl{%- for pc in package_components %} { namespace {{
 		session.RegisterProxy<{{name}}>(I{{name}}::ClassId);
 	}
 
-    I{{name}} * I{{name}}::CreateProxy(ObjectId id)
-    { return new {{name}} (id); }
+    I{{name}} * I{{name}}::CreateProxy(const ServiceId &origin, const ObjectId &id)
+    { return new {{name}} (origin, id); }
 
 {% for pc in package_components %} } {%- endfor %}
 }}

@@ -2,8 +2,8 @@
 
 namespace pbus
 {
-	Application::Application(const ClassId & classId):
-		_bus(classId)
+	Application::Application(const ServiceId & serviceId):
+		_bus(serviceId)
 	{ }
 
 	void Application::Run()

@@ -11,16 +11,21 @@ namespace pbus { namespace idl { namespace core
 		public virtual IRemoteObject
 	{
 	protected:
+		ServiceId	_origin;
 		ObjectId	_id;
 
 	public:
 		using InterfaceType = ICoreObject;
 
-		CoreObject(const ObjectId & id): _id(id)
+		CoreObject(const ServiceId & origin, const ObjectId & id):
+			_origin(origin), _id(id)
 		{ }
 
 		const ObjectId & GetId() const override
 		{ return _id; }
+
+		const ServiceId & GetOrigin() const override
+		{ return _origin; }
 	};
 }}}
 

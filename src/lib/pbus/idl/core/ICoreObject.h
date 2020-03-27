@@ -19,6 +19,7 @@ namespace pbus { namespace idl { namespace core
 	{
 		virtual ~IRemoteObject() = default;
 		virtual const ObjectId & GetId() const = 0;
+		virtual const ServiceId & GetOrigin() const = 0;
 	};
 	TOOLKIT_DECLARE_PTR(IRemoteObject);
 

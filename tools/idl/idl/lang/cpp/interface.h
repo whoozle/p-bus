@@ -20,7 +20,7 @@ namespace pbus { class Session; namespace idl{%- for pc in package_components %}
 		static pbus::ClassId ClassId;
 
 		static void RegisterProxy(Session & session);
-		static I{{name}} * CreateProxy(ObjectId id);
+		static I{{name}} * CreateProxy(const ServiceId &origin, const ObjectId &id);
 	};
 	TOOLKIT_DECLARE_PTR(I{{name}});
 	TOOLKIT_DECLARE_CONST_PTR(I{{name}});

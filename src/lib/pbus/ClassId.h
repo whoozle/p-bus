@@ -67,6 +67,8 @@ namespace pbus
 
 		TOOLKIT_DECLARE_SIMPLE_TOSTRING();
 	};
+
+	using ServiceId = ClassId;
 }
 
 TOOLKIT_DECLARE_STD_HASH(pbus::ClassId, pbus::ClassId::Hash)

@@ -25,20 +25,20 @@ namespace pbus
 	template <typename Component, typename InterfaceType = typename Component::InterfaceType>
 	class ComponentFactory : public ITypedComponentFactory<InterfaceType>
 	{
-		ClassId							_serviceId;
+		ServiceId						_serviceId;
 		std::atomic<ObjectId::IdType>	_nextObjectId;
 
 	public:
-		ComponentFactory(ClassId sessionId): _serviceId(sessionId), _nextObjectId(1)
+		ComponentFactory(ServiceId serviceId): _serviceId(serviceId), _nextObjectId(1)
 		{ }
 
 		InterfaceType * CreateRoot() override
-		{ return new Component(ObjectId(_serviceId, 0)); }
+		{ return new Component(_serviceId, ObjectId(InterfaceType::ClassId, 0)); }
 
 		InterfaceType * Create() override
 		{
 			auto id = _nextObjectId.fetch_add(1, std::memory_order_relaxed);
-			return new Component(ObjectId(_serviceId, id));
+			return new Component(_serviceId, ObjectId(InterfaceType::ClassId, id));
 		}
 	};
 
