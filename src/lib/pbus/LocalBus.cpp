@@ -8,9 +8,9 @@ namespace pbus
 	LocalBus::LocalBus(const ClassId & id):
 		_log("bus/" + id.ToString()),
 		_id(id),
-		_socket(net::ISocket::NonBlocking),
 		_accept(this)
 	{
+		_socket.SetNonBlocking(true);
 		auto path = id.ToString();
 		_log.Debug() << "creating socket at " << path;
 		net::unix::Endpoint ep(path);
@@ -22,7 +22,7 @@ namespace pbus
 	void LocalBus::Accept()
 	{
 		_log.Debug() << "accepting connection...";
-		auto sock = _socket.Accept();
+		std::unique_ptr<net::unix::LocalSocket> sock(_socket.Accept());
 		if (!sock)
 			return;
 
@@ -30,7 +30,6 @@ namespace pbus
 		_log.Debug() << "credentials, pid: " << cred.pid << ", gid: " << cred.gid << ", uid: " << cred.uid;
 
 		new LocalBusConnection(_id, this, std::move(*sock));
-		delete sock;
 	}
 
 	void LocalBus::Add(LocalBusConnection * connection)

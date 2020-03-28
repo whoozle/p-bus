@@ -7,9 +7,9 @@ namespace pbus
 {
 	LocalBusConnection::LocalBusConnection(ClassId serviceId):
 		_log("connection/" + serviceId.ToString()),
-		_bus(nullptr),
-		_socket(net::BaseSocket::NonBlocking)
+		_bus(nullptr)
 	{
+		_socket.SetNonBlocking(true);
 		auto path = serviceId.ToString();
 		_log.Debug() << "connecting to " << serviceId;
 		net::unix::Endpoint ep(path);
