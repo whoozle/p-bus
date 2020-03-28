@@ -8,7 +8,9 @@ namespace pbus
 
 	void Application::Run()
 	{
+		auto & session = Session::Get();
+		auto & poll = session.GetPoll();
 		while(true)
-			_bus.Wait();
+			poll.Wait();
 	}
 }

@@ -3,6 +3,7 @@
 
 #include <pbus/ClassId.h>
 #include <toolkit/io/IPollEventHandler.h>
+#include <toolkit/io/Poll.h>
 #include <toolkit/log/Logger.h>
 #include <toolkit/net/unix/LocalSocket.h>
 #include <deque>
@@ -14,9 +15,11 @@ namespace pbus
 	class LocalBusConnection :
 		public io::IPollEventHandler
 	{
+		static constexpr int DefaultEvents = io::Poll::EventInput | io::Poll::EventError | io::Poll::EventHangup;
+
 		std::mutex						_lock;
 		log::Logger 					_log;
-		LocalBus *						_bus;
+		io::Poll &						_poll;
 		net::unix::LocalSocket			_socket;
 		u32								_serial;
 
@@ -39,10 +42,11 @@ namespace pbus
 
 	private:
 		void EnableWrite(bool enable);
+		void Wait(int timeout = -1);
 
 	public:
 		LocalBusConnection(ClassId serviceId);
-		LocalBusConnection(ClassId serviceId, LocalBus * bus, net::unix::LocalSocket && socket);
+		LocalBusConnection(ClassId serviceId, net::unix::LocalSocket && socket);
 		~LocalBusConnection();
 
 		net::unix::LocalSocket & GetSocket()

@@ -19,8 +19,6 @@ namespace pbus
 		net::unix::LocalServerSocket 	_socket;
 		io::Poll &						_poll;
 
-		static constexpr int DefaultEvents = io::Poll::EventInput | io::Poll::EventError | io::Poll::EventHangup;
-
 		struct ConnectionAcceptor : public io::IPollEventHandler
 		{
 			LocalBus * Bus;
@@ -35,14 +33,9 @@ namespace pbus
 		friend class LocalBusConnection;
 		void Accept();
 
-		void Add(LocalBusConnection * connection);
-		void Remove(LocalBusConnection * connection);
-		void EnableWrite(LocalBusConnection * connection, bool enable);
 
 	public:
 		LocalBus(const ClassId &id);
-
-		void Wait(int timeout = -1);
 	};
 }
 

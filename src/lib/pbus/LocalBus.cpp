@@ -18,7 +18,7 @@ namespace pbus
 		net::unix::Endpoint ep(path);
 		//unlink(path.c_str());
 		_socket.Listen(ep);
-		_poll.Add(_socket, _accept, DefaultEvents);
+		_poll.Add(_socket, _accept, io::Poll::EventInput | io::Poll::EventError);
 	}
 
 	void LocalBus::Accept()
@@ -31,26 +31,7 @@ namespace pbus
 		auto cred = sock->GetPeerCredentials();
 		_log.Debug() << "credentials, pid: " << cred.pid << ", gid: " << cred.gid << ", uid: " << cred.uid;
 
-		new LocalBusConnection(_id, this, std::move(*sock));
+		new LocalBusConnection(_id, std::move(*sock));
 	}
 
-	void LocalBus::Add(LocalBusConnection * connection)
-	{
-		_poll.Add(connection->GetSocket(), *connection, DefaultEvents);
-	}
-
-	void LocalBus::Remove(LocalBusConnection * connection)
-	{
-		_poll.Remove(connection->GetSocket());
-	}
-
-	void LocalBus::EnableWrite(LocalBusConnection * connection, bool enable)
-	{
-		_poll.Modify(connection->GetSocket(), *connection, DefaultEvents | (enable? _poll.EventOutput: 0));
-	}
-
-	void LocalBus::Wait(int timeout)
-	{
-		_poll.Wait(timeout);
-	}
 }

@@ -150,9 +150,8 @@ namespace pbus
 		ReturnType Wait(u32 serial)
 		{
 			_log.Debug() << "Wait " << serial;
-			if (_poll.Wait(15000))
-				throw Exception("Timed out waiting for reply");
-
+			while (_poll.Wait(15000) != 0);
+			throw Exception("Timed out waiting for reply");
 			return ReturnType();
 		}
 
