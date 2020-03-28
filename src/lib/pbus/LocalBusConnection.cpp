@@ -47,7 +47,7 @@ namespace pbus
 		_log.Debug() << "socket event 0x" << text::Hex(event);
 		if (event & (io::Poll::EventHangup | io::Poll::EventError))
 		{
-			_log.Debug() << "error or hangup, cleaning up...";
+			_log.Error() << "error or hangup, fixme: this instance is in shared pointer in Session, expect crash, FIXME";
 			delete this;
 			return;
 		}
