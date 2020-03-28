@@ -23,7 +23,10 @@ namespace pbus
 	{ _bus->Add(this); }
 
 	LocalBusConnection::~LocalBusConnection()
-	{ if (_bus) _bus->Remove(this); }
+	{
+		_log.Debug() << "closing...";
+		if (_bus) _bus->Remove(this);
+	}
 
 	void LocalBusConnection::EnableWrite(bool enable)
 	{ if (_bus) _bus->EnableWrite(this, enable); }
