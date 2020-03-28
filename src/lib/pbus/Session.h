@@ -5,6 +5,7 @@
 #include <pbus/ComponentFactory.h>
 #include <pbus/ClassId.h>
 #include <pbus/MethodId.h>
+#include <pbus/ResponseParser.h>
 #include <pbus/String.h>
 
 #include <toolkit/log/Logger.h>
@@ -49,11 +50,11 @@ namespace pbus
 	- signal( [object | typename], name)
 
 */
-
 		mutable std::recursive_mutex							_lock;
 		std::unordered_map<ClassId, IComponentFactoryPtr> 		_factories;
 		std::unordered_map<ClassId, LocalBusConnectionPtr> 		_connections;
 		std::unordered_map<ClassId, IServiceFactoryPtr> 		_services;
+		std::unordered_map<u32, IResponseParserPtr>				_requests;
 
 		Session();
 		~Session();
@@ -116,7 +117,7 @@ namespace pbus
 		}
 
 		template <typename ... ArgumentType>
-		void MakeRequest(const ServiceId & origin, u8 RequestType, ArgumentType ... args)
+		u32 MakeRequest(const ServiceId & origin, u8 RequestType, ArgumentType ... args)
 		{
 			static constexpr size_t HeaderSize = 4;
 			ByteArray data;
@@ -126,19 +127,25 @@ namespace pbus
 			typename serialization::bson::OutputStream<decltype(inserter)> writer(inserter);
 			serialization::Serialize(writer, RequestType, args...);
 			io::LittleEndianDataOutputStream::WriteU32(data.data(), data.size() - HeaderSize);
-			Send(origin, std::move(data));
+			return Send(origin, std::move(data));
 		}
 
 		template<typename ReturnType, typename ... ArgumentType>
-		std::promise<ReturnType> Invoke(const ServiceId & origin, const ObjectId & objectId, const MethodId & methodId, ArgumentType ... args)
+		std::future<ReturnType> Invoke(const ServiceId & origin, const ObjectId & objectId, const MethodId & methodId, ArgumentType ... args)
 		{
 			_log.Debug() << "invoking " << objectId << "." << methodId.Name;
 			std::promise<ReturnType> promise;
+			auto future = promise.get_future();
 			try
-			{ MakeRequest(origin, RequestInvoke, objectId, methodId.Name, args...); }
+			{
+				u32 serial = MakeRequest(origin, RequestInvoke, objectId, methodId.Name, args...);
+				auto parser = std::make_shared<ResponseParser<ReturnType>>(std::move(promise));
+				_requests[serial] = parser;
+				return future;
+			}
 			catch(const std::exception & ex)
 			{ promise.set_exception(std::current_exception()); }
-			return promise;
+			return future;
 		}
 
 		void Release(const ServiceId & origin, const ObjectId & objectId)
@@ -153,7 +160,7 @@ namespace pbus
 	private:
 		LocalBusConnectionPtr Connect(const ServiceId & id);
 
-		void Send(ServiceId, ByteArray && data);
+		u32 Send(ServiceId, ByteArray && data);
 	};
 }
 

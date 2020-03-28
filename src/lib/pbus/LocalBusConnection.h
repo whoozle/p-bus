@@ -6,6 +6,7 @@
 #include <toolkit/log/Logger.h>
 #include <toolkit/net/unix/LocalSocket.h>
 #include <deque>
+#include <mutex>
 
 namespace pbus
 {
@@ -13,9 +14,11 @@ namespace pbus
 	class LocalBusConnection :
 		public io::IPollEventHandler
 	{
+		std::mutex						_lock;
 		log::Logger 					_log;
 		LocalBus *						_bus;
 		net::unix::LocalSocket			_socket;
+		u32								_serial;
 
 		struct Task
 		{
@@ -47,8 +50,12 @@ namespace pbus
 
 		void HandleSocketEvent(int event) override;
 
-		void Send(ByteArray && data)
-		{ _writeQueue.emplace_back(std::move(data)); }
+		u32 Send(ByteArray && data)
+		{
+			std::lock_guard<decltype(_lock)> l(_lock);
+			_writeQueue.emplace_back(std::move(data));
+			return _serial++;
+		}
 	};
 }
 

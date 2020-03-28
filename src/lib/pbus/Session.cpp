@@ -43,7 +43,7 @@ namespace pbus
 		}
 	}
 
-	void Session::Send(ServiceId service, ByteArray && data)
+	u32 Session::Send(ServiceId service, ByteArray && data)
 	{
 		_log.Debug() << "sending to " << service << text::HexDump(data);
 		auto connection = Connect(service);
