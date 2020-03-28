@@ -34,8 +34,11 @@ namespace pbus
 			bool Finished() const
 			{ return Offset >= Data.size(); }
 
-			Buffer ReadBuffer()
+			Buffer GetBuffer()
 			{ return Buffer(Data, Offset); }
+
+			void Complete(size_t size)
+			{ Offset += size; }
 		};
 
 		std::deque<Task> _writeQueue, _readQueue;

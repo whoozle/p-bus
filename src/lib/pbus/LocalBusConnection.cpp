@@ -51,6 +51,25 @@ namespace pbus
 			delete this;
 			return;
 		}
+
+		if (event & (io::Poll::EventOutput))
+		{
+			std::lock_guard<decltype(_lock)> l(_lock);
+			if (!_writeQueue.empty())
+			{
+				auto & task = _writeQueue.front();
+				auto buffer = task.GetBuffer();
+				auto r = _socket.Write(buffer);
+				_log.Debug() << "wrote " << r << " bytes";
+				task.Complete(r);
+				if (task.Finished())
+					_writeQueue.pop_front();
+				if (_writeQueue.empty())
+					EnableWrite(false);
+			}
+			else
+				EnableWrite(false);
+		}
 	}
 
 }
