@@ -14,6 +14,7 @@ namespace pbus
 
 
 	LocalBusConnection::LocalBusConnection(ClassId serviceId):
+		_serviceId(serviceId),
 		_log("connection/" + serviceId.ToString()),
 		_poll(Session::Get().GetPoll())
 	{
@@ -25,7 +26,8 @@ namespace pbus
 		_poll.Add(_socket, *this, DefaultEvents);
 	}
 
-	LocalBusConnection::LocalBusConnection(ClassId serviceId, net::unix::LocalSocket && socket):
+	LocalBusConnection::LocalBusConnection(ServiceId serviceId, net::unix::LocalSocket && socket):
+		_serviceId(serviceId),
 		_log("connection/" + serviceId.ToString()),
 		_poll(Session::Get().GetPoll()),
 		_socket(std::move(socket))
@@ -52,7 +54,7 @@ namespace pbus
 			return;
 		}
 
-		if (event & (io::Poll::EventOutput))
+		if (event & io::Poll::EventOutput)
 		{
 			std::lock_guard<decltype(_lock)> l(_lock);
 			if (!_writeQueue.empty())
@@ -69,6 +71,25 @@ namespace pbus
 			}
 			else
 				EnableWrite(false);
+		}
+
+		if (event & io::Poll::EventInput)
+		{
+			ByteArray buffer(ReadBufferSize);
+			auto r = _socket.Read(buffer);
+			_log.Debug() << "read " << r << " bytes";
+			if (r <= 0)
+				throw Exception("socket read returned bogus value, shutdown?");
+
+			Buffer data(buffer, 0, r);
+			size_t offset = 0;
+			while(offset < data.size())
+			{
+				offset += _readTask.Read(Buffer(data, offset));
+				if (_readTask.Finished()) {
+					Session::Get().OnIncomingData(_serviceId, _readTask.Data);
+				}
+			}
 		}
 	}
 

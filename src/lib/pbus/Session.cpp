@@ -53,4 +53,9 @@ namespace pbus
 			throw Exception("no connection to service " + service.ToString() + " possible");
 	}
 
+	void Session::OnIncomingData(const ServiceId & serviceId, ConstBuffer data)
+	{
+		_log.Debug() << "incoming data from " << serviceId << text::HexDump(data);
+	}
+
 }
