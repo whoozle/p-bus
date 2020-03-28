@@ -52,6 +52,7 @@ namespace pbus
 
 		u32 Send(ByteArray && data)
 		{
+			EnableWrite(true);
 			std::lock_guard<decltype(_lock)> l(_lock);
 			_writeQueue.emplace_back(std::move(data));
 			return _serial++;

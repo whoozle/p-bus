@@ -1,5 +1,6 @@
 #include <pbus/LocalBus.h>
 #include <pbus/LocalBusConnection.h>
+#include <pbus/Session.h>
 #include <toolkit/net/unix/Endpoint.h>
 #include <unistd.h>
 
@@ -8,6 +9,7 @@ namespace pbus
 	LocalBus::LocalBus(const ClassId & id):
 		_log("bus/" + id.ToString()),
 		_id(id),
+		_poll(Session::Get().GetPoll()),
 		_accept(this)
 	{
 		_socket.SetNonBlocking(true);

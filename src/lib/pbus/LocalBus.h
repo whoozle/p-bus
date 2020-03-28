@@ -17,7 +17,7 @@ namespace pbus
 		log::Logger 					_log;
 		ClassId							_id;
 		net::unix::LocalServerSocket 	_socket;
-		io::Poll						_poll;
+		io::Poll &						_poll;
 
 		static constexpr int DefaultEvents = io::Poll::EventInput | io::Poll::EventError | io::Poll::EventHangup;
 

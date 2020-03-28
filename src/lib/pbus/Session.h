@@ -10,6 +10,7 @@
 
 #include <toolkit/log/Logger.h>
 #include <toolkit/io/DataStream.h>
+#include <toolkit/io/Poll.h>
 #include <toolkit/serialization/ISerializationStream.h>
 #include <toolkit/serialization/Serializator.h>
 #include <toolkit/serialization/bson/OutputStream.h>
@@ -51,6 +52,7 @@ namespace pbus
 
 */
 		mutable std::recursive_mutex							_lock;
+		io::Poll												_poll;
 		std::unordered_map<ClassId, IComponentFactoryPtr> 		_factories;
 		std::unordered_map<ClassId, LocalBusConnectionPtr> 		_connections;
 		std::unordered_map<ClassId, IServiceFactoryPtr> 		_services;
@@ -62,6 +64,9 @@ namespace pbus
 	public:
 		static Session & Get()
 		{ static Session session; return session; }
+
+		io::Poll & GetPoll()
+		{ return _poll; }
 
 		template<typename Component>
 		void RegisterProxy(const ClassId &classId, bool force = false)
@@ -131,21 +136,24 @@ namespace pbus
 		}
 
 		template<typename ReturnType, typename ... ArgumentType>
-		std::future<ReturnType> Invoke(const ServiceId & origin, const ObjectId & objectId, const MethodId & methodId, ArgumentType ... args)
+		u32 Invoke(const ServiceId & origin, const ObjectId & objectId, const MethodId & methodId, ArgumentType ... args)
 		{
 			_log.Debug() << "invoking " << objectId << "." << methodId.Name;
 			std::promise<ReturnType> promise;
-			auto future = promise.get_future();
-			try
-			{
-				u32 serial = MakeRequest(origin, RequestInvoke, objectId, methodId.Name, args...);
-				auto parser = std::make_shared<ResponseParser<ReturnType>>(std::move(promise));
-				_requests[serial] = parser;
-				return future;
-			}
-			catch(const std::exception & ex)
-			{ promise.set_exception(std::current_exception()); }
-			return future;
+			u32 serial = MakeRequest(origin, RequestInvoke, objectId, methodId.Name, args...);
+			auto parser = std::make_shared<ResponseParser<ReturnType>>(std::move(promise));
+			_requests[serial] = parser;
+			return serial;
+		}
+
+		template<typename ReturnType>
+		ReturnType Wait(u32 serial)
+		{
+			_log.Debug() << "Wait " << serial;
+			if (_poll.Wait(15000))
+				throw Exception("Timed out waiting for reply");
+
+			return ReturnType();
 		}
 
 		void Release(const ServiceId & origin, const ObjectId & objectId)
