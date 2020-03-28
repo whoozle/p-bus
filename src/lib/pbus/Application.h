@@ -24,6 +24,7 @@ namespace pbus
 
 	public:
 		Application(const ServiceId & serviceId);
+		~Application();
 
 		template<typename Service>
 		void RegisterClass(const ClassId & classId)
