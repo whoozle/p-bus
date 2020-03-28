@@ -87,7 +87,11 @@ namespace pbus
 			{
 				offset += _readTask.Read(Buffer(data, offset));
 				if (_readTask.Finished()) {
-					Session::Get().OnIncomingData(_serviceId, _readTask.Data);
+					try
+					{ Session::Get().OnIncomingData(_serviceId, _readTask.Data); }
+					catch(const std::exception & ex)
+					{ _log.Error() << "incoming data parsing failure: " << ex.what(); }
+					_readTask = ReadTask();
 				}
 			}
 		}
