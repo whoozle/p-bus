@@ -2,6 +2,7 @@
 #include <pbus/idl/system/IServiceManager.h>
 #include <pbus/LocalBusConnection.h>
 #include <toolkit/text/Formatters.h>
+#include <toolkit/serialization/bson/InputStream.h>
 
 namespace pbus
 {
@@ -56,6 +57,12 @@ namespace pbus
 	void Session::OnIncomingData(const ServiceId & serviceId, ConstBuffer data)
 	{
 		_log.Debug() << "incoming data from " << serviceId << text::HexDump(data);
+		serialization::bson::SingleValueParser<s64> request;
+		size_t offset = 0;
+		request.Parse(data, offset);
+		if (!request.Finished())
+			throw Exception("could not parse request");
+		_log.Info() << "request: " << request.Value;
 	}
 
 }
