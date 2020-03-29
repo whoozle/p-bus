@@ -1,6 +1,6 @@
 #include <pbus/Session.h>
-#include <pbus/idl/system/IServiceManager.h>
 #include <pbus/LocalBusConnection.h>
+#include <pbus/idl/system/ServiceManager.h>
 #include <toolkit/text/Formatters.h>
 #include <toolkit/serialization/bson/InputStream.h>
 
@@ -16,32 +16,23 @@ namespace pbus
 	Session::~Session()
 	{ }
 
+	void Session::AddConnection(const ServiceId & serviceId, const LocalBusConnectionPtr & connection)
+	{
+		std::lock_guard<decltype(_lock)> l(_lock);
+		_connections[serviceId] = connection;
+	}
+
 	LocalBusConnectionPtr Session::Connect(const ServiceId & serviceId)
 	{
-		_log.Debug() << "connecting to " << serviceId;
+		std::lock_guard<decltype(_lock)> l(_lock);
 		auto i = _connections.find(serviceId);
 		if (i != _connections.end())
 			return i->second;
 
-		try
-		{
-			auto connection = std::make_shared<LocalBusConnection>(serviceId);
-			_connections.insert(std::make_pair(serviceId, connection));
-			return connection;
-		}
-		catch(const std::exception & ex)
-		{
-			_log.Debug() << "exception while connection: " << ex;
-			if (serviceId == idl::system::IServiceManager::ClassId)
-				throw Exception("cannot connect to ServiceManager to create service " + serviceId.ToString());
-
-			_log.Debug() << "connecting to service manager at " << idl::system::IServiceManager::ClassId;
-			auto serviceManager = GetService<idl::system::IServiceManager>();
-			/*auto lease =*/ serviceManager->start(serviceId.Name, serviceId.Version);
-			auto connection = std::make_shared<LocalBusConnection>(serviceId);
-			_connections.insert(std::make_pair(serviceId, connection));
-			return connection;
-		}
+		_log.Debug() << "connecting to " << serviceId;
+		auto connection = std::make_shared<LocalBusConnection>(serviceId);
+		_connections.insert(std::make_pair(serviceId, connection));
+		return connection;
 	}
 
 	void Session::ThrowException(const ServiceId & origin, u32 serial, const std::exception & ex)

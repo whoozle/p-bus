@@ -104,6 +104,8 @@ namespace pbus
 			return it != _services.end()? it->second: nullptr;
 		}
 
+		void AddConnection(const ServiceId & service, const LocalBusConnectionPtr & connection);
+
 		template<typename InterfaceType>
 		std::shared_ptr<InterfaceType> GetService()
 		{

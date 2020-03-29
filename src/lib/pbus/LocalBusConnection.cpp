@@ -3,6 +3,7 @@
 #include <pbus/Session.h>
 #include <toolkit/net/unix/Endpoint.h>
 #include <toolkit/text/Formatters.h>
+#include <pbus/idl/system/IServiceManager.h>
 
 namespace pbus
 {
@@ -18,7 +19,6 @@ namespace pbus
 		_log("connection/" + serviceId.ToString()),
 		_poll(Session::Get().GetPoll())
 	{
-		_socket.SetNonBlocking(true);
 		_log.Debug() << "connecting to " << serviceId;
 		Connect();
 	}
@@ -42,7 +42,21 @@ namespace pbus
 	void LocalBusConnection::Connect()
 	{
 		net::unix::Endpoint ep(_serviceId.ToString());
-		_socket.Connect(ep);
+		try
+		{ _socket.Connect(ep); }
+		catch (std::exception & ex)
+		{
+			_log.Debug() << "exception while connection: " << ex;
+			if (_serviceId == idl::system::IServiceManager::ClassId)
+				throw Exception("cannot connect to ServiceManager to create service " + _serviceId.ToString());
+
+			_log.Debug() << "connecting to service manager at " << idl::system::IServiceManager::ClassId;
+			Session & session = Session::Get();
+			auto serviceManager = session.GetService<idl::system::IServiceManager>();
+			/*auto lease =*/ serviceManager->start(_serviceId.Name, _serviceId.Version);
+			_socket.Connect(ep);
+		}
+		_socket.SetNonBlocking(true);
 		_poll.Add(_socket, *this, DefaultEvents);
 	}
 

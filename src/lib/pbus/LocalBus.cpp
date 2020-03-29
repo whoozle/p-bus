@@ -45,7 +45,8 @@ namespace pbus
 
 		_log.Debug() << "parsed service id from dev run file: " << serviceId;
 
-		new LocalBusConnection(serviceId, std::move(*sock));
+		auto connection = std::make_shared<LocalBusConnection>(serviceId, std::move(*sock));
+		Session::Get().AddConnection(serviceId, connection);
 	}
 
 }
