@@ -75,6 +75,7 @@ namespace pbus
 
 		if (event & io::Poll::EventInput)
 		{
+			std::unique_lock<decltype(_lock)> l(_lock);
 			ByteArray buffer(ReadBufferSize);
 			auto r = _socket.Read(buffer);
 			_log.Debug() << "read " << r << " bytes";
@@ -88,7 +89,12 @@ namespace pbus
 				offset += _readTask.Read(Buffer(data, offset));
 				if (_readTask.Finished()) {
 					try
-					{ Session::Get().OnIncomingData(_serviceId, _readTask.Data); }
+					{
+						auto serial = _readSerial++;
+						l.unlock();
+						Session::Get().OnIncomingData(_serviceId, serial, _readTask.Data);
+						l.lock();
+					}
 					catch(const std::exception & ex)
 					{ _log.Error() << "incoming data parsing failure: " << ex.what(); }
 					_readTask = ReadTask();

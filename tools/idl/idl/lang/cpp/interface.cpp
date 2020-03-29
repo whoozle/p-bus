@@ -21,7 +21,7 @@ namespace pbus { namespace idl{%- for pc in package_components %} { namespace {{
 	void I{{name}}::__pbus__invoke(serialization::ISerializationStream & resultStream, const std::string & method, ConstBuffer argsData)
 	{
 		{% if methods -%}
-		size_t offset = 0;
+		size_t offset = 0; (void)offset;
 		{%- endif -%}
 		{%- for method in methods %}
 		if (method == "{{method.name}}") {

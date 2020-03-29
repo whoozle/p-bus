@@ -41,9 +41,9 @@ namespace pbus
 		static constexpr u8 RequestSubscribe		= 4;	//C → S
 		static constexpr u8 RequestRelease			= 5;	//C → S
 
-		static constexpr u8 ReplyResult 			= 0; 	//S → C
-		static constexpr u8 ReplyException 			= 1; 	//S → C
-		static constexpr u8 ReplySignal 			= 2; 	//S → C
+		static constexpr u8 ReplyResult 			= 6; 	//S → C
+		static constexpr u8 ReplyException 			= 7; 	//S → C
+		static constexpr u8 ReplySignal 			= 8; 	//S → C
 /*
 	- method (object, method name, args) → [result | exception]
 	- static method (method id, args) → [result | exception]
@@ -166,14 +166,14 @@ namespace pbus
 			{ _log.Error() << "releasing " << objectId << " failed: " << ex.what(); }
 		}
 
-		void OnIncomingData(const ServiceId & origin, ConstBuffer data);
+		void OnIncomingData(const ServiceId & origin, u32 serial, ConstBuffer data);
 
 	private:
 		LocalBusConnectionPtr Connect(const ServiceId & id);
 
 		u32 Send(ServiceId, ByteArray && data);
 
-		void OnIncomingInvoke(const ServiceId & origin, ConstBuffer data);
+		void OnIncomingInvoke(const ServiceId & origin, u32 serial, ConstBuffer data);
 	};
 }
 

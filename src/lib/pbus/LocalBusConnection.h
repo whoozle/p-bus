@@ -25,7 +25,8 @@ namespace pbus
 		log::Logger 					_log;
 		io::Poll &						_poll;
 		net::unix::LocalSocket			_socket;
-		u32								_serial;
+		u32								_writeSerial = 0;
+		u32								_readSerial = 0;
 
 		struct WriteTask
 		{
@@ -102,7 +103,7 @@ namespace pbus
 			EnableWrite(true);
 			std::lock_guard<decltype(_lock)> l(_lock);
 			_writeQueue.emplace_back(std::move(data));
-			return _serial++;
+			return _writeSerial++;
 		}
 	};
 }

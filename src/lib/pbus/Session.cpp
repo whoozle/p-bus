@@ -54,23 +54,23 @@ namespace pbus
 			throw Exception("no connection to service " + service.ToString() + " possible");
 	}
 
-	void Session::OnIncomingData(const ServiceId & serviceId, ConstBuffer data)
+	void Session::OnIncomingData(const ServiceId & serviceId, u32 serial, ConstBuffer data)
 	{
-		_log.Debug() << "incoming data from " << serviceId << text::HexDump(data);
+		_log.Debug() << "incoming data from " << serviceId << ", serial " << serial << text::HexDump(data);
 		size_t offset = 0;
 		auto request = serialization::bson::ReadSingleValue<u8>(data, offset);
-		_log.Info() << "request: " << request;
+		_log.Debug() << "request type: " << request;
 		switch(request)
 		{
 			case RequestInvoke:
-				OnIncomingInvoke(serviceId, ConstBuffer(data, offset));
+				OnIncomingInvoke(serviceId, serial, ConstBuffer(data, offset));
 				break;
 			default:
 				throw Exception("unhandled request " + std::to_string(request));
 		}
 	}
 
-	void Session::OnIncomingInvoke(const ServiceId & origin, ConstBuffer data)
+	void Session::OnIncomingInvoke(const ServiceId & origin, u32 serial, ConstBuffer data)
 	{
 		size_t offset = 0;
 		std::string classType = serialization::bson::ReadSingleValue<std::string>(data, offset);
