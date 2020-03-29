@@ -57,6 +57,7 @@ namespace pbus
 		std::unordered_map<ClassId, LocalBusConnectionPtr> 		_connections;
 		std::unordered_map<ClassId, IServiceFactoryPtr> 		_services;
 		std::unordered_map<u32, IResponseParserPtr>				_requests;
+		std::unordered_map<ObjectId, idl::core::ICoreObjectPtr>	_localObjects;
 
 		Session();
 		~Session();
