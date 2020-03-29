@@ -3,6 +3,8 @@
 {%- for deppackage, depns, dep in deps %}
 #include <pbus/idl/{{deppackage | replace(".", "/")}}/{{dep}}.h>
 {%- endfor %}
+#include <toolkit/serialization/Serializator.h>
+#include <toolkit/serialization/bson/InputStream.h>
 
 namespace pbus { namespace idl{%- for pc in package_components %} { namespace {{pc}} {%- endfor %}
 {
@@ -14,6 +16,24 @@ namespace pbus { namespace idl{%- for pc in package_components %} { namespace {{
 		session.RegisterProxy<{{depns}}::{{dep}}>(I{{dep}}::ClassId);
 {%- endfor %}
 		session.RegisterProxy<{{name}}>(I{{name}}::ClassId);
+	}
+
+	void I{{name}}::__pbus__invoke(serialization::ISerializationStream & resultStream, const std::string & method, ConstBuffer argsData)
+	{
+		{% if methods -%}
+		size_t offset = 0;
+		{%- endif -%}
+		{%- for method in methods %}
+		if (method == "{{method.name}}") {
+			{% if method.rtype != "void" -%}Serialize(resultStream, {% endif -%}
+			{{method.name}}(
+				{%- for arg in method.args -%}
+					{%- if loop.index > 1 %}, {% endif %}serialization::bson::ReadSingleValue<std::decay<{{arg.type}}>::type>(argsData, offset)
+				{%- endfor -%}
+			{% if method.rtype != "void" %}));{% else %});{% endif %}
+		} else
+		{%- endfor %}
+			I{{base}}::__pbus__invoke(resultStream, method, argsData);
 	}
 
     I{{name}} * I{{name}}::CreateProxy(const ServiceId &origin, const ObjectId &id)

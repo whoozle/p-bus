@@ -37,7 +37,7 @@ namespace pbus
 
 			_log.Debug() << "connecting to service manager at " << idl::system::IServiceManager::ClassId;
 			auto serviceManager = GetService<idl::system::IServiceManager>();
-			auto lease = serviceManager->start(serviceId.Name, serviceId.Version);
+			/*auto lease =*/ serviceManager->start(serviceId.Name, serviceId.Version);
 			auto connection = std::make_shared<LocalBusConnection>(serviceId);
 			_connections.insert(std::make_pair(serviceId, connection));
 			return connection;

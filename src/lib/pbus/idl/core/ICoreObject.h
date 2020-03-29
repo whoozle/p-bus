@@ -3,8 +3,9 @@
 
 #include <pbus/ObjectId.h>
 #include <memory>
+namespace pbus { namespace serialization { struct ISerializationStream; }}
 
-namespace pbus { namespace idl { namespace core 
+namespace pbus { namespace idl { namespace core
 {
 
 	struct ICoreObject
@@ -12,6 +13,7 @@ namespace pbus { namespace idl { namespace core
 		static pbus::ClassId ClassId;
 
 		virtual ~ICoreObject() = default;
+		virtual void __pbus__invoke(serialization::ISerializationStream & resultStream, const std::string & method, ConstBuffer argsData);
 	};
 	TOOLKIT_DECLARE_PTR(ICoreObject);
 

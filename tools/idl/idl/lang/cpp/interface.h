@@ -19,6 +19,8 @@ namespace pbus { class Session; namespace idl{%- for pc in package_components %}
 
 		static pbus::ClassId ClassId;
 
+		void __pbus__invoke(serialization::ISerializationStream & resultStream, const std::string & method, ConstBuffer argsData) override;
+
 		static void RegisterProxy(Session & session);
 		static I{{name}} * CreateProxy(const ServiceId &origin, const ObjectId &id);
 	};
