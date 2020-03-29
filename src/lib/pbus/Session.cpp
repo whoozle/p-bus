@@ -79,6 +79,17 @@ namespace pbus
 		ObjectId id(ClassId(classType, classVersion), objectId);
 		std::string methodName = serialization::bson::ReadSingleValue<std::string>(data, offset);
 		_log.Info() << "invoke " << id << ", method: " << methodName << " args at " << text::Hex(offset, 4);
+
+
+		idl::core::ICoreObjectPtr object;
+		{
+			std::lock_guard<decltype(_lock)> l(_lock);
+			auto it = _localObjects.find(id);
+			if (it == _localObjects.end())
+				throw Exception("object with id " + id.ToString() + " not found");
+
+			object = it->second;
+		}
 	}
 
 }
