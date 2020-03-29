@@ -43,7 +43,6 @@ namespace pbus
 		{ return !((*this) == o); }
 
 		void Write(serialization::ISerializationStream & stream) const;
-		static ObjectId Read(ConstBuffer buffer);
 
 		TOOLKIT_DECLARE_SIMPLE_TOSTRING();
 	};

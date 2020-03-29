@@ -65,7 +65,6 @@ namespace pbus
 		{ return !((*this) == o); }
 
 		void Write(serialization::ISerializationStream & stream) const;
-		static ClassId Read(ConstBuffer buffer);
 
 		static ClassId FromString(const std::string & str);
 		TOOLKIT_DECLARE_SIMPLE_TOSTRING();

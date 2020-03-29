@@ -7,9 +7,6 @@ namespace pbus
 	void ClassId::Write(serialization::ISerializationStream & out) const
 	{ serialization::Serialize(out, Name, Version); }
 
-	ClassId ClassId::Read(ConstBuffer buffer)
-	{ }
-
 	ClassId ClassId::FromString(const std::string & str)
 	{
 		auto atPos = str.find('@');
