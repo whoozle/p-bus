@@ -41,9 +41,9 @@ namespace pbus
 		static constexpr u8 RequestSubscribe		= 4;	//C → S
 		static constexpr u8 RequestRelease			= 5;	//C → S
 
-		static constexpr u8 ReplyResult 			= 6; 	//S → C
-		static constexpr u8 ReplyException 			= 7; 	//S → C
-		static constexpr u8 ReplySignal 			= 8; 	//S → C
+		static constexpr u8 ResponseResult 			= 6; 	//S → C
+		static constexpr u8 ResponseException		= 7; 	//S → C
+		static constexpr u8 ResponseSignal 			= 8; 	//S → C
 /*
 	- method (object, method name, args) → [result | exception]
 	- static method (method id, args) → [result | exception]
@@ -174,6 +174,7 @@ namespace pbus
 		u32 Send(ServiceId, ByteArray && data);
 
 		void OnIncomingInvoke(const ServiceId & origin, u32 serial, ConstBuffer data);
+		void ThrowException(const ServiceId & origin, u32 serial, const std::exception & ex);
 	};
 }
 

@@ -43,6 +43,14 @@ namespace pbus
 			return connection;
 		}
 	}
+	void Session::ThrowException(const ServiceId & origin, u32 serial, const std::exception & ex)
+	{
+		_log.Debug() << "throwing exception " << ex.what() << " to " << origin;
+		try
+		{ MakeRequest(origin, ResponseException, serial, "Exception", ex.what()); }
+		catch(const std::exception & ex2)
+		{ _log.Error() << "error while throwing exception of " << ex.what() << ": " << ex2.what(); }
+	}
 
 	u32 Session::Send(ServiceId service, ByteArray && data)
 	{
@@ -57,17 +65,22 @@ namespace pbus
 	void Session::OnIncomingData(const ServiceId & serviceId, u32 serial, ConstBuffer data)
 	{
 		_log.Debug() << "incoming data from " << serviceId << ", serial " << serial << text::HexDump(data);
-		size_t offset = 0;
-		auto request = serialization::bson::ReadSingleValue<u8>(data, offset);
-		_log.Debug() << "request type: " << request;
-		switch(request)
+		try
 		{
-			case RequestInvoke:
-				OnIncomingInvoke(serviceId, serial, ConstBuffer(data, offset));
-				break;
-			default:
-				throw Exception("unhandled request " + std::to_string(request));
+			size_t offset = 0;
+			auto request = serialization::bson::ReadSingleValue<u8>(data, offset);
+			_log.Debug() << "request type: " << request;
+			switch(request)
+			{
+				case RequestInvoke:
+					OnIncomingInvoke(serviceId, serial, ConstBuffer(data, offset));
+					break;
+				default:
+					throw Exception("unhandled request " + std::to_string(request));
+			}
 		}
+		catch(const std::exception & ex)
+		{ ThrowException(serviceId, serial, ex); }
 	}
 
 	void Session::OnIncomingInvoke(const ServiceId & origin, u32 serial, ConstBuffer data)
