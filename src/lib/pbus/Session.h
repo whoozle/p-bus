@@ -109,9 +109,21 @@ namespace pbus
 		template<typename InterfaceType>
 		std::shared_ptr<InterfaceType> GetService()
 		{
-			std::lock_guard<decltype(_lock)> l(_lock);
-			InterfaceType::RegisterProxy(*this);
 			auto & classId = InterfaceType::ClassId;
+			_log.Debug() << "GetService " << classId;
+
+			std::lock_guard<decltype(_lock)> l(_lock);
+			auto it = _services.find(classId);
+			if (it != _services.end())
+			{
+				_log.Debug() << "found local service, returning...";
+				auto service = std::dynamic_pointer_cast<InterfaceType>(it->second->Get());
+				if (!service)
+					throw Exception("service registered can't cast to interface for " + classId.ToString());
+				return service;
+			}
+
+			InterfaceType::RegisterProxy(*this);
 			_log.Debug() << "GetService " << classId;
 			auto factory = Get(classId.ToString());
 			if (!factory)

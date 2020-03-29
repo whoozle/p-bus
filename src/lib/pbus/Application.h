@@ -27,10 +27,10 @@ namespace pbus
 		~Application();
 
 		template<typename Service>
-		void RegisterClass(const ClassId & classId)
+		void RegisterService()
 		{
 			auto & session = Session::Get();
-			session.RegisterService(classId, std::make_shared<ServiceComponentFactory<Service>>());
+			session.RegisterService(Service::ClassId, std::make_shared<ServiceComponentFactory<Service>>());
 		}
 
 		void Run();

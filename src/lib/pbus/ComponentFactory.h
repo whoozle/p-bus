@@ -45,7 +45,7 @@ namespace pbus
 	struct IServiceFactory
 	{
 		virtual ~IServiceFactory() = default;
-		virtual idl::core::ICoreObject * Get() = 0;
+		virtual idl::core::ICoreObjectPtr Get() = 0;
 	};
 	TOOLKIT_DECLARE_PTR(IServiceFactory);
 

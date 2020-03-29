@@ -76,6 +76,7 @@ target_link_libraries(pbus toolkit)
 add_executable(system.ServiceManager
 	src/services/system/servicemanager/main.cpp
 	src/services/system/servicemanager/Service.cpp
+	src/services/system/servicemanager/ServiceManager.cpp
 	src/services/system/servicemanager/ServiceRegistry.cpp
 )
 target_link_libraries(system.ServiceManager pbus)
