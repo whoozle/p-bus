@@ -128,7 +128,8 @@ namespace pbus
 			return nullptr;
 
 		auto r = i->second;
-		requests.erase(i);
+		if (r->Finished())
+			requests.erase(i);
 		return r;
 	}
 
@@ -138,6 +139,7 @@ namespace pbus
 		while (_poll.Wait(15000) != 0)
 		{
 			auto response = GetResponseParser(origin, serial);
+			_log.Debug() << "registered response " << response.get();
 			if (response && response->Finished()) {
 				_log.Debug() << "got response for " << origin << " #" << serial;
 				return response;
@@ -162,6 +164,7 @@ namespace pbus
 			std::string exceptionArg1 = serialization::bson::ReadSingleValue<std::string>(data, offset);
 			_log.Debug() << "ignoring exception type " << exceptionType << " for now";
 			_log.Debug() << "setting exception text to \"" << exceptionArg1 << "\" for request " << origin << " #" << responseSerial;
+			_log.Debug() << " response ptr " << response.get();
 			response->SetException(std::make_exception_ptr(std::runtime_error(exceptionArg1)));
 		}
 		catch(const std::exception & ex)
