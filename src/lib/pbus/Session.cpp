@@ -49,7 +49,7 @@ namespace pbus
 		_log.Debug() << "sending to " << service << text::HexDump(data);
 		auto connection = Connect(service);
 		if (connection)
-			connection->Send(std::move(data));
+			return connection->Send(std::move(data));
 		else
 			throw Exception("no connection to service " + service.ToString() + " possible");
 	}
