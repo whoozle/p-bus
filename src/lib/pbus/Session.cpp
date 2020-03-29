@@ -58,7 +58,7 @@ namespace pbus
 	{
 		_log.Debug() << "incoming data from " << serviceId << text::HexDump(data);
 		size_t offset = 0;
-		s64 request = serialization::bson::ReadSingleValue<s64>(data, offset);
+		auto request = serialization::bson::ReadSingleValue<u8>(data, offset);
 		_log.Info() << "request: " << request;
 		switch(request)
 		{
@@ -73,11 +73,11 @@ namespace pbus
 	void Session::OnIncomingInvoke(const ServiceId & origin, ConstBuffer data)
 	{
 		size_t offset = 0;
-		std::string classType = serialization::bson::ReadSingleValue<const std::string &>(data, offset);
-		s64 classVersion = serialization::bson::ReadSingleValue<s64>(data, offset);
-		s64 objectId = serialization::bson::ReadSingleValue<s64>(data, offset);
+		std::string classType = serialization::bson::ReadSingleValue<std::string>(data, offset);
+		s64 classVersion = serialization::bson::ReadSingleValue<u32>(data, offset);
+		s64 objectId = serialization::bson::ReadSingleValue<u32>(data, offset);
 		ObjectId id(ClassId(classType, classVersion), objectId);
-		std::string methodName = serialization::bson::ReadSingleValue<const std::string &>(data, offset);
+		std::string methodName = serialization::bson::ReadSingleValue<std::string>(data, offset);
 		_log.Info() << "invoke " << id << ", method: " << methodName << " args at " << text::Hex(offset, 4);
 	}
 
