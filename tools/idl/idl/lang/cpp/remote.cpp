@@ -13,7 +13,7 @@ namespace pbus { namespace idl{%- for pc in package_components %} { namespace {{
 	{
 		auto & session = Session::Get();
 		auto token = session.Invoke<{{method.rtype}}>(GetOrigin(), GetId(), method_{{method.name}}{% for arg in method.args %}, {{arg.name}}{% endfor %});
-		{% if method.rtype != "void" -%}return{% endif %} session.Wait<{{method.rtype}}>(token);
+		{% if method.rtype != "void" -%}return{% endif %} session.Wait<{{method.rtype}}>(GetOrigin(), token);
 	}
 {% endfor %}
 

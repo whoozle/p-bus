@@ -13,28 +13,47 @@ namespace pbus
 		virtual ~IResponseParser() = default;
 		virtual void Parse(ConstBuffer data) = 0;
 		virtual void SetException(std::exception_ptr ex) = 0;
+		virtual std::exception_ptr GetException() const = 0;
 	};
 	TOOLKIT_DECLARE_PTR(IResponseParser);
 
-	template<typename ResultType>
-	class ResponseParser : public IResponseParser
+	struct BaseResponseParser : public IResponseParser
 	{
-		using Promise = std::promise<ResultType>;
-		Promise 		_promise;
+		std::exception_ptr _exception;
+
+		void SetException(std::exception_ptr exception) override
+		{ _exception = exception; }
+		std::exception_ptr GetException() const override
+		{ return _exception; }
+	};
+
+	template<typename ResultType>
+	class ResponseParser : public BaseResponseParser
+	{
+		ResultType _value;
 
 	public:
-		ResponseParser(Promise && promise): _promise(std::move(promise))
+		ResponseParser(): _value()
 		{ }
 
 		void Parse(ConstBuffer data) override
 		{ }
 
-		void SetException(std::exception_ptr ex)
-		{ _promise.set_exception(ex); }
-
-		std::future<ResultType> GetFuture()
-		{ return _promise.get_future(); }
+		ResultType GetValue() const
+		{ return _value; }
 	};
+
+	template<>
+	class ResponseParser<void> : public BaseResponseParser
+	{
+	public:
+		void Parse(ConstBuffer data) override
+		{ }
+
+		void GetValue() const
+		{ }
+	};
+
 }
 
 #endif

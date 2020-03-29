@@ -15,7 +15,6 @@
 #include <toolkit/serialization/Serializator.h>
 #include <toolkit/serialization/bson/OutputStream.h>
 
-#include <future>
 #include <memory>
 #include <mutex>
 #include <tuple>
@@ -141,20 +140,27 @@ namespace pbus
 		u32 Invoke(const ServiceId & origin, const ObjectId & objectId, const MethodId & methodId, ArgumentType ... args)
 		{
 			_log.Debug() << "invoking " << objectId << "." << methodId.Name;
-			std::promise<ReturnType> promise;
 			u32 serial = MakeRequest(origin, RequestInvoke, objectId, methodId.Name, args...);
-			auto parser = std::make_shared<ResponseParser<ReturnType>>(std::move(promise));
+			auto parser = std::make_shared<ResponseParser<ReturnType>>();
 			_requests[origin][serial] = parser;
 			return serial;
 		}
 
 		template<typename ReturnType>
-		ReturnType Wait(u32 serial)
+		ReturnType Wait(const ServiceId & origin, u32 serial)
 		{
 			_log.Debug() << "Wait " << serial;
-			while (_poll.Wait(15000) != 0);
-			throw Exception("Timed out waiting for reply");
-			return ReturnType();
+			auto response = WaitResponse(origin, serial);
+			auto exception = response->GetException();
+			if (exception)
+				std::rethrow_exception(exception);
+
+			using ParserType = ResponseParser<ReturnType>;
+			auto result = std::dynamic_pointer_cast<ParserType>(response);
+			if (!result)
+				throw Exception("mismatched type for response parser");
+
+			return result->GetValue();
 		}
 
 		void Release(const ServiceId & origin, const ObjectId & objectId)
@@ -175,6 +181,8 @@ namespace pbus
 
 		void OnIncomingInvoke(const ServiceId & origin, u32 serial, ConstBuffer data);
 
+		IResponseParserPtr WaitResponse(const ServiceId & origin, u32 serial);
+		IResponseParserPtr GetResponseParser(const ServiceId & origin, u32 serial);
 		IResponseParserPtr PopResponseParser(const ServiceId & origin, u32 serial);
 		void OnIncomingException(const ServiceId & origin, u32 serial, ConstBuffer data);
 		void OnIncomingResult(const ServiceId & origin, u32 serial, ConstBuffer data);

@@ -112,6 +112,18 @@ namespace pbus
 		}
 	}
 
+	IResponseParserPtr Session::GetResponseParser(const ServiceId & origin, u32 serial)
+	{
+		std::lock_guard<decltype(_lock)> l(_lock);
+		auto oi = _requests.find(origin);
+		if (oi == _requests.end())
+			return nullptr;
+
+		auto & requests = oi->second;
+		auto i = requests.find(serial);
+		return i != requests.end()? i->second: nullptr;
+	}
+
 	IResponseParserPtr Session::PopResponseParser(const ServiceId & origin, u32 serial)
 	{
 		std::lock_guard<decltype(_lock)> l(_lock);
@@ -129,6 +141,16 @@ namespace pbus
 		return r;
 	}
 
+	IResponseParserPtr Session::WaitResponse(const ServiceId & origin, u32 serial)
+	{
+		while (_poll.Wait(15000) != 0)
+		{
+			auto response = GetResponseParser(origin, serial);
+			if (response)
+				return response;
+		}
+		throw Exception("Timed out waiting for reply");
+	}
 
 	void Session::OnIncomingException(const ServiceId & origin, u32 serial, ConstBuffer data)
 	{
