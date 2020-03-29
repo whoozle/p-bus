@@ -2,6 +2,7 @@
 #include <pbus/LocalBusConnection.h>
 #include <pbus/Session.h>
 #include <toolkit/net/unix/Endpoint.h>
+#include <toolkit/io/File.h>
 #include <unistd.h>
 
 namespace pbus
@@ -31,7 +32,20 @@ namespace pbus
 		auto cred = sock->GetPeerCredentials();
 		_log.Debug() << "credentials, pid: " << cred.pid << ", gid: " << cred.gid << ", uid: " << cred.uid;
 
-		new LocalBusConnection(_id, std::move(*sock));
+		//this is only dev mode hack
+		char buf[1024];
+		snprintf(buf, sizeof(buf), "/var/run/pbus/%d", cred.pid);
+		io::File service(buf);
+		ByteArray data(1024);
+		auto r = service.Read(Buffer(data, 0, data.size() - 1));
+
+		std::string serviceIdString;
+		serviceIdString.assign(reinterpret_cast<char *>(data.data()), r);
+		auto serviceId = ServiceId::FromString(serviceIdString);
+
+		_log.Debug() << "parsed service id from dev run file: " << serviceId;
+
+		new LocalBusConnection(serviceId, std::move(*sock));
 	}
 
 }
