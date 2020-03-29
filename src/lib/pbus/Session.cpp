@@ -161,6 +161,7 @@ namespace pbus
 			std::string exceptionType = serialization::bson::ReadSingleValue<std::string>(data, offset);
 			std::string exceptionArg1 = serialization::bson::ReadSingleValue<std::string>(data, offset);
 			_log.Debug() << "ignoring exception type " << exceptionType << " for now";
+			_log.Debug() << "setting exception text to \"" << exceptionArg1 << "\" for request " << origin << " #" << responseSerial;
 			response->SetException(std::make_exception_ptr(std::runtime_error(exceptionArg1)));
 		}
 		catch(const std::exception & ex)
