@@ -19,12 +19,14 @@ namespace pbus
 	{
 		static constexpr int DefaultEvents = io::Poll::EventInput | io::Poll::EventError | io::Poll::EventHangup;
 		static constexpr size_t ReadBufferSize = 128 * 1024;
+		using Socket = net::unix::LocalSocket;
+		using SocketPtr = std::shared_ptr<Socket>;
 
 		std::mutex						_lock;
 		ServiceId						_serviceId;
 		log::Logger 					_log;
 		io::Poll &						_poll;
-		net::unix::LocalSocket			_socket;
+		SocketPtr						_socket;
 		u32								_writeSerial = 0;
 		u32								_readSerial = 0;
 
@@ -86,7 +88,6 @@ namespace pbus
 
 	private:
 		void Connect();
-		void Reconnect();
 		void EnableWrite(bool enable);
 		void Wait(int timeout = -1);
 
@@ -95,13 +96,12 @@ namespace pbus
 		LocalBusConnection(ServiceId serviceId, net::unix::LocalSocket && socket);
 		~LocalBusConnection();
 
-		net::unix::LocalSocket & GetSocket()
-		{ return _socket; }
-
 		void HandleSocketEvent(int event) override;
 
 		u32 Send(ByteArray && data)
 		{
+			if (!_socket)
+				Connect();
 			EnableWrite(true);
 			std::lock_guard<decltype(_lock)> l(_lock);
 			_writeQueue.emplace_back(std::move(data));

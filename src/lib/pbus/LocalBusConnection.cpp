@@ -18,35 +18,31 @@ namespace pbus
 		_serviceId(serviceId),
 		_log("connection/" + serviceId.ToString()),
 		_poll(Session::Get().GetPoll())
-	{
-		_log.Debug() << "connecting to " << serviceId;
-		Connect();
-	}
+	{ }
 
 	LocalBusConnection::LocalBusConnection(ServiceId serviceId, net::unix::LocalSocket && socket):
 		_serviceId(serviceId),
 		_log("connection/" + serviceId.ToString()),
 		_poll(Session::Get().GetPoll()),
-		_socket(std::move(socket))
+		_socket(std::make_shared<Socket>(std::move(socket)))
 	{
-		_poll.Add(_socket, *this, DefaultEvents);
-	}
-
-	void LocalBusConnection::Reconnect()
-	{
-		_socket.~LocalSocket();
-		new (&_socket) net::unix::LocalSocket();
-		Connect();
+		_poll.Add(*_socket, *this, DefaultEvents);
 	}
 
 	void LocalBusConnection::Connect()
 	{
+		if (_socket)
+			return;
+
+		_log.Debug() << "connecting to " << _serviceId;
+		_socket = std::make_shared<Socket>();
+
 		net::unix::Endpoint ep(_serviceId.ToString());
 		try
-		{ _socket.Connect(ep); }
+		{ _socket->Connect(ep); }
 		catch (std::exception & ex)
 		{
-			_log.Debug() << "exception while connection: " << ex;
+			_log.Debug() << "exception while connecting to " << _serviceId << ": " << ex;
 			if (_serviceId == idl::system::IServiceManager::ClassId)
 				throw Exception("cannot connect to ServiceManager to create service " + _serviceId.ToString());
 
@@ -54,20 +50,20 @@ namespace pbus
 			Session & session = Session::Get();
 			auto serviceManager = session.GetService<idl::system::IServiceManager>();
 			/*auto lease =*/ serviceManager->start(_serviceId.Name, _serviceId.Version);
-			_socket.Connect(ep);
+			_socket->Connect(ep);
 		}
-		_socket.SetNonBlocking(true);
-		_poll.Add(_socket, *this, DefaultEvents);
+		_socket->SetNonBlocking(true);
+		_poll.Add(*_socket, *this, DefaultEvents);
 	}
 
 	LocalBusConnection::~LocalBusConnection()
 	{
 		_log.Debug() << "closing...";
-		_poll.Remove(_socket);
+		try { if (_socket) _poll.Remove(*_socket);  } catch (const std::exception & ex) { _log.Warning() << "failure in connection dtor: " << ex; }
 	}
 
 	void LocalBusConnection::EnableWrite(bool enable)
-	{ _poll.Modify(_socket, *this, DefaultEvents | (enable? _poll.EventOutput: 0)); }
+	{ _poll.Modify(*_socket, *this, DefaultEvents | (enable? _poll.EventOutput: 0)); }
 
 	void LocalBusConnection::HandleSocketEvent(int event)
 	{
@@ -75,7 +71,8 @@ namespace pbus
 		if (event & (io::Poll::EventHangup | io::Poll::EventError))
 		{
 			_log.Warning() << "error or hangup, reconnect";
-			Reconnect();
+			_poll.Remove(*_socket);
+			_socket.reset();
 			return;
 		}
 
@@ -86,7 +83,7 @@ namespace pbus
 			{
 				auto & task = _writeQueue.front();
 				auto buffer = task.GetBuffer();
-				auto r = _socket.Write(buffer);
+				auto r = _socket->Write(buffer);
 				_log.Debug() << "wrote " << r << " bytes";
 				task.Complete(r);
 				if (task.Finished())
@@ -102,7 +99,7 @@ namespace pbus
 		{
 			std::unique_lock<decltype(_lock)> l(_lock);
 			ByteArray buffer(ReadBufferSize);
-			auto r = _socket.Read(buffer);
+			auto r = _socket->Read(buffer);
 			_log.Debug() << "read " << r << " bytes";
 			if (r <= 0)
 				throw Exception("socket read returned bogus value, shutdown?");
