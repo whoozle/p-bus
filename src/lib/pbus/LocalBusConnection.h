@@ -85,6 +85,8 @@ namespace pbus
 		ReadTask				_readTask;
 
 	private:
+		void Connect();
+		void Reconnect();
 		void EnableWrite(bool enable);
 		void Wait(int timeout = -1);
 

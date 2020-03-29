@@ -19,11 +19,8 @@ namespace pbus
 		_poll(Session::Get().GetPoll())
 	{
 		_socket.SetNonBlocking(true);
-		auto path = serviceId.ToString();
 		_log.Debug() << "connecting to " << serviceId;
-		net::unix::Endpoint ep(path);
-		_socket.Connect(ep);
-		_poll.Add(_socket, *this, DefaultEvents);
+		Connect();
 	}
 
 	LocalBusConnection::LocalBusConnection(ServiceId serviceId, net::unix::LocalSocket && socket):
@@ -35,10 +32,24 @@ namespace pbus
 		_poll.Add(_socket, *this, DefaultEvents);
 	}
 
+	void LocalBusConnection::Reconnect()
+	{
+		_socket.~LocalSocket();
+		new (&_socket) net::unix::LocalSocket();
+		Connect();
+	}
+
+	void LocalBusConnection::Connect()
+	{
+		net::unix::Endpoint ep(_serviceId.ToString());
+		_socket.Connect(ep);
+		_poll.Add(_socket, *this, DefaultEvents);
+	}
+
 	LocalBusConnection::~LocalBusConnection()
 	{
 		_log.Debug() << "closing...";
-		Session::Get().GetPoll().Remove(_socket);
+		_poll.Remove(_socket);
 	}
 
 	void LocalBusConnection::EnableWrite(bool enable)
@@ -49,8 +60,8 @@ namespace pbus
 		_log.Debug() << "socket event 0x" << text::Hex(event);
 		if (event & (io::Poll::EventHangup | io::Poll::EventError))
 		{
-			_log.Error() << "error or hangup, fixme: this instance is in shared pointer in Session, expect crash, FIXME";
-			delete this;
+			_log.Warning() << "error or hangup, reconnect";
+			Reconnect();
 			return;
 		}
 
