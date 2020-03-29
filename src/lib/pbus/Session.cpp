@@ -57,12 +57,28 @@ namespace pbus
 	void Session::OnIncomingData(const ServiceId & serviceId, ConstBuffer data)
 	{
 		_log.Debug() << "incoming data from " << serviceId << text::HexDump(data);
-		serialization::bson::SingleValueParser<s64> request;
 		size_t offset = 0;
-		request.Parse(data, offset);
-		if (!request.Finished())
-			throw Exception("could not parse request");
-		_log.Info() << "request: " << request.Value;
+		s64 request = serialization::bson::ReadSingleValue<s64>(data, offset);
+		_log.Info() << "request: " << request;
+		switch(request)
+		{
+			case RequestInvoke:
+				OnIncomingInvoke(serviceId, ConstBuffer(data, offset));
+				break;
+			default:
+				throw Exception("unhandled request " + std::to_string(request));
+		}
+	}
+
+	void Session::OnIncomingInvoke(const ServiceId & origin, ConstBuffer data)
+	{
+		size_t offset = 0;
+		std::string classType = serialization::bson::ReadSingleValue<const std::string &>(data, offset);
+		s64 classVersion = serialization::bson::ReadSingleValue<s64>(data, offset);
+		s64 objectId = serialization::bson::ReadSingleValue<s64>(data, offset);
+		ObjectId id(ClassId(classType, classVersion), objectId);
+		std::string methodName = serialization::bson::ReadSingleValue<const std::string &>(data, offset);
+		_log.Info() << "invoke " << id << ", method: " << methodName << " args at " << text::Hex(offset, 4);
 	}
 
 }

@@ -164,12 +164,14 @@ namespace pbus
 			{ _log.Error() << "releasing " << objectId << " failed: " << ex.what(); }
 		}
 
-		void OnIncomingData(const ServiceId & serviceId, ConstBuffer data);
+		void OnIncomingData(const ServiceId & origin, ConstBuffer data);
 
 	private:
 		LocalBusConnectionPtr Connect(const ServiceId & id);
 
 		u32 Send(ServiceId, ByteArray && data);
+
+		void OnIncomingInvoke(const ServiceId & origin, ConstBuffer data);
 	};
 }
 
