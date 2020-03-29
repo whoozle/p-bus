@@ -134,11 +134,15 @@ namespace pbus
 
 	IResponseParserPtr Session::WaitResponse(const ServiceId & origin, u32 serial)
 	{
+		_log.Debug() << "waiting...";
 		while (_poll.Wait(15000) != 0)
 		{
 			auto response = GetResponseParser(origin, serial);
-			if (response)
+			if (response && response->Finished()) {
+				_log.Debug() << "got response for " << origin << " #" << serial;
 				return response;
+			}
+			_log.Debug() << "waiting again...";
 		}
 		throw Exception("Timed out waiting for reply");
 	}

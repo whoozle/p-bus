@@ -163,11 +163,13 @@ namespace pbus
 		template<typename ReturnType>
 		ReturnType Wait(const ServiceId & origin, u32 serial)
 		{
-			_log.Debug() << "Wait " << serial;
+			_log.Debug() << "Wait for " << origin << " #" << serial;
 			auto response = WaitResponse(origin, serial);
 			auto exception = response->GetException();
-			if (exception)
+			if (exception) {
+				_log.Debug() << "got exception, rethrowing...";
 				std::rethrow_exception(exception);
+			}
 
 			using ParserType = ResponseParser<ReturnType>;
 			auto result = std::dynamic_pointer_cast<ParserType>(response);
