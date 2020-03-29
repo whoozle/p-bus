@@ -96,7 +96,7 @@ namespace pbus
 						l.lock();
 					}
 					catch(const std::exception & ex)
-					{ _log.Error() << "incoming data parsing failure: " << ex.what(); }
+					{ _log.Error() << "incoming data parsing failure: " << ex; }
 					_readTask = ReadTask();
 				}
 			}

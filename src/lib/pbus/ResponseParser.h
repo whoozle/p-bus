@@ -12,6 +12,7 @@ namespace pbus
 	{
 		virtual ~IResponseParser() = default;
 		virtual void Parse(ConstBuffer data) = 0;
+		virtual void SetException(std::exception_ptr ex) = 0;
 	};
 	TOOLKIT_DECLARE_PTR(IResponseParser);
 
@@ -27,6 +28,9 @@ namespace pbus
 
 		void Parse(ConstBuffer data) override
 		{ }
+
+		void SetException(std::exception_ptr ex)
+		{ _promise.set_exception(ex); }
 
 		std::future<ResultType> GetFuture()
 		{ return _promise.get_future(); }

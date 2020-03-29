@@ -31,7 +31,7 @@ namespace pbus
 		}
 		catch(const std::exception & ex)
 		{
-			_log.Debug() << "exception while connection: " << ex.what();
+			_log.Debug() << "exception while connection: " << ex;
 			if (serviceId == idl::system::IServiceManager::ClassId)
 				throw Exception("cannot connect to ServiceManager to create service " + serviceId.ToString());
 
@@ -43,13 +43,14 @@ namespace pbus
 			return connection;
 		}
 	}
+
 	void Session::ThrowException(const ServiceId & origin, u32 serial, const std::exception & ex)
 	{
-		_log.Debug() << "throwing exception " << ex.what() << " to " << origin;
+		_log.Debug() << "throwing exception " << ex << " to " << origin;
 		try
 		{ MakeRequest(origin, ResponseException, serial, "Exception", ex.what()); }
 		catch(const std::exception & ex2)
-		{ _log.Error() << "error while throwing exception of " << ex.what() << ": " << ex2.what(); }
+		{ _log.Error() << "error while throwing exception of " << ex << ": " << ex2; }
 	}
 
 	u32 Session::Send(ServiceId service, ByteArray && data)
@@ -74,6 +75,12 @@ namespace pbus
 			{
 				case RequestInvoke:
 					OnIncomingInvoke(serviceId, serial, ConstBuffer(data, offset));
+					break;
+				case ResponseException:
+					OnIncomingException(serviceId, serial, ConstBuffer(data, offset));
+					break;
+				case ResponseResult:
+					OnIncomingException(serviceId, serial, ConstBuffer(data, offset));
 					break;
 				default:
 					throw Exception("unhandled request " + std::to_string(request));
@@ -103,6 +110,53 @@ namespace pbus
 
 			object = it->second;
 		}
+	}
+
+	IResponseParserPtr Session::PopResponseParser(const ServiceId & origin, u32 serial)
+	{
+		std::lock_guard<decltype(_lock)> l(_lock);
+		auto oi = _requests.find(origin);
+		if (oi == _requests.end())
+			return nullptr;
+
+		auto & requests = oi->second;
+		auto i = requests.find(serial);
+		if (i == requests.end())
+			return nullptr;
+
+		auto r = i->second;
+		requests.erase(i);
+		return r;
+	}
+
+
+	void Session::OnIncomingException(const ServiceId & origin, u32 serial, ConstBuffer data)
+	{
+		IResponseParserPtr response;
+		try
+		{
+			size_t offset = 0;
+			u32 responseSerial = serialization::bson::ReadSingleValue<u32>(data, offset);
+			response = PopResponseParser(origin, responseSerial);
+			if (!response)
+				throw Exception("no response with serial " + std::to_string(responseSerial));
+
+			std::string exceptionType = serialization::bson::ReadSingleValue<std::string>(data, offset);
+			std::string exceptionArg1 = serialization::bson::ReadSingleValue<std::string>(data, offset);
+			_log.Debug() << "ignoring exception type " << exceptionType << " for now";
+			response->SetException(std::make_exception_ptr(std::runtime_error(exceptionArg1)));
+		}
+		catch(const std::exception & ex)
+		{
+			_log.Error() << "exception while parsing exception " << ex;
+			if (response)
+				response->SetException(std::current_exception());
+		}
+	}
+
+	void Session::OnIncomingResult(const ServiceId & origin, u32 serial, ConstBuffer data)
+	{
+		_log.Error() << "implement parser for response:" << text::HexDump(data);
 	}
 
 }
