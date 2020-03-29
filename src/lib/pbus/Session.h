@@ -42,7 +42,8 @@ namespace pbus
 		static constexpr u8 RequestRelease			= 5;	//C → S
 
 		static constexpr u8 ReplyResult 			= 0; 	//S → C
-		static constexpr u8 ReplySignal 			= 1; 	//S → C
+		static constexpr u8 ReplyException 			= 1; 	//S → C
+		static constexpr u8 ReplySignal 			= 2; 	//S → C
 /*
 	- method (object, method name, args) → [result | exception]
 	- static method (method id, args) → [result | exception]
