@@ -25,12 +25,17 @@ namespace pbus { namespace idl{%- for pc in package_components %} { namespace {{
 		{%- endif -%}
 		{%- for method in methods %}
 		if (method == "{{method.name}}") {
+			{% for arg in method.args -%}
+			auto arg{{loop.index}} = serialization::bson::ReadSingleValue<std::decay<{{arg.type}}>::type>(argsData, offset);
+			{% endfor -%}
 			{% if method.rtype != "void" -%}Serialize(resultStream, {% endif -%}
 			{{method.name}}(
-				{%- for arg in method.args -%}
-					{%- if loop.index > 1 %}, {% endif %}serialization::bson::ReadSingleValue<std::decay<{{arg.type}}>::type>(argsData, offset)
+				{%- for i in range(method.args | length) -%}
+					{%- if i > 0 -%}, {% endif -%}
+					arg{{i + 1}}
 				{%- endfor -%}
-			{% if method.rtype != "void" %}));{% else %});{% endif %}
+			)
+			{%- if method.rtype != "void" %}){% endif -%};
 		} else
 		{%- endfor %}
 			I{{base}}::__pbus__invoke(resultStream, method, argsData);
