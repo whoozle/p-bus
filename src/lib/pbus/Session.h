@@ -97,14 +97,9 @@ namespace pbus
 			return it != _factories.end()? it->second: nullptr;
 		}
 
-		IServiceFactoryPtr GetService(const std::string &name) const
-		{
-			std::lock_guard<decltype(_lock)> l(_lock);
-			auto it = _services.find(name);
-			return it != _services.end()? it->second: nullptr;
-		}
-
 		void AddConnection(const ServiceId & service, const LocalBusConnectionPtr & connection);
+
+		idl::core::ICoreObjectPtr GetLocalService(const ServiceId &name);
 
 		template<typename InterfaceType>
 		std::shared_ptr<InterfaceType> GetService()
@@ -113,11 +108,10 @@ namespace pbus
 			_log.Debug() << "GetService " << classId;
 
 			std::lock_guard<decltype(_lock)> l(_lock);
-			auto it = _services.find(classId);
-			if (it != _services.end())
+			auto localService = GetLocalService(classId);
+			if (localService)
 			{
-				_log.Debug() << "found local service, returning...";
-				auto service = std::dynamic_pointer_cast<InterfaceType>(it->second->Get());
+				auto service = std::dynamic_pointer_cast<InterfaceType>(localService);
 				if (!service)
 					throw Exception("service registered can't cast to interface for " + classId.ToString());
 				return service;

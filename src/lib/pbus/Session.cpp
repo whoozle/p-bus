@@ -22,6 +22,20 @@ namespace pbus
 		_connections[serviceId] = connection;
 	}
 
+	idl::core::ICoreObjectPtr Session::GetLocalService(const ServiceId &serviceId)
+	{
+		std::lock_guard<decltype(_lock)> l(_lock);
+		auto it = _services.find(serviceId);
+		if (it == _services.end())
+			return nullptr;
+
+		_log.Debug() << "found local service, returning...";
+		auto service = it->second->Get();
+		ObjectId serviceObjectId(serviceId, 0);
+		_localObjects.insert(std::make_pair(serviceObjectId, service));
+		return service;
+	}
+
 	LocalBusConnectionPtr Session::Connect(const ServiceId & serviceId)
 	{
 		std::lock_guard<decltype(_lock)> l(_lock);
@@ -96,6 +110,11 @@ namespace pbus
 		{
 			std::lock_guard<decltype(_lock)> l(_lock);
 			auto it = _localObjects.find(id);
+			if (it == _localObjects.end() && id.Id == 0)
+			{
+				GetLocalService(id.Type); //just to register service instance
+				it = _localObjects.find(id);
+			}
 			if (it == _localObjects.end())
 				throw Exception("object with id " + id.ToString() + " not found");
 
