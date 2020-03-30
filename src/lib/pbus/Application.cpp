@@ -6,7 +6,7 @@
 
 namespace pbus
 {
-	Application::Application(const ServiceId & serviceId):
+	Application::Application(const ServiceId & serviceId, int argc, char ** argv):
 		_bus(serviceId)
 	{
 		{

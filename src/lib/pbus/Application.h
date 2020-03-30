@@ -23,7 +23,7 @@ namespace pbus
 		};
 
 	public:
-		Application(const ServiceId & serviceId);
+		Application(const ServiceId & serviceId, int argc, char ** argv);
 		~Application();
 
 		template<typename Service>

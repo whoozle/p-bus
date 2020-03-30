@@ -15,7 +15,7 @@ namespace pbus { namespace
 int main(int argc, char **argv)
 {
 	using namespace pbus;
-	Application app(RandomGenerator::ClassId);
+	Application app(RandomGenerator::ClassId, argc, argv);
 	app.RegisterService<RandomGenerator>();
 	app.Run();
 	return 0;

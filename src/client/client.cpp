@@ -9,7 +9,7 @@
 int main(int argc, char ** argv)
 {
 	using namespace pbus;
-	Application app(ServiceId("app.pbus.example.random"));
+	Application app(ServiceId("app.pbus.example.random"), argc, argv);
 	log::Logger logger("client");
 
 	auto random = Session::Get().GetService<pbus::idl::system::IRandomGenerator>();
