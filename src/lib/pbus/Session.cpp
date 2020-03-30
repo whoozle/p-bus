@@ -185,7 +185,7 @@ namespace pbus
 		{
 			size_t offset = 0;
 			u32 responseSerial = serialization::bson::ReadSingleValue<u32>(data, offset);
-			response = PopResponseParser(origin, responseSerial);
+			response = GetResponseParser(origin, responseSerial);
 			if (!response)
 				throw Exception("no response with serial " + std::to_string(responseSerial));
 
@@ -206,7 +206,25 @@ namespace pbus
 
 	void Session::OnIncomingResult(const ServiceId & origin, u32 serial, ConstBuffer data)
 	{
-		_log.Error() << "implement parser for response:" << text::HexDump(data);
+		IResponseParserPtr response;
+		try
+		{
+			size_t offset = 0;
+			u32 responseSerial = serialization::bson::ReadSingleValue<u32>(data, offset);
+			response = GetResponseParser(origin, responseSerial);
+			if (!response)
+				throw Exception("no response with serial " + std::to_string(responseSerial));
+
+			response->Parse(data, offset);
+			if (!response->Finished())
+				_log.Error() << "response has not finished";
+		}
+		catch(const std::exception & ex)
+		{
+			_log.Error() << "exception while parsing exception " << ex;
+			if (response)
+				response->SetException(std::current_exception());
+		}
 	}
 
 }
