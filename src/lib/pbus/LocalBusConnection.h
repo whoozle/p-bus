@@ -56,8 +56,12 @@ namespace pbus
 			ByteArray			Data;
 			size_t				DataOffset;
 
-			ReadTask(): SizeBufferOffset(0), DataOffset(0)
+			ReadTask():
+				SizeBuffer(),
+				SizeBufferOffset(0),
+				DataOffset(0)
 			{ }
+
 			bool Finished() const
 			{ return SizeBufferOffset >= SizeBuffer.size() && DataOffset >= Data.size(); }
 
