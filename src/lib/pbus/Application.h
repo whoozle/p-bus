@@ -2,16 +2,18 @@
 #define PBUS_APPLICATION_H
 
 #include <pbus/ClassId.h>
-#include <pbus/LocalBus.h>
 #include <pbus/Session.h>
 
 namespace pbus
 {
+	class LocalBus;
+	TOOLKIT_DECLARE_PTR(LocalBus);
+
 	class Application
 	{
-		log::Logger _log;
-		LocalBus  	_bus;
-		bool		_notifyParent;
+		log::Logger 	_log;
+		LocalBusPtr  	_bus;
+		bool			_notifyParent;
 
 	private:
 		template<typename ClassType>
