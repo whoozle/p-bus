@@ -9,7 +9,9 @@ namespace pbus
 {
 	class Application
 	{
-		LocalBus  _bus;
+		log::Logger _log;
+		LocalBus  	_bus;
+		bool		_notifyParent;
 
 	private:
 		template<typename ClassType>
