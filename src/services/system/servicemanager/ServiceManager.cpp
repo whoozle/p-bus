@@ -2,6 +2,7 @@
 #include <toolkit/io/SystemException.h>
 #include <unistd.h>
 #include <linux/limits.h>
+#include <sys/signal.h>
 
 namespace pbus { namespace system { namespace servicemanager
 {
@@ -23,6 +24,8 @@ namespace pbus { namespace system { namespace servicemanager
 		_session = setsid();
 		if (_session == -1)
 			_log.Warning() << "setsid failed: " << io::SystemException::GetErrorMessage();
+
+		signal(SIGCHLD,SIG_IGN); //fixme: shall we got child status?
 	}
 
 	std::string Manager::GetServicePath(const ServiceId & serviceId)
