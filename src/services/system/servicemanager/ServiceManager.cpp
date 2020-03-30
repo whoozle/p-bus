@@ -1,10 +1,10 @@
 #include <system/servicemanager/ServiceManager.h>
+#include <toolkit/io/File.h>
 #include <toolkit/io/SystemException.h>
 #include <atomic>
 #include <thread>
 #include <chrono>
 #include <unistd.h>
-#include <linux/limits.h>
 #include <sys/signal.h>
 
 namespace pbus { namespace system { namespace servicemanager
@@ -20,12 +20,7 @@ namespace pbus { namespace system { namespace servicemanager
 
 	Manager::Manager()
 	{
-		char buf[PATH_MAX];
-		auto size = readlink("/proc/self/exe", buf, sizeof(buf));
-		if (size == -1)
-			throw io::SystemException("readlink");
-
-		std::string currentExe(buf, buf + size);
+		std::string currentExe = io::File::ReadLink("/proc/self/exe");
 		auto slashPos = currentExe.rfind('/');
 		if (slashPos == currentExe.npos)
 			throw Exception("could not find root directory");

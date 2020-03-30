@@ -33,17 +33,19 @@ namespace pbus
 		_log.Debug() << "credentials, pid: " << cred.pid << ", gid: " << cred.gid << ", uid: " << cred.uid;
 
 		//this is only dev mode hack
-		char buf[1024];
-		snprintf(buf, sizeof(buf), "/var/run/pbus/%d", cred.pid);
-		io::File service(buf);
-		ByteArray data(1024);
-		auto r = service.Read(Buffer(data, 0, data.size() - 1));
+		auto imagePath = io::File::ReadLink("/proc/" + std::to_string(cred.pid) + "/exe");
+		_log.Debug() << "image path: " << imagePath;
 
 		std::string serviceIdString;
-		serviceIdString.assign(reinterpret_cast<char *>(data.data()), r);
-		auto serviceId = ServiceId::FromString(serviceIdString);
+		{
+			auto slashPos = imagePath.rfind('/');
+			if (slashPos == imagePath.npos)
+				throw Exception("invalid image path");
+			serviceIdString = imagePath.substr(slashPos + 1) + "@1"; //fixme: build versioned binaries
+		}
 
-		_log.Debug() << "parsed service id from dev run file: " << serviceId;
+		auto serviceId = ServiceId::FromString(serviceIdString);
+		_log.Debug() << "parsed service id from /proc: " << serviceId;
 
 		auto connection = std::make_shared<LocalBusConnection>(serviceId, std::move(*sock));
 		Session::Get().AddConnection(serviceId, connection);
