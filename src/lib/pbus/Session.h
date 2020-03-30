@@ -33,6 +33,8 @@ namespace pbus
 	{
 		static log::Logger										_log;
 
+		static constexpr size_t HeaderSize 			= 4;
+
 		static constexpr u8 RequestInvoke			= 0;	//C → S
 		static constexpr u8 RequestGet 				= 1;	//C → S
 		static constexpr u8 RequestSet 				= 2;	//C → S
@@ -133,7 +135,6 @@ namespace pbus
 		template <typename ... ArgumentType>
 		u32 MakeRequest(const ServiceId & origin, u8 RequestType, ArgumentType ... args)
 		{
-			static constexpr size_t HeaderSize = 4;
 			ByteArray data;
 			data.Reserve(4096);
 			data.Resize(HeaderSize);

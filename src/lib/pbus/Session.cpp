@@ -103,8 +103,7 @@ namespace pbus
 		s64 objectId = serialization::bson::ReadSingleValue<u32>(data, offset);
 		ObjectId id(ClassId(classType, classVersion), objectId);
 		std::string methodName = serialization::bson::ReadSingleValue<std::string>(data, offset);
-		_log.Info() << "invoke " << id << ", method: " << methodName << " args at " << text::Hex(offset, 4);
-
+		_log.Debug() << "invoke " << id << ", method: " << methodName << " args data " << text::HexDump(ConstBuffer(data, offset));
 
 		idl::core::ICoreObjectPtr object;
 		{
@@ -120,6 +119,14 @@ namespace pbus
 
 			object = it->second;
 		}
+
+		ByteArray result;
+		result.Reserve(4096);
+		result.Resize(HeaderSize);
+		auto inserter = std::back_inserter(result.GetStorage());
+		typename serialization::bson::OutputStream<decltype(inserter)> writer(inserter);
+		object->__pbus__invoke(writer, methodName, ConstBuffer(data, offset));
+		_log.Debug() << "method result" << text::HexDump(result);
 	}
 
 	IResponseParserPtr Session::GetResponseParser(const ServiceId & origin, u32 serial)
