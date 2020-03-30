@@ -67,7 +67,7 @@ namespace pbus
 
 	void LocalBusConnection::HandleSocketEvent(int event)
 	{
-		_log.Debug() << "socket event 0x" << text::Hex(event);
+		_log.Trace() << "socket event 0x" << text::Hex(event);
 		if (event & (io::Poll::EventHangup | io::Poll::EventError))
 		{
 			_log.Warning() << "error or hangup, reconnect";
@@ -84,7 +84,7 @@ namespace pbus
 				auto & task = _writeQueue.front();
 				auto buffer = task.GetBuffer();
 				auto r = _socket->Write(buffer);
-				_log.Debug() << "wrote " << r << " bytes";
+				_log.Trace() << "wrote " << r << " bytes";
 				task.Complete(r);
 				if (task.Finished())
 					_writeQueue.pop_front();
@@ -100,7 +100,7 @@ namespace pbus
 			std::unique_lock<decltype(_lock)> l(_lock);
 			ByteArray buffer(ReadBufferSize);
 			auto r = _socket->Read(buffer);
-			_log.Debug() << "read " << r << " bytes";
+			_log.Trace() << "read " << r << " bytes";
 			if (r <= 0)
 				throw Exception("socket read returned bogus value, shutdown?");
 

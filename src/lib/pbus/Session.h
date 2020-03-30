@@ -82,7 +82,7 @@ namespace pbus
 				if (it != _factories.end())
 					return;
 			}
-			_log.Debug() << "registering factory for proxy class " << classId;
+			_log.Trace() << "registering factory for proxy class " << classId;
 			_factories[classId] = std::make_shared<ComponentFactory<Component>>(classId);
 		}
 
@@ -107,7 +107,7 @@ namespace pbus
 		std::shared_ptr<InterfaceType> GetService()
 		{
 			auto & classId = InterfaceType::ClassId;
-			_log.Debug() << "GetService " << classId;
+			_log.Trace() << "GetService " << classId;
 
 			std::lock_guard<decltype(_lock)> l(_lock);
 			auto localService = GetLocalService(classId);
@@ -120,7 +120,7 @@ namespace pbus
 			}
 
 			InterfaceType::RegisterProxy(*this);
-			_log.Debug() << "GetService " << classId;
+			_log.Trace() << "GetService " << classId;
 			auto factory = Get(classId.ToString());
 			if (!factory)
 				throw Exception("no service " + classId.ToString() + " registered");
@@ -148,7 +148,7 @@ namespace pbus
 		template<typename ReturnType, typename ... ArgumentType>
 		u32 Invoke(const ServiceId & origin, const ObjectId & objectId, const MethodId & methodId, ArgumentType ... args)
 		{
-			_log.Debug() << "invoking " << objectId << "." << methodId.Name;
+			_log.Trace() << "invoking " << objectId << "." << methodId.Name;
 			u32 serial = MakeRequest(origin, RequestInvoke, objectId, methodId.Name, args...);
 			auto parser = std::make_shared<ResponseParser<ReturnType>>();
 			_requests[origin][serial] = parser;
@@ -158,11 +158,11 @@ namespace pbus
 		template<typename ReturnType>
 		ReturnType Wait(const ServiceId & origin, u32 serial)
 		{
-			_log.Debug() << "Wait for " << origin << " #" << serial;
+			_log.Trace() << "Wait for " << origin << " #" << serial;
 			auto response = WaitResponse(origin, serial);
 			auto exception = response->GetException();
 			if (exception) {
-				_log.Debug() << "got exception, rethrowing...";
+				_log.Trace() << "got exception, rethrowing...";
 				std::rethrow_exception(exception);
 			}
 
@@ -176,7 +176,7 @@ namespace pbus
 
 		void Release(const ServiceId & origin, const ObjectId & objectId)
 		{
-			_log.Debug() << "releasing " << objectId;
+			_log.Trace() << "releasing " << objectId;
 			try
 			{ MakeRequest(origin, RequestRelease, objectId); }
 			catch(const std::exception & ex)

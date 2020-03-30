@@ -15,6 +15,9 @@ namespace pbus
 			for(int i = 1; i < argc; ++i)
 				if (strcmp(argv[i], "--notify-parent") == 0)
 					_notifyParent = true;
+				else if (strcmp(argv[i], "--trace") == 0) {
+					log::LogManager::Get().SetLogLevel(log::LogLevel::Trace);
+				}
 		}
 	}
 

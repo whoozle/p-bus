@@ -29,7 +29,7 @@ namespace pbus
 		if (it == _services.end())
 			return nullptr;
 
-		_log.Debug() << "found local service, returning...";
+		_log.Trace() << "found local service, returning...";
 		auto service = it->second->Get();
 		ObjectId serviceObjectId(serviceId, 0);
 		_localObjects.insert(std::make_pair(serviceObjectId, service));
@@ -51,7 +51,7 @@ namespace pbus
 
 	void Session::ThrowException(const ServiceId & origin, u32 serial, const std::exception & ex)
 	{
-		_log.Debug() << "throwing exception " << ex << " to " << origin;
+		_log.Trace() << "throwing exception " << ex << " to " << origin;
 		try
 		{ MakeRequest(origin, ResponseException, serial, "Exception", ex.what()); }
 		catch(const std::exception & ex2)
@@ -60,7 +60,7 @@ namespace pbus
 
 	u32 Session::Send(ServiceId service, ByteArray && data)
 	{
-		_log.Debug() << "sending to " << service << text::HexDump(data);
+		_log.Trace() << "sending to " << service << text::HexDump(data);
 		auto connection = Connect(service);
 		if (connection)
 			return connection->Send(std::move(data));
@@ -70,12 +70,12 @@ namespace pbus
 
 	void Session::OnIncomingData(const ServiceId & serviceId, u32 serial, ConstBuffer data)
 	{
-		_log.Debug() << "incoming data from " << serviceId << ", serial " << serial << text::HexDump(data);
+		_log.Trace() << "incoming data from " << serviceId << ", serial " << serial << text::HexDump(data);
 		try
 		{
 			size_t offset = 0;
 			auto request = serialization::bson::ReadSingleValue<u8>(data, offset);
-			_log.Debug() << "request type: " << request;
+			_log.Trace() << "request type: " << request;
 			switch(request)
 			{
 				case RequestInvoke:
@@ -103,7 +103,7 @@ namespace pbus
 		s64 objectId = serialization::bson::ReadSingleValue<u32>(data, offset);
 		ObjectId id(ClassId(classType, classVersion), objectId);
 		std::string methodName = serialization::bson::ReadSingleValue<std::string>(data, offset);
-		_log.Debug() << "invoke " << id << ", method: " << methodName << " args data " << text::HexDump(ConstBuffer(data, offset));
+		_log.Trace() << "invoke " << id << ", method: " << methodName << " args data " << text::HexDump(ConstBuffer(data, offset));
 
 		idl::core::ICoreObjectPtr object;
 		{
@@ -128,7 +128,7 @@ namespace pbus
 		serialization::Serialize(writer, (u8)ResponseResult, serial);
 		object->__pbus__invoke(writer, methodName, ConstBuffer(data, offset));
 		io::LittleEndianDataOutputStream::WriteU32(result.data(), result.size() - HeaderSize);
-		_log.Debug() << "method result" << text::HexDump(result);
+		_log.Trace() << "method result" << text::HexDump(result);
 		Send(origin, std::move(result));
 	}
 
@@ -164,16 +164,16 @@ namespace pbus
 
 	IResponseParserPtr Session::WaitResponse(const ServiceId & origin, u32 serial)
 	{
-		_log.Debug() << "waiting...";
+		_log.Trace() << "waiting...";
 		while (_poll.Wait(15000) != 0)
 		{
 			auto response = GetResponseParser(origin, serial);
-			_log.Debug() << "registered response " << response.get();
+			_log.Trace() << "registered response " << response.get();
 			if (response && response->Finished()) {
-				_log.Debug() << "got response for " << origin << " #" << serial;
+				_log.Trace() << "got response for " << origin << " #" << serial;
 				return response;
 			}
-			_log.Debug() << "waiting again...";
+			_log.Trace() << "waiting again...";
 		}
 		throw Exception("Timed out waiting for reply");
 	}
@@ -191,9 +191,9 @@ namespace pbus
 
 			std::string exceptionType = serialization::bson::ReadSingleValue<std::string>(data, offset);
 			std::string exceptionArg1 = serialization::bson::ReadSingleValue<std::string>(data, offset);
-			_log.Debug() << "ignoring exception type " << exceptionType << " for now";
-			_log.Debug() << "setting exception text to \"" << exceptionArg1 << "\" for request " << origin << " #" << responseSerial;
-			_log.Debug() << " response ptr " << response.get();
+			_log.Trace() << "ignoring exception type " << exceptionType << " for now";
+			_log.Trace() << "setting exception text to \"" << exceptionArg1 << "\" for request " << origin << " #" << responseSerial;
+			_log.Trace() << " response ptr " << response.get();
 			response->SetException(std::make_exception_ptr(std::runtime_error(exceptionArg1)));
 		}
 		catch(const std::exception & ex)
