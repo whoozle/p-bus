@@ -85,7 +85,7 @@ namespace pbus
 					OnIncomingException(serviceId, serial, ConstBuffer(data, offset));
 					break;
 				case ResponseResult:
-					OnIncomingException(serviceId, serial, ConstBuffer(data, offset));
+					OnIncomingResult(serviceId, serial, ConstBuffer(data, offset));
 					break;
 				default:
 					throw Exception("unhandled request " + std::to_string(request));
