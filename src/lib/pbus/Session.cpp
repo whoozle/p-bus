@@ -125,8 +125,11 @@ namespace pbus
 		result.Resize(HeaderSize);
 		auto inserter = std::back_inserter(result.GetStorage());
 		typename serialization::bson::OutputStream<decltype(inserter)> writer(inserter);
+		serialization::Serialize(writer, serial);
 		object->__pbus__invoke(writer, methodName, ConstBuffer(data, offset));
+		io::LittleEndianDataOutputStream::WriteU32(result.data(), result.size() - HeaderSize);
 		_log.Debug() << "method result" << text::HexDump(result);
+		Send(origin, std::move(result));
 	}
 
 	IResponseParserPtr Session::GetResponseParser(const ServiceId & origin, u32 serial)

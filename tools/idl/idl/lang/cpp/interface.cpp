@@ -28,14 +28,15 @@ namespace pbus { namespace idl{%- for pc in package_components %} { namespace {{
 			{% for arg in method.args -%}
 			auto arg{{loop.index}} = serialization::bson::ReadSingleValue<std::decay<{{arg.type}}>::type>(argsData, offset);
 			{% endfor -%}
-			{% if method.rtype != "void" -%}Serialize(resultStream, {% endif -%}
+			{% if method.rtype != "void" -%}serialization::Serialize(resultStream, {% endif -%}
 			{{method.name}}(
 				{%- for i in range(method.args | length) -%}
 					{%- if i > 0 -%}, {% endif -%}
 					arg{{i + 1}}
 				{%- endfor -%}
 			)
-			{%- if method.rtype != "void" %}){% endif -%};
+			{%- if method.rtype != "void" %}){% else %};
+			serialization::Serialize(resultStream, serialization::Undefined()){% endif -%};
 		} else
 		{%- endfor %}
 			I{{base}}::__pbus__invoke(resultStream, method, argsData);
