@@ -2,6 +2,7 @@
 #include <toolkit/io/File.h>
 #include <toolkit/io/SystemException.h>
 #include <atomic>
+#include <memory>
 #include <thread>
 #include <chrono>
 #include <unistd.h>
@@ -41,6 +42,22 @@ namespace pbus { namespace system { namespace servicemanager
 			_log.Warning() << "failed to install SIGUSR2 handler: " << io::SystemException::GetErrorMessage();
 	}
 
+	int Manager::RunProcessTrampoline(void * arg)
+	{
+		Process * p = static_cast<Process *>(arg);
+		return p->Self->RunProcess(*p);
+	}
+
+	int Manager::RunProcess(const Process & process)
+	{
+		_log.Info() << "NEW PROCESS";
+		if (execl(process.Path.c_str(), process.Path.c_str(), "--notify-parent", NULL) == -1) {
+			_log.Error() << "exec failed: " << io::SystemException::GetErrorMessage();
+		}
+		exit(1);
+		return 1;
+	}
+
 	std::string Manager::GetServicePath(const ServiceId & serviceId)
 	{
 		text::StringOutputStream os;
@@ -51,24 +68,30 @@ namespace pbus { namespace system { namespace servicemanager
 	void Manager::start(const std::string & name, u16 version)
 	{
 		ServiceId serviceId(name, version);
-		auto exe = GetServicePath(serviceId);
-		_log.Info() << "starting service " << serviceId << " from " << exe;
 
 		g_started = false;
 
-		int pid = vfork();
-		if (pid == -1)
-			throw io::SystemException("fork");
+		Process process;
+		process.Self = this;
+		process.Path = GetServicePath(serviceId);
+		_log.Info() << "starting service " << serviceId << " from " << process.Path;
 
-		if (pid == 0)
-		{
-			if (execl(exe.c_str(), exe.c_str(), "--notify-parent", NULL) == -1) {
-				_log.Error() << "exec failed: " << io::SystemException::GetErrorMessage();
-			}
-			exit(1);
-		}
+		std::unique_ptr<void, decltype(std::free) *> stack(malloc(StackSize), &std::free);
+		if (!stack)
+			throw io::SystemException("failed to allocate stack");
+
+		int flags = CLONE_CHILD_SETTID | CLONE_CHILD_CLEARTID | SIGCHLD;
+		/*add NS flags here*/
+		//flags |= CLONE_NEWNS;
+
+		int pid = clone(&RunProcessTrampoline, static_cast<u8 *>(stack.get()) + StackSize, flags, &process);
+		stack.reset();
+
+		if (pid == -1)
+			throw io::SystemException("clone");
 
 		_log.Debug() << "spawned child with pid " << pid;
+
 		while(!g_started)
 		{
 			_log.Debug() << "waiting for child to start...";

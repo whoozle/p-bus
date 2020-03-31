@@ -12,14 +12,27 @@ namespace pbus { namespace system { namespace servicemanager
 	class Manager : public idl::system::IServiceManager
 	{
 		static log::Logger _log;
+		static constexpr size_t StackSize = 1024 * 1024;
 
 		std::string		_root;
 		pid_t			_session;
 
+		std::string GetServicePath(const ServiceId & serviceId);
+
+		struct Process
+		{
+			Manager * 		Self;
+			std::string 	Path;
+		};
+
+		static int RunProcessTrampoline(void * arg);
+		int RunProcess(const Process & process);
+
 	public:
 		Manager();
+
+	//idl:
 		void start(const std::string & name, u16 version);
-		std::string GetServicePath(const ServiceId & serviceId);
 	};
 
 }}}
