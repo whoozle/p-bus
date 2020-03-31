@@ -50,7 +50,6 @@ namespace pbus { namespace system { namespace servicemanager
 
 	int Manager::RunProcess(const Process & process)
 	{
-		_log.Info() << "NEW PROCESS";
 		if (execl(process.Path.c_str(), process.Path.c_str(), "--notify-parent", NULL) == -1) {
 			_log.Error() << "exec failed: " << io::SystemException::GetErrorMessage();
 		}
