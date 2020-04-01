@@ -5,8 +5,12 @@ set (CMAKE_CXX_STANDARD 14)
 include(CheckCXXCompilerFlag)
 include(CheckSymbolExists)
 
-add_definitions(-D_GNU_SOURCE) #required for GNU extensions such clone
+find_program(SETCAP setcap)
+add_definitions(-DINSTALL_PREFIX="${CMAKE_INSTALL_PREFIX}")
+
+add_definitions(-D_GNU_SOURCE) #required for GNU extensions such as clone
 set(CMAKE_REQUIRED_DEFINITIONS -D_GNU_SOURCE)
+set(CMAKE_INSTALL_RPATH "../../lib")
 
 CHECK_SYMBOL_EXISTS(clone sched.h HAVE_CLONE)
 CHECK_SYMBOL_EXISTS(unshare sched.h HAVE_UNSHARE)
@@ -72,6 +76,7 @@ add_library(pbus SHARED
 
 set_target_properties(pbus PROPERTIES VERSION 1.0)
 target_link_libraries(pbus toolkit)
+install(TARGETS pbus RUNTIME DESTINATION lib)
 
 add_executable(system.ServiceManager
 	src/services/system/servicemanager/main.cpp
@@ -81,16 +86,18 @@ add_executable(system.ServiceManager
 )
 target_link_libraries(system.ServiceManager pbus)
 target_include_directories(system.ServiceManager PRIVATE src/services)
+install(TARGETS system.ServiceManager DESTINATION packages/system.ServiceManager)
 
 add_executable(system.RandomGenerator
 	src/services/system/randomgenerator/main.cpp
 )
 target_link_libraries(system.RandomGenerator pbus)
 target_include_directories(system.RandomGenerator PRIVATE src/services)
-
+install(TARGETS system.RandomGenerator DESTINATION packages/system.RandomGenerator)
 
 add_executable(app.pbus.example.random
 	src/client/client.cpp
 )
 target_link_libraries(app.pbus.example.random pbus)
 target_include_directories(app.pbus.example.random PRIVATE src/client)
+install(TARGETS app.pbus.example.random DESTINATION packages/app.pbus.example.random)
