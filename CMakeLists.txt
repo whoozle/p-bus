@@ -86,7 +86,11 @@ add_executable(system.ServiceManager
 )
 target_link_libraries(system.ServiceManager pbus)
 target_include_directories(system.ServiceManager PRIVATE src/services)
+set(SVCMGR_BIN ${CMAKE_INSTALL_PREFIX}/packages/system.ServiceManager/system.ServiceManager) #fixme: get filename/path from cmake
 install(TARGETS system.ServiceManager DESTINATION packages/system.ServiceManager)
+#sudo couldn't be found using find_program, https://gitlab.kitware.com/cmake/cmake/issues/10468
+message(STATUS "sudo ${SETCAP} cap_sys_admin,cap_sys_chroot+ep ${SVCMGR_BIN}")
+install(CODE "exec_program(sudo ARGS \"${SETCAP}\" \"cap_sys_admin,cap_sys_chroot+ep\" \"${SVCMGR_BIN}\")")
 
 add_executable(system.RandomGenerator
 	src/services/system/randomgenerator/main.cpp
