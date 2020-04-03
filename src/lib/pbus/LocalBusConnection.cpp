@@ -37,7 +37,7 @@ namespace pbus
 		_log.Debug() << "connecting to " << _serviceId;
 		_socket = std::make_shared<Socket>();
 
-		net::unix::Endpoint ep(_serviceId.ToString());
+		net::unix::Endpoint ep(_serviceId.ToString(), false);
 		try
 		{ _socket->Connect(ep); }
 		catch (std::exception & ex)

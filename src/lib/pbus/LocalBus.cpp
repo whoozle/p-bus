@@ -15,9 +15,9 @@ namespace pbus
 	{
 		_socket.SetNonBlocking(true);
 		auto path = id.ToString();
+		unlink(path.c_str());
 		_log.Debug() << "creating socket at " << path;
-		net::unix::Endpoint ep(path);
-		//unlink(path.c_str());
+		net::unix::Endpoint ep(path, false);
 		_socket.Listen(ep);
 		_poll.Add(_socket, _accept, io::Poll::EventInput | io::Poll::EventError);
 	}
