@@ -1,6 +1,7 @@
 project(p-bus)
 cmake_minimum_required(VERSION 3.12)
 set (CMAKE_CXX_STANDARD 14)
+option(PBUS_DEVEL_MODE "enable development mode, lifting some security restriction" OFF)
 
 include(CheckCXXCompilerFlag)
 include(CheckSymbolExists)
@@ -10,7 +11,11 @@ add_definitions(-DINSTALL_PREFIX="${CMAKE_INSTALL_PREFIX}")
 
 add_definitions(-D_GNU_SOURCE) #required for GNU extensions such as clone
 set(CMAKE_REQUIRED_DEFINITIONS -D_GNU_SOURCE)
-set(CMAKE_INSTALL_RPATH "../../lib")
+
+if (PBUS_DEVEL_MODE)
+	set(CMAKE_INSTALL_RPATH "../../lib;./lib")
+	add_definitions(-DPBUS_DEVEL_MODE=1)
+endif()
 
 CHECK_SYMBOL_EXISTS(clone sched.h HAVE_CLONE)
 CHECK_SYMBOL_EXISTS(unshare sched.h HAVE_UNSHARE)
