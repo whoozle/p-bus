@@ -29,6 +29,15 @@ namespace pbus
 		_poll.Add(*_socket, *this, DefaultEvents);
 	}
 
+	std::string LocalBusConnection::GetSocketPath(const ServiceId & serviceId)
+	{
+		text::StringOutputStream ss;
+
+		ss << "/packages/" << serviceId << "/socket";
+
+		return ss.Get();
+	}
+
 	void LocalBusConnection::Connect()
 	{
 		if (_socket)
@@ -37,7 +46,7 @@ namespace pbus
 		_log.Debug() << "connecting to " << _serviceId;
 		_socket = std::make_shared<Socket>();
 
-		net::unix::Endpoint ep(_serviceId.ToString(), false);
+		net::unix::Endpoint ep(GetSocketPath(_serviceId), false);
 		try
 		{ _socket->Connect(ep); }
 		catch (std::exception & ex)

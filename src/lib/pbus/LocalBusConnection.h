@@ -100,6 +100,8 @@ namespace pbus
 		LocalBusConnection(ServiceId serviceId, net::unix::LocalSocket && socket);
 		~LocalBusConnection();
 
+		static std::string GetSocketPath(const ServiceId & serviceId);
+
 		void HandleSocketEvent(int event) override;
 
 		u32 Send(ByteArray && data)

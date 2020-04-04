@@ -14,7 +14,7 @@ namespace pbus
 		_accept(this)
 	{
 		_socket.SetNonBlocking(true);
-		auto path = id.ToString();
+		auto path = LocalBusConnection::GetSocketPath(id);
 		unlink(path.c_str());
 		_log.Debug() << "creating socket at " << path;
 		net::unix::Endpoint ep(path, false);
