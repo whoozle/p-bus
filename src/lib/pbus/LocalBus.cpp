@@ -41,7 +41,7 @@ namespace pbus
 			auto slashPos = imagePath.rfind('/');
 			if (slashPos == imagePath.npos)
 				throw Exception("invalid image path");
-			serviceIdString = imagePath.substr(slashPos + 1) + "@1"; //fixme: build versioned binaries
+			serviceIdString = imagePath.substr(slashPos + 1);
 		}
 
 		auto serviceId = ServiceId::FromString(serviceIdString);
