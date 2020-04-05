@@ -83,18 +83,16 @@ set_target_properties(pbus PROPERTIES VERSION 1.0)
 target_link_libraries(pbus toolkit idl.core)
 install(TARGETS pbus RUNTIME DESTINATION lib)
 
-add_executable(system.ServiceManager-1
+PBUS_BUILD_SERVICE(
+	NAME system.ServiceManager
+	SOURCES
 	src/services/system/servicemanager/main.cpp
 	src/services/system/servicemanager/Service.cpp
 	src/services/system/servicemanager/ServiceManager.cpp
 	src/services/system/servicemanager/ServiceRegistry.cpp
 )
 
-target_link_libraries(system.ServiceManager-1 pbus)
-target_include_directories(system.ServiceManager-1 PRIVATE src/services)
-
 set(SVCMGR_BIN ${CMAKE_INSTALL_PREFIX}/packages/system.ServiceManager-1/system.ServiceManager-1) #fixme: get filename/path from cmake
-install(TARGETS system.ServiceManager-1 DESTINATION packages/system.ServiceManager-1)
 #sudo couldn't be found using find_program, https://gitlab.kitware.com/cmake/cmake/issues/10468
 message(STATUS "sudo ${SETCAP} cap_sys_admin,cap_sys_chroot+ep ${SVCMGR_BIN}")
 install(CODE "exec_program(sudo ARGS \"${SETCAP}\" \"cap_sys_admin,cap_sys_chroot+ep\" \"${SVCMGR_BIN}\")")

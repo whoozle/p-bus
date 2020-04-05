@@ -34,5 +34,6 @@ function(IDL_GENERATE_SOURCE)
 	endforeach()
 	message(STATUS "idl shared library: ${IDL_GENERATE_SOURCE_TARGET}")
 	add_library(${IDL_GENERATE_SOURCE_TARGET} SHARED ${_OUTPUT})
+	set_target_properties(${IDL_GENERATE_SOURCE_TARGET} PROPERTIES VERSION 1.0) #fixme: use shared version?
 	install(TARGETS ${IDL_GENERATE_SOURCE_TARGET} DESTINATION lib)
 endfunction(IDL_GENERATE_SOURCE)
