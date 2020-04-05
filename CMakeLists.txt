@@ -37,6 +37,7 @@ add_subdirectory(src/toolkit)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 include(IDLCompiler)
+include(PbusBuildService)
 
 set(IDL_SRC ${CMAKE_CURRENT_SOURCE_DIR}/src/idl)
 set(IDL_DST ${CMAKE_CURRENT_BINARY_DIR}/generated/pbus/idl)
@@ -49,11 +50,10 @@ set(IDL_FILES
 	system/Service.idl
 	system/ServiceLease.idl
 	system/ServiceManager.idl
-	system/RandomGenerator.idl
 )
 
 IDL_GENERATE_SOURCE(
-	OUTPUT IDL_SOURCES
+	TARGET idl.core
 	IDLC_PATH ${IDLC_PATH}
 	DESTINATION ${IDL_DST}
 	SOURCES_DIR ${IDL_SRC}
@@ -77,37 +77,38 @@ add_library(pbus SHARED
 	src/lib/pbus/LocalBus.cpp
 	src/lib/pbus/LocalBusConnection.cpp
 	src/lib/pbus/Session.cpp
-	${IDL_SOURCES}
 )
 
 set_target_properties(pbus PROPERTIES VERSION 1.0)
-target_link_libraries(pbus toolkit)
+target_link_libraries(pbus toolkit idl.core)
 install(TARGETS pbus RUNTIME DESTINATION lib)
 
-add_executable(system.ServiceManager
+add_executable(system.ServiceManager-1
 	src/services/system/servicemanager/main.cpp
 	src/services/system/servicemanager/Service.cpp
 	src/services/system/servicemanager/ServiceManager.cpp
 	src/services/system/servicemanager/ServiceRegistry.cpp
 )
-target_link_libraries(system.ServiceManager pbus)
-target_include_directories(system.ServiceManager PRIVATE src/services)
-set(SVCMGR_BIN ${CMAKE_INSTALL_PREFIX}/packages/system.ServiceManager/system.ServiceManager) #fixme: get filename/path from cmake
-install(TARGETS system.ServiceManager DESTINATION packages/system.ServiceManager)
+
+target_link_libraries(system.ServiceManager-1 pbus)
+target_include_directories(system.ServiceManager-1 PRIVATE src/services)
+
+set(SVCMGR_BIN ${CMAKE_INSTALL_PREFIX}/packages/system.ServiceManager-1/system.ServiceManager-1) #fixme: get filename/path from cmake
+install(TARGETS system.ServiceManager-1 DESTINATION packages/system.ServiceManager-1)
 #sudo couldn't be found using find_program, https://gitlab.kitware.com/cmake/cmake/issues/10468
 message(STATUS "sudo ${SETCAP} cap_sys_admin,cap_sys_chroot+ep ${SVCMGR_BIN}")
 install(CODE "exec_program(sudo ARGS \"${SETCAP}\" \"cap_sys_admin,cap_sys_chroot+ep\" \"${SVCMGR_BIN}\")")
 
-add_executable(system.RandomGenerator
-	src/services/system/randomgenerator/main.cpp
+PBUS_BUILD_SERVICE(
+	NAME system.RandomGenerator
+	IDL_SOURCES_DIR ${IDL_SRC}
+	IDL_SOURCES system/RandomGenerator.idl
+	SOURCES src/services/system/randomgenerator/main.cpp
+	OUTPUT_DIR ${CMAKE_CURRENT_BINARY_DIR}
 )
-target_link_libraries(system.RandomGenerator pbus)
-target_include_directories(system.RandomGenerator PRIVATE src/services)
-install(TARGETS system.RandomGenerator DESTINATION packages/system.RandomGenerator)
 
-add_executable(app.pbus.example.random
-	src/client/client.cpp
+PBUS_BUILD_SERVICE(
+	NAME app.pbus.example.random
+	SOURCES src/client/client.cpp
+	DEPENDS system.RandomGenerator-1
 )
-target_link_libraries(app.pbus.example.random pbus)
-target_include_directories(app.pbus.example.random PRIVATE src/client)
-install(TARGETS app.pbus.example.random DESTINATION packages/app.pbus.example.random)

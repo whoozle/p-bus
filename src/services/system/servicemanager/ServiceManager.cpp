@@ -7,6 +7,8 @@
 #include <chrono>
 #include <unistd.h>
 #include <sys/signal.h>
+#include <sys/mount.h>
+#include <toolkit/io/DirectoryReader.h>
 
 namespace pbus { namespace system { namespace servicemanager
 {
@@ -28,9 +30,9 @@ namespace pbus { namespace system { namespace servicemanager
 
 		_root = currentExe.substr(0, slashPos);
 		_log.Debug() << "root = " << _root;
-		_session = setsid();
-		if (_session == -1)
-			_log.Warning() << "setsid failed: " << io::SystemException::GetErrorMessage();
+		// _session = setsid();
+		// if (_session == -1)
+		// 	_log.Warning() << "setsid failed: " << io::SystemException::GetErrorMessage();
 
 		struct sigaction act = {};
 		act.sa_handler = SIG_IGN;
@@ -50,6 +52,21 @@ namespace pbus { namespace system { namespace servicemanager
 
 	int Manager::RunProcess(const Process & process)
 	{
+		//https://github.com/servo/servo/wiki/Linux-sandboxing
+		// if (mount(NULL, "/", NULL, MS_PRIVATE|MS_REC, NULL) != 0)
+		// 	perror("mount");
+		// if (mount("./root", "/", "bind", MS_BIND|MS_RDONLY|MS_REC, NULL) != 0)
+		// 	perror("remount");
+		// if (chroot("./root") != 0)
+		// 	perror("chroot");
+
+		// io::DirectoryReader reader("/");
+		// io::DirectoryReader::Entry entry;
+		// while (reader.Read(entry))
+		// {
+		// 	_log.Info() << ">>" << entry.Name;
+		// }
+
 		if (execl(process.Path.c_str(), process.Path.c_str(), "--notify-parent", NULL) == -1) {
 			_log.Error() << "exec failed: " << io::SystemException::GetErrorMessage();
 		}
@@ -81,7 +98,7 @@ namespace pbus { namespace system { namespace servicemanager
 
 		int flags = CLONE_CHILD_SETTID | CLONE_CHILD_CLEARTID | SIGCHLD;
 		/*add NS flags here*/
-		//flags |= CLONE_NEWNS;
+		flags |= CLONE_NEWNET | CLONE_NEWNS;
 
 		int pid = clone(&RunProcessTrampoline, static_cast<u8 *>(stack.get()) + StackSize, flags, &process);
 		stack.reset();
