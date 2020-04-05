@@ -32,7 +32,9 @@ namespace pbus
 	std::string LocalBusConnection::GetSocketPath(const ServiceId & serviceId)
 	{
 		text::StringOutputStream ss;
-
+#ifdef PBUS_DEVEL_MODE
+		ss << ".";
+#endif
 		ss << "/packages/" << serviceId << "/socket";
 
 		return ss.Get();

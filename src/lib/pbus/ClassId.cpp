@@ -9,7 +9,7 @@ namespace pbus
 
 	ClassId ClassId::FromString(const std::string & str)
 	{
-		auto atPos = str.find('@');
+		auto atPos = str.find('-');
 		if (atPos == str.npos)
 			throw Exception("no version in service id");
 

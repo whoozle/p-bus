@@ -57,7 +57,7 @@ namespace pbus
 		};
 
 		void ToString(text::StringOutputStream & ss) const
-		{ ss << Name << '@' << Version; }
+		{ ss << Name << '-' << Version; }
 
 		bool operator == (const ClassId & o) const
 		{ return Version == o.Version && Name == o.Name; }
