@@ -7,12 +7,6 @@
 
 namespace pbus
 {
-	// void LocalBus::EnableWrite(LocalBusConnection * connection, bool enable)
-	// {
-	// 	_poll.Modify(connection->GetSocket(), *connection, DefaultEvents | (enable? _poll.EventOutput: 0));
-	// }
-
-
 
 	LocalBusConnection::LocalBusConnection(ClassId serviceId):
 		_serviceId(serviceId),
