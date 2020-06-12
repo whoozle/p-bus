@@ -25,7 +25,7 @@ namespace pbus
 
 		ClassId(const std::string & name, uint version = 1)
 		{
-			auto pos = name.find('@');
+			auto pos = name.find('-');
 			if (pos != name.npos)
 			{
 				Name = name.substr(0, pos);
