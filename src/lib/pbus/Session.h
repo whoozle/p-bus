@@ -92,10 +92,10 @@ namespace pbus
 			_services[classId] = factory;
 		}
 
-		IComponentFactoryPtr Get(const std::string &name) const
+		IComponentFactoryPtr Get(const ClassId &classId) const
 		{
 			std::lock_guard<decltype(_lock)> l(_lock);
-			auto it = _factories.find(name);
+			auto it = _factories.find(classId);
 			return it != _factories.end()? it->second: nullptr;
 		}
 
