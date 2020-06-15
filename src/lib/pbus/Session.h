@@ -31,7 +31,7 @@ namespace pbus
 
 	class Session final
 	{
-		static log::Logger										_log;
+		static log::Logger							_log;
 
 		static constexpr size_t HeaderSize 			= 4;
 
@@ -133,16 +133,19 @@ namespace pbus
 		}
 
 		template <typename ... ArgumentType>
-		u32 MakeRequest(const ServiceId & origin, u8 RequestType, ArgumentType ... args)
+		u32 MakeRequest(const ServiceId & origin, u8 requestType, ArgumentType ... args)
 		{
+			_log.Trace() << "make request " << requestType;
 			ByteArray data;
 			data.Reserve(4096);
 			data.Resize(HeaderSize);
 			auto inserter = std::back_inserter(data.GetStorage());
 			typename serialization::bson::OutputStream<decltype(inserter)> writer(inserter);
-			serialization::Serialize(writer, RequestType, args...);
+			serialization::Serialize(writer, requestType, args...);
 			io::LittleEndianDataOutputStream::WriteU32(data.data(), data.size() - HeaderSize);
-			return Send(origin, std::move(data));
+			auto serial = Send(origin, std::move(data));
+			_log.Trace() << "make request returned serial " << serial;
+			return serial;
 		}
 
 		template<typename ReturnType, typename ... ArgumentType>
