@@ -82,34 +82,80 @@ namespace pbus { namespace system { namespace servicemanager
 		return p->Self->RunProcess(*p);
 	}
 
+	void Manager::Bind(const std::string src, const std::string dst)
+	{
+		_log.Info() << "bind " << src << " " << dst;
+		if (mount(src.c_str(), dst.c_str(), "bind", MS_BIND|MS_RDONLY|MS_REC, NULL) != 0)
+			throw io::SystemException("mount " + src + " " + dst);
+	}
+
 	int Manager::RunProcess(const Process & process)
 	{
 		//https://github.com/servo/servo/wiki/Linux-sandboxing
-		// if (mount(NULL, "/", NULL, MS_PRIVATE|MS_REC, NULL) != 0)
-		// 	perror("mount");
-		// if (mount("./root", "/", "bind", MS_BIND|MS_RDONLY|MS_REC, NULL) != 0)
-		// 	perror("remount");
-		// if (chroot("./root") != 0)
-		// 	perror("chroot");
+		auto root = GetServiceRoot(process.Id);
+		_log.Info() << "root = " << root;
+		if (mount(NULL, "/", NULL, MS_PRIVATE|MS_REC, NULL) != 0)
+			throw io::SystemException("mount / [private]");
+		if (mount("tmpfs", root.c_str(), "tmpfs", 0, "size=1m") != 0)
+			throw io::SystemException("mount tmpfs");
 
-		// io::DirectoryReader reader("/");
-		// io::DirectoryReader::Entry entry;
-		// while (reader.Read(entry))
-		// {
-		// 	_log.Info() << ">>" << entry.Name;
-		// }
+		auto libDir = root + "/lib";
+		auto packagesDir = root + "/packages";
+
+		if (mkdir(libDir.c_str(), 0700) != 0)
+			throw io::SystemException("mkdir " + libDir);
+
+		if (mkdir(packagesDir.c_str(), 0700) != 0)
+			throw io::SystemException("mkdir " + libDir);
+
+		Bind(GetSourcePath("lib"), libDir);
+
+		for (auto dep : process.Dependencies) {
+			auto serviceDir = packagesDir + "/" + dep.ToString();
+			if (mkdir(serviceDir.c_str(), 0700) != 0)
+				throw io::SystemException("mkdir " + serviceDir);
+			Bind(GetSourcePath("packages/" + dep.ToString()), serviceDir);
+		}
+
+		if (chroot(root.c_str()) != 0)
+			throw io::SystemException("chroot");
+		if (chdir("/") != 0)
+			throw io::SystemException("chdir /");
+
+		io::DirectoryReader reader("/packages/system.RandomGenerator-1");
+		io::DirectoryReader::Entry entry;
+		while (reader.Read(entry))
+		{
+			_log.Info() << ">>" << entry.Name;
+		}
 
 		if (execl(process.Path.c_str(), process.Path.c_str(), "--notify-parent", NULL) == -1) {
-			_log.Error() << "exec failed: " << io::SystemException::GetErrorMessage();
+			_log.Error() << "exec " << process.Path << " failed: " << io::SystemException::GetErrorMessage();
 		}
 		exit(1);
 		return 1;
 	}
 
+	std::string Manager::GetServiceRoot(const ServiceId & serviceId)
+	{
+		text::StringOutputStream os;
+		os << _root << "/" << serviceId << "/root";
+		return os.Get();
+	}
+
+	std::string Manager::GetSourcePath(const std::string &path)
+	{
+#ifdef PBUS_DEVEL_MODE
+		return "./" + path;
+#else
+		return "/" + path;
+#endif
+	}
+
 	std::string Manager::GetServicePath(const ServiceId & serviceId)
 	{
 		text::StringOutputStream os;
-		os << _root << "/" << serviceId << "/" << serviceId;
+		os << "/packages/" << serviceId << "/" << serviceId;
 		return os.Get();
 	}
 
@@ -117,9 +163,7 @@ namespace pbus { namespace system { namespace servicemanager
 	{
 		ServiceId serviceId(name, version);
 
-		Process process;
-		process.Self = this;
-		process.Path = GetServicePath(serviceId);
+		Process process(this, serviceId, GetServicePath(serviceId));
 		_log.Info() << "starting service " << serviceId << " from " << process.Path;
 
 		std::unique_ptr<void, decltype(std::free) *> stack(malloc(StackSize), &std::free);
