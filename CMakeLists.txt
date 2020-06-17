@@ -96,6 +96,7 @@ set(SVCMGR_BIN ${CMAKE_INSTALL_PREFIX}/packages/system.ServiceManager-1/system.S
 #sudo couldn't be found using find_program, https://gitlab.kitware.com/cmake/cmake/issues/10468
 message(STATUS "sudo ${SETCAP} cap_sys_admin,cap_sys_chroot+ep ${SVCMGR_BIN}")
 install(CODE "exec_program(sudo ARGS \"${SETCAP}\" \"cap_sys_admin,cap_sys_chroot+ep\" \"${SVCMGR_BIN}\")")
+install(DIRECTORY ${PROJECT_SOURCE_DIR}/deploy/root DESTINATION .)
 
 PBUS_BUILD_SERVICE(
 	NAME system.RandomGenerator
