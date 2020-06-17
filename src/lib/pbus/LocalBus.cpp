@@ -32,6 +32,7 @@ namespace pbus
 		auto cred = sock->GetPeerCredentials();
 		_log.Debug() << "credentials, pid: " << cred.pid << ", gid: " << cred.gid << ", uid: " << cred.uid;
 
+#	ifdef PBUS_DEVEL_MODE
 		//this is only dev mode hack
 		auto imagePath = io::File::ReadLink("/proc/" + std::to_string(cred.pid) + "/exe");
 		_log.Debug() << "image path: " << imagePath;
@@ -47,6 +48,10 @@ namespace pbus
 		auto serviceId = ServiceId::FromString(serviceIdString);
 		_log.Debug() << "parsed service id from /proc: " << serviceId;
 
+#	else
+		ServiceId serviceId;
+		throw Exception("implement uid -> service id mapping");
+#	endif
 		auto connection = std::make_shared<LocalBusConnection>(serviceId, std::move(*sock));
 		Session::Get().AddConnection(serviceId, connection);
 	}
