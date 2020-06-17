@@ -17,15 +17,26 @@ ldd_re = re.compile(r'\s*\S+\s*=>\s*(\S+)')
 
 deps = ['/lib64/ld-linux-x86-64.so.2']
 
-for m in ldd_re.finditer(lddout):
-	dep = m.group(1)
+def transform(dep):
 	if args.base is not None:
 		if dep.startswith(args.base):
 			dep = dep[len(args.base):]
 			if dep[0] != '/':
 				dep = '/' + dep
 			dep = "./lib" + dep
-	deps.append(dep)
+	return dep
+
+for m in ldd_re.finditer(lddout):
+	dep = m.group(1)
+	deps.append(transform(dep))
+
+	while os.path.islink(dep):
+		target = os.readlink(dep)
+		if '/' not in target:
+			target = os.path.join(os.path.dirname(dep), target)
+		deps.append(transform(target))
+		dep = target
+
 
 with open(args.config, "wt") as f:
 	f.write("\n".join(sorted(deps) + ['']))
