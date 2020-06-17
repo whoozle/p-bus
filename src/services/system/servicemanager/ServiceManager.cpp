@@ -88,7 +88,14 @@ namespace pbus { namespace system { namespace servicemanager
 	int Manager::RunProcessTrampoline(void * arg)
 	{
 		Process * p = static_cast<Process *>(arg);
-		return p->Self->RunProcess(*p);
+
+		try
+		{ return p->Self->RunProcess(*p); }
+		catch(const std::exception & ex)
+		{ _log.Error() << "run: " << ex.what(); }
+
+		exit(1);
+		return 1;
 	}
 
 	void Manager::Bind(const std::string src, const std::string dst)
