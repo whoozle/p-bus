@@ -15,7 +15,7 @@ lddout = check_output(["ldd", args.binary]).decode('utf-8')
 
 ldd_re = re.compile(r'\s*\S+\s*=>\s*(\S+)')
 
-deps = ['/lib64/ld-linux-x86-64.so.2']
+deps = ['/lib64/ld-linux-x86-64.so.2', '/etc/ld.so.cache']
 
 def transform(dep):
 	if args.base is not None:

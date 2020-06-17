@@ -126,7 +126,7 @@ namespace pbus { namespace system { namespace servicemanager
 	int Manager::RunProcess(const Process & process)
 	{
 		//https://github.com/servo/servo/wiki/Linux-sandboxing
-		setenv("LD_DEBUG", "all", 1);
+		//setenv("LD_DEBUG", "libs", 1);
 
 		auto serviceId = process.Id;
 		auto serviceRoot = GetServicePath(serviceId);
