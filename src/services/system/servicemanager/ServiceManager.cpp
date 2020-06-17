@@ -153,6 +153,10 @@ namespace pbus { namespace system { namespace servicemanager
 
 		Bind(_root, fsRoot + "/packages"); //fixme: add service dependencies
 
+#	ifdef PBUS_DEVEL_MODE
+		Bind("/proc", fsRoot + "/proc");
+#	endif
+
 		if (chroot(fsRoot.c_str()) != 0)
 			throw io::SystemException("chroot");
 		if (chdir("/") != 0)
