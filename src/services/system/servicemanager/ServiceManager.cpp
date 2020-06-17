@@ -4,6 +4,7 @@
 #include <toolkit/io/File.h>
 #include <toolkit/io/SystemException.h>
 #include <toolkit/text/Formatters.h>
+#include <toolkit/text/String.h>
 #include <atomic>
 #include <memory>
 #include <thread>
@@ -67,7 +68,7 @@ namespace pbus { namespace system { namespace servicemanager
 		}
 
 		_root = currentExe.substr(0, slashPos2);
-		_log.Debug() << "root = " << _root;
+		_log.Debug() << "root: " << _root;
 		// _session = setsid();
 		// if (_session == -1)
 		// 	_log.Warning() << "setsid failed: " << io::SystemException::GetErrorMessage();
@@ -92,7 +93,25 @@ namespace pbus { namespace system { namespace servicemanager
 
 	void Manager::Bind(const std::string src, const std::string dst)
 	{
-		_log.Info() << "bind " << src << " " << dst;
+		auto srcStatus = io::File::GetStatus(src);
+		bool isDir = S_ISDIR(srcStatus.st_mode);
+		_log.Info() << "bind " << src << " " << dst << ", dir: " << isDir;
+		auto slashPos = dst.rfind("/");
+		if (slashPos == dst.npos)
+			throw Exception("no slash in dst path");
+
+		std::string dirPath;
+		text::Split<std::string>(dst.substr(0, slashPos), "/", [&](std::string && dir) {
+			dirPath += dir + "/";
+			if (!io::File::Access(dirPath)) {
+				io::File::MakeDirectory(dirPath);
+			}
+		});
+
+		if (isDir)
+			io::File::MakeDirectory(dst);
+		else
+			io::File(dst, io::FileOpenMode::Overwrite);
 		if (mount(src.c_str(), dst.c_str(), "bind", MS_BIND|MS_RDONLY|MS_REC, NULL) != 0)
 			throw io::SystemException("mount " + src + " " + dst);
 	}
@@ -100,40 +119,37 @@ namespace pbus { namespace system { namespace servicemanager
 	int Manager::RunProcess(const Process & process)
 	{
 		//https://github.com/servo/servo/wiki/Linux-sandboxing
-		auto root = _root + "/../root";
-		Config config(root + "/" + process.Id.ToString() + ".conf");
+		auto serviceId = process.Id;
+		auto serviceRoot = GetServicePath(serviceId);
+		auto fsRoot = _root + "/../root";
+		_log.Info() << "service root: " << serviceRoot;
+		Config config(serviceRoot + "/" + serviceId.ToString() + ".conf");
 
-		_log.Info() << "root = " << root;
 		if (mount(NULL, "/", NULL, MS_PRIVATE|MS_REC, NULL) != 0)
 			throw io::SystemException("mount / [private]");
-		if (mount("tmpfs", root.c_str(), "tmpfs", 0, "size=1m") != 0)
+		if (mount("tmpfs", fsRoot.c_str(), "tmpfs", 0, "size=1m") != 0)
 			throw io::SystemException("mount tmpfs");
 
-		auto libDir = root + "/lib";
-		auto packagesDir = root + "/packages";
+		for (auto dep : config.Dependencies)
+		{
+			if (dep.empty())
+				continue;
 
-		if (mkdir(libDir.c_str(), 0700) != 0)
-			throw io::SystemException("mkdir " + libDir);
-
-		if (mkdir(packagesDir.c_str(), 0700) != 0)
-			throw io::SystemException("mkdir " + libDir);
-
-		Bind(GetSourcePath("lib"), libDir);
-
-		for (auto dep : config.Dependencies) {
 			_log.Info() << "binding dependency " << dep;
-			// auto serviceDir = packagesDir + "/" + dep.ToString;
-			// if (mkdir(serviceDir.c_str(), 0700) != 0)
-			// 	throw io::SystemException("mkdir " + serviceDir);
-			// Bind(GetSourcePath("packages/" + dep.ToString()), serviceDir);
+			if (!dep.empty() && dep[0] == '/')
+				Bind(dep, fsRoot + dep);
+			else
+				Bind(fsRoot + "/../" + dep, fsRoot + "/" + dep);
 		}
 
-		if (chroot(root.c_str()) != 0)
+		Bind(_root, fsRoot + "/packages"); //fixme: add service dependencies
+
+		if (chroot(fsRoot.c_str()) != 0)
 			throw io::SystemException("chroot");
 		if (chdir("/") != 0)
 			throw io::SystemException("chdir /");
 
-		std::string list = "/lib"; //"/packages/system.RandomGenerator-1";
+		std::string list = "/"; //"/packages/system.RandomGenerator-1";
 		io::DirectoryReader reader(list);
 		io::DirectoryReader::Entry entry;
 		while (reader.Read(entry))
@@ -142,7 +158,7 @@ namespace pbus { namespace system { namespace servicemanager
 			_log.Info() << ">>" << entry.Name << " mode: " << text::Hex(s.st_mode) << " " << s.st_size;
 		}
 
-		auto binary = GetServicePath(process.Id);
+		auto binary = GetServicePath(process.Id) + "/" + process.Id.ToString();
 		if (execl(binary.c_str(), binary.c_str(), "--notify-parent", NULL) == -1) {
 			_log.Error() << "exec " << binary << " failed: " << io::SystemException::GetErrorMessage();
 		}
@@ -150,19 +166,10 @@ namespace pbus { namespace system { namespace servicemanager
 		return 1;
 	}
 
-	std::string Manager::GetSourcePath(const std::string &path)
-	{
-#ifdef PBUS_DEVEL_MODE
-		return "./" + path;
-#else
-		return "/" + path;
-#endif
-	}
-
 	std::string Manager::GetServicePath(const ServiceId & serviceId)
 	{
 		text::StringOutputStream os;
-		os << "/packages/" << serviceId << "/" << serviceId;
+		os << _root << "/" << serviceId;
 		return os.Get();
 	}
 

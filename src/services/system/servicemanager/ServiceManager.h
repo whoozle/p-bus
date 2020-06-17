@@ -32,7 +32,6 @@ namespace pbus { namespace system { namespace servicemanager
 		SocketEvent		_event;
 
 		std::string GetServicePath(const ServiceId & serviceId);
-		std::string GetSourcePath(const std::string &path);
 		void Bind(const std::string src, const std::string dst);
 
 		static int RunProcessTrampoline(void * arg);
