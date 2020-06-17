@@ -12,6 +12,7 @@
 
 namespace pbus { namespace system { namespace servicemanager
 {
+	struct Process;
 	class Manager : public idl::system::IServiceManager
 	{
 		static log::Logger _log;
@@ -30,24 +31,9 @@ namespace pbus { namespace system { namespace servicemanager
 		};
 		SocketEvent		_event;
 
-		std::string GetServiceRoot(const ServiceId & serviceId);
 		std::string GetServicePath(const ServiceId & serviceId);
 		std::string GetSourcePath(const std::string &path);
 		void Bind(const std::string src, const std::string dst);
-
-		struct Process
-		{
-			Manager * 		Self;
-			ServiceId		Id;
-			std::list<ServiceId> Dependencies;
-			std::string 	Path;
-
-			Process(Manager * self, ServiceId id, std::string path): Self(self), Id(id), Path(path)
-			{
-				Dependencies.push_back(id);
-				Dependencies.push_back(ServiceId("system.ServiceManager")); //fixme: pass deps from registry
-			}
-		};
 
 		static int RunProcessTrampoline(void * arg);
 		int RunProcess(const Process & process);

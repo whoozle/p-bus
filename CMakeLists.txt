@@ -91,6 +91,7 @@ PBUS_BUILD_SERVICE(
 	src/services/system/servicemanager/Service.cpp
 	src/services/system/servicemanager/ServiceManager.cpp
 	src/services/system/servicemanager/ServiceRegistry.cpp
+	src/services/system/servicemanager/ServiceConfig.cpp
 )
 
 set(SVCMGR_BIN ${CMAKE_INSTALL_PREFIX}/packages/system.ServiceManager-1/system.ServiceManager-1) #fixme: get filename/path from cmake

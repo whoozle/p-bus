@@ -1,7 +1,9 @@
 #include <system/servicemanager/ServiceManager.h>
+#include <system/servicemanager/ServiceConfig.h>
 #include <toolkit/io/DirectoryReader.h>
 #include <toolkit/io/File.h>
 #include <toolkit/io/SystemException.h>
+#include <toolkit/text/Formatters.h>
 #include <atomic>
 #include <memory>
 #include <thread>
@@ -12,6 +14,12 @@
 
 namespace pbus { namespace system { namespace servicemanager
 {
+	struct Process
+	{
+		Manager * 			Self;
+		ServiceId			Id;
+	};
+
 	namespace
 	{
 		enum struct EventType
@@ -92,7 +100,9 @@ namespace pbus { namespace system { namespace servicemanager
 	int Manager::RunProcess(const Process & process)
 	{
 		//https://github.com/servo/servo/wiki/Linux-sandboxing
-		auto root = GetServiceRoot(process.Id);
+		auto root = _root + "/../root";
+		Config config(root + "/" + process.Id.ToString() + ".conf");
+
 		_log.Info() << "root = " << root;
 		if (mount(NULL, "/", NULL, MS_PRIVATE|MS_REC, NULL) != 0)
 			throw io::SystemException("mount / [private]");
@@ -110,11 +120,12 @@ namespace pbus { namespace system { namespace servicemanager
 
 		Bind(GetSourcePath("lib"), libDir);
 
-		for (auto dep : process.Dependencies) {
-			auto serviceDir = packagesDir + "/" + dep.ToString();
-			if (mkdir(serviceDir.c_str(), 0700) != 0)
-				throw io::SystemException("mkdir " + serviceDir);
-			Bind(GetSourcePath("packages/" + dep.ToString()), serviceDir);
+		for (auto dep : config.Dependencies) {
+			_log.Info() << "binding dependency " << dep;
+			// auto serviceDir = packagesDir + "/" + dep.ToString;
+			// if (mkdir(serviceDir.c_str(), 0700) != 0)
+			// 	throw io::SystemException("mkdir " + serviceDir);
+			// Bind(GetSourcePath("packages/" + dep.ToString()), serviceDir);
 		}
 
 		if (chroot(root.c_str()) != 0)
@@ -122,25 +133,21 @@ namespace pbus { namespace system { namespace servicemanager
 		if (chdir("/") != 0)
 			throw io::SystemException("chdir /");
 
-		io::DirectoryReader reader("/packages/system.RandomGenerator-1");
+		std::string list = "/lib"; //"/packages/system.RandomGenerator-1";
+		io::DirectoryReader reader(list);
 		io::DirectoryReader::Entry entry;
 		while (reader.Read(entry))
 		{
-			_log.Info() << ">>" << entry.Name;
+			auto s = io::File::GetStatus(list + "/" + entry.Name);
+			_log.Info() << ">>" << entry.Name << " mode: " << text::Hex(s.st_mode) << " " << s.st_size;
 		}
 
-		if (execl(process.Path.c_str(), process.Path.c_str(), "--notify-parent", NULL) == -1) {
-			_log.Error() << "exec " << process.Path << " failed: " << io::SystemException::GetErrorMessage();
+		auto binary = GetServicePath(process.Id);
+		if (execl(binary.c_str(), binary.c_str(), "--notify-parent", NULL) == -1) {
+			_log.Error() << "exec " << binary << " failed: " << io::SystemException::GetErrorMessage();
 		}
 		exit(1);
 		return 1;
-	}
-
-	std::string Manager::GetServiceRoot(const ServiceId & serviceId)
-	{
-		text::StringOutputStream os;
-		os << _root << "/" << serviceId << "/root";
-		return os.Get();
 	}
 
 	std::string Manager::GetSourcePath(const std::string &path)
@@ -163,8 +170,7 @@ namespace pbus { namespace system { namespace servicemanager
 	{
 		ServiceId serviceId(name, version);
 
-		Process process(this, serviceId, GetServicePath(serviceId));
-		_log.Info() << "starting service " << serviceId << " from " << process.Path;
+		_log.Info() << "starting service " << serviceId;
 
 		std::unique_ptr<void, decltype(std::free) *> stack(malloc(StackSize), &std::free);
 		if (!stack)
@@ -174,6 +180,7 @@ namespace pbus { namespace system { namespace servicemanager
 		/*add NS flags here*/
 		flags |= CLONE_NEWNET | CLONE_NEWNS;
 
+		Process process { this, serviceId };
 		auto pid = clone(&RunProcessTrampoline, static_cast<u8 *>(stack.get()) + StackSize, flags, &process);
 		stack.reset();
 
