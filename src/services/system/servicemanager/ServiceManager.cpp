@@ -119,6 +119,8 @@ namespace pbus { namespace system { namespace servicemanager
 	int Manager::RunProcess(const Process & process)
 	{
 		//https://github.com/servo/servo/wiki/Linux-sandboxing
+		setenv("LD_DEBUG", "all", 1);
+
 		auto serviceId = process.Id;
 		auto serviceRoot = GetServicePath(serviceId);
 		auto fsRoot = _root + "/../root";
@@ -149,16 +151,16 @@ namespace pbus { namespace system { namespace servicemanager
 		if (chdir("/") != 0)
 			throw io::SystemException("chdir /");
 
-		std::string list = "/"; //"/packages/system.RandomGenerator-1";
-		io::DirectoryReader reader(list);
-		io::DirectoryReader::Entry entry;
-		while (reader.Read(entry))
-		{
-			auto s = io::File::GetStatus(list + "/" + entry.Name);
-			_log.Info() << ">>" << entry.Name << " mode: " << text::Hex(s.st_mode) << " " << s.st_size;
-		}
+		// std::string list = "/packages/system.RandomGenerator-1";
+		// io::DirectoryReader reader(list);
+		// io::DirectoryReader::Entry entry;
+		// while (reader.Read(entry))
+		// {
+		// 	auto s = io::File::GetStatus(list + "/" + entry.Name);
+		// 	_log.Info() << ">>" << entry.Name << " mode: " << text::Hex(s.st_mode) << " " << s.st_size;
+		// }
 
-		auto binary = GetServicePath(process.Id) + "/" + process.Id.ToString();
+		auto binary = "/packages/" + process.Id.ToString() + "/" + process.Id.ToString();
 		if (execl(binary.c_str(), binary.c_str(), "--notify-parent", NULL) == -1) {
 			_log.Error() << "exec " << binary << " failed: " << io::SystemException::GetErrorMessage();
 		}
