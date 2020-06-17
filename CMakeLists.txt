@@ -13,7 +13,7 @@ add_definitions(-D_GNU_SOURCE) #required for GNU extensions such as clone
 set(CMAKE_REQUIRED_DEFINITIONS -D_GNU_SOURCE)
 
 if (PBUS_DEVEL_MODE)
-	set(CMAKE_INSTALL_RPATH "../../lib;./lib")
+	set(CMAKE_INSTALL_RPATH "../../lib;./lib;/lib")
 	add_definitions(-DPBUS_DEVEL_MODE=1)
 endif()
 
