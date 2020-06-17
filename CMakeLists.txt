@@ -42,6 +42,7 @@ include(PbusBuildService)
 set(IDL_SRC ${CMAKE_CURRENT_SOURCE_DIR}/src/idl)
 set(IDL_DST ${CMAKE_CURRENT_BINARY_DIR}/generated/pbus/idl)
 set(IDLC_PATH ${CMAKE_CURRENT_SOURCE_DIR}/tools/idl)
+set(SCAN_DEPS ${CMAKE_CURRENT_SOURCE_DIR}/tools/scan-deps)
 file(MAKE_DIRECTORY ${IDL_DST})
 
 set(IDL_FILES

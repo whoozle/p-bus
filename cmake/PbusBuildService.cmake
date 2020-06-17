@@ -34,10 +34,20 @@ function(PBUS_BUILD_SERVICE)
 	target_link_libraries(${_TARGET} pbus)
 	target_include_directories(${_TARGET} PRIVATE src/services ${_GEN_ROOT})
 	install(TARGETS ${_TARGET} DESTINATION packages/${_TARGET})
-	install(DIRECTORY ${PROJECT_SOURCE_DIR}/deploy/root DESTINATION packages/${_TARGET})
 	if (_PBS_DEPENDS)
 		foreach(_DEP ${_PBS_DEPENDS})
 			target_link_libraries(${_TARGET} idl.${_DEP})
 		endforeach()
 	endif()
+
+	set(_PBS_CONFIG "${CMAKE_CURRENT_BINARY_DIR}/generated/config/${_TARGET}.conf")
+	add_custom_command(
+		TARGET ${_TARGET}
+		BYPRODUCTS ${_PBS_CONFIG}
+		POST_BUILD
+		COMMAND ${SCAN_DEPS} "${_TARGET}" "${_PBS_CONFIG}" --base="${CMAKE_CURRENT_BINARY_DIR}"
+		COMMENT "generating config for service ${_TARGET}..."
+		DEPENDS ${SCAN_DEPS} ${_TARGET}
+	)
+	install(FILES ${_PBS_CONFIG} DESTINATION packages/${_TARGET})
 endfunction(PBUS_BUILD_SERVICE)

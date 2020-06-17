@@ -1,0 +1,31 @@
+#!/usr/bin/env python3
+
+from argparse import ArgumentParser
+from subprocess import check_output
+import re
+import os.path
+
+parser = ArgumentParser(description = "Generate service config")
+parser.add_argument('binary', help="path to binary")
+parser.add_argument('config', help="path to generated config")
+parser.add_argument('--base', help="path to build directory")
+args = parser.parse_args()
+
+lddout = check_output(["ldd", args.binary]).decode('utf-8')
+
+ldd_re = re.compile(r'\s*\S+\s*=>\s*(\S+)')
+
+deps = []
+for m in ldd_re.finditer(lddout):
+	dep = m.group(1)
+	if args.base is not None:
+		if dep.startswith(args.base):
+			dep = dep[len(args.base):]
+			if dep[0] != '/':
+				dep = '/' + dep
+			dep = "./lib" + dep
+	deps.append(dep)
+
+with open(args.config, "wt") as f:
+	f.write("\n".join(sorted(deps) + ['']))
+
